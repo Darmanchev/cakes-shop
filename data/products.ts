@@ -1,0 +1,114 @@
+export type Category = 'cakes' | 'cinnabons' | 'combos';
+
+export interface Product {
+  id: string;
+  name: string;
+  category: Category;
+  price: number;
+  description: string;
+  image: string;
+  weight?: string;
+  filling?: string;
+  prepTime: string;
+}
+
+// Для MVP товары можно хранить прямо в коде.
+// Позже этот массив легко заменить на данные из Supabase, CMS или админки.
+export const products: Product[] = [
+  {
+    id: 'cake-1',
+    name: 'Ягодный минимализм',
+    category: 'cakes',
+    price: 4500,
+    description: 'Нежный ванильный бисквит со свежими ягодами и легким крем-чизом. Идеально для праздника.',
+    image: 'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?w=800&q=80',
+    weight: '1.5 кг (6-8 порций)',
+    filling: 'Клубника-малина, сливочный крем-чиз',
+    prepTime: '2-3 дня',
+  },
+  {
+    id: 'cake-2',
+    name: 'Шоколадный трюфель',
+    category: 'cakes',
+    price: 5200,
+    description: 'Насыщенный шоколадный торт с влажным бисквитом и ганашем на темном шоколаде.',
+    image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80',
+    weight: '2 кг (10-12 порций)',
+    filling: 'Шоколадный ганаш, хрустящий слой с пралине',
+    prepTime: '2-3 дня',
+  },
+  {
+    id: 'cake-3',
+    name: 'Медовик Классический',
+    category: 'cakes',
+    price: 4000,
+    description: 'Традиционный медовый торт с заварным сметанным кремом. Тает во рту.',
+    image: 'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?w=800&q=80',
+    weight: '1.8 кг (8-10 порций)',
+    filling: 'Медовые коржи, сметанно-заварной крем',
+    prepTime: '2 дня',
+  },
+  {
+    id: 'cin-1',
+    name: 'Классический Синнабон',
+    category: 'cinnabons',
+    price: 350,
+    description: 'Горячая сдобная булочка с корицей макара и фирменной сливочной глазурью.',
+    image: 'https://images.unsplash.com/photo-1509365465985-25d11c17e812?w=800&q=80',
+    weight: '250 г',
+    filling: 'Корица, тростниковый сахар',
+    prepTime: 'В наличии (или 1 день)',
+  },
+  {
+    id: 'cin-2',
+    name: 'Шокобон с пеканом',
+    category: 'cinnabons',
+    price: 420,
+    description: 'Булочка с шоколадной начинкой, залитая карамелью и украшенная орехом пекан.',
+    image: 'https://images.unsplash.com/photo-1616801646274-124b11f0cbab?w=800&q=80',
+    weight: '280 г',
+    filling: 'Шоколад, карамель, пекан',
+    prepTime: 'В наличии (или 1 день)',
+  },
+  {
+    id: 'cin-3',
+    name: 'Синнабон Ягодный',
+    category: 'cinnabons',
+    price: 380,
+    description: 'Сдобная булочка с домашним малиновым конфитюром и шапкой из крем-чиза.',
+    image: 'https://images.unsplash.com/photo-1616801646274-124b11f0cbab?w=800&q=80',
+    weight: '260 г',
+    filling: 'Малина, сливочный сыр',
+    prepTime: 'В наличии (или 1 день)',
+  },
+  {
+    id: 'combo-1',
+    name: 'Сет «Уютный вечер»',
+    category: 'combos',
+    price: 1800,
+    description: 'Коробочка из 6 свежих синнабонов (3 классических, 3 шоколадных). Идеально для компании.',
+    image: 'https://images.unsplash.com/photo-1603532648955-039310d9ed75?w=800&q=80',
+    weight: '1.5 кг',
+    prepTime: '1 день',
+  },
+  {
+    id: 'combo-2',
+    name: 'Сет «Праздничный»',
+    category: 'combos',
+    price: 3200,
+    description: 'Ассорти из 9 мини-синнабонов разных вкусов. Отличный вариант для большого стола.',
+    image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=800&q=80',
+    weight: '1.8 кг',
+    prepTime: '1 день',
+  },
+  {
+    id: 'combo-3',
+    name: 'Сет «Для двоих»',
+    category: 'combos',
+    price: 900,
+    description: '2 синнабона на выбор и 2 порции фильтр-кофе или авторского чая.',
+    image: 'https://images.unsplash.com/photo-1495474472205-51e7d9b932dc?w=800&q=80',
+    weight: '800 г',
+    prepTime: 'В наличии',
+  }
+];

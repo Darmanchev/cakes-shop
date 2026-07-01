@@ -1,0 +1,58 @@
+import Image from 'next/image';
+import { Clock, ShoppingBag } from 'lucide-react';
+import type { Category, Product } from '@/data/products';
+
+const categoryLabels: Record<Category, string> = {
+  cakes: 'Торт',
+  cinnabons: 'Синнабон',
+  combos: 'Набор',
+};
+
+function formatPrice(price: number) {
+  return new Intl.NumberFormat('ru-RU').format(price);
+}
+
+export function ProductCard({ product }: { product: Product }) {
+  return (
+    <article className="flex h-full flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
+      <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
+        {/* next/image оптимизирует картинки и помогает избежать скачков верстки при загрузке. */}
+        <Image
+          src={product.image}
+          alt={product.name}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover"
+        />
+      </div>
+
+      <div className="flex flex-grow flex-col space-y-4 p-5">
+        <div>
+          <p className="text-sm text-rose-700">{categoryLabels[product.category]}</p>
+          <h3 className="mt-1 text-xl font-semibold text-stone-950">{product.name}</h3>
+          <p className="mt-2 text-sm leading-6 text-stone-600">{product.description}</p>
+        </div>
+
+        <div className="grid gap-2 text-sm text-stone-700">
+          {product.weight ? <p>{product.weight}</p> : null}
+          {product.filling ? <p>{product.filling}</p> : null}
+          <p className="flex items-center gap-2">
+            <Clock size={16} aria-hidden="true" />
+            {product.prepTime}
+          </p>
+        </div>
+
+        <div className="mt-auto flex items-center justify-between gap-4 border-t border-stone-100 pt-4">
+          <p className="text-lg font-semibold text-stone-950">от {formatPrice(product.price)} ₽</p>
+          <a
+            href="#order"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-rose-700 px-4 text-sm font-medium text-white transition hover:bg-rose-800"
+          >
+            <ShoppingBag size={17} aria-hidden="true" />
+            Заказать
+          </a>
+        </div>
+      </div>
+    </article>
+  );
+}
