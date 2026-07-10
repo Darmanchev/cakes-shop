@@ -9,25 +9,24 @@ export function OrderForm({ products }: { products: Product[] }) {
   const [status, setStatus] = useState<OrderFormStatus>('idle');
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setStatus('sending');
+      event.preventDefault();
+      setStatus('sending');
 
-    // FormData удобно забирает значения из полей по их name.
-    // Так форма остается обычной HTML-формой, но мы отправляем ее через fetch без перезагрузки страницы.
-    const formData = new FormData(event.currentTarget);
-    const payload = Object.fromEntries(formData.entries());
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
 
-    const response = await fetch('/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+      const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+      });
 
-    setStatus(response.ok ? 'success' : 'error');
+      setStatus(response.ok ? 'success' : 'error');
 
-    if (response.ok) {
-      event.currentTarget.reset();
-    }
+      if (response.ok) {
+          form.reset();
+      }
   }
 
   return (
