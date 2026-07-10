@@ -1,11 +1,12 @@
 import type { Order, Product } from '@prisma/client'
+import { translations } from '@/lib/i18n';
 
 type OrderWithProduct = Order & {
     product: Product;
 };
 
 function formatOrderDate(date: Date) {
-    return new Intl.DateTimeFormat('ru-RU', {
+    return new Intl.DateTimeFormat('bg-BG', {
         dateStyle: 'medium',
     }).format(date);
 }
@@ -19,15 +20,16 @@ function escapeHtml(value: string) {
 
 export function formatOrderTelegramMessage(order: OrderWithProduct) {
     const comment = order.comment ? escapeHtml(order.comment) : '-';
+    const productName = translations.bg.products[order.product.id]?.name ?? order.product.name;
 
     return [
-        '<b>New order</b>',
+        '<b>Нова поръчка</b>',
         '',
-        `<b>Client:</b> ${escapeHtml(order.name)}`,
+        `<b>Клиент:</b> ${escapeHtml(order.name)}`,
         `<b>Телефон:</b> ${escapeHtml(order.phone)}`,
-        `<b>Товар:</b> ${escapeHtml(order.product.name)}`,
+        `<b>Продукт:</b> ${escapeHtml(productName)}`,
         `<b>Дата:</b> ${formatOrderDate(order.date)}`,
-        `<b>Комментарий:</b> ${comment}`,
+        `<b>Коментар:</b> ${comment}`,
     ].join('\n');
 }
 

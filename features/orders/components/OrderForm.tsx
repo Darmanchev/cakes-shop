@@ -2,11 +2,13 @@
 
 import { FormEvent, useState } from 'react';
 import { Send } from 'lucide-react';
+import { useLanguage } from '@/components/language/LanguageProvider';
 import type { Product } from '@/features/products/product.types';
 import type { OrderFormStatus } from '../order.types';
 
 export function OrderForm({ products }: { products: Product[] }) {
   const [status, setStatus] = useState<OrderFormStatus>('idle');
+  const { t } = useLanguage();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
       event.preventDefault();
@@ -33,14 +35,14 @@ export function OrderForm({ products }: { products: Product[] }) {
     <form onSubmit={handleSubmit} className="grid gap-4 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
       <div className="grid gap-2">
         <label htmlFor="name" className="text-sm font-medium text-stone-800">
-          Имя
+          {t.form.name}
         </label>
         <input id="name" name="name" required className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700" />
       </div>
 
       <div className="grid gap-2">
         <label htmlFor="phone" className="text-sm font-medium text-stone-800">
-          Телефон
+          {t.form.phone}
         </label>
         <input
             id="phone"
@@ -53,13 +55,13 @@ export function OrderForm({ products }: { products: Product[] }) {
 
       <div className="grid gap-2">
         <label htmlFor="productId" className="text-sm font-medium text-stone-800">
-          Что хотите заказать
+          {t.form.product}
         </label>
         <select id="productId" name="productId" required className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700">
-          <option value="">Выберите товар</option>
+          <option value="">{t.form.productPlaceholder}</option>
           {products.map((product) => (
             <option key={product.id} value={product.id}>
-              {product.name}
+              {t.products[product.id]?.name ?? product.name}
             </option>
           ))}
         </select>
@@ -67,14 +69,14 @@ export function OrderForm({ products }: { products: Product[] }) {
 
       <div className="grid gap-2">
         <label htmlFor="date" className="text-sm font-medium text-stone-800">
-          Дата, к которой нужен заказ
+          {t.form.date}
         </label>
         <input id="date" name="date" type="date" required className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700" />
       </div>
 
       <div className="grid gap-2">
         <label htmlFor="comment" className="text-sm font-medium text-stone-800">
-          Комментарий
+          {t.form.comment}
         </label>
         <textarea
           id="comment"
@@ -90,11 +92,11 @@ export function OrderForm({ products }: { products: Product[] }) {
         className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-stone-950 px-5 text-sm font-medium text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Send size={17} aria-hidden="true" />
-        {status === 'sending' ? 'Отправляем...' : 'Отправить заявку'}
+        {status === 'sending' ? t.form.sending : t.form.submit}
       </button>
 
-      {status === 'success' ? <p className="text-sm text-emerald-700">Заявка отправлена. Следующий шаг: подключить Telegram.</p> : null}
-      {status === 'error' ? <p className="text-sm text-red-700">Не получилось отправить заявку. Проверьте сервер и попробуйте еще раз.</p> : null}
+      {status === 'success' ? <p className="text-sm text-emerald-700">{t.form.success}</p> : null}
+      {status === 'error' ? <p className="text-sm text-red-700">{t.form.error}</p> : null}
     </form>
   );
 }

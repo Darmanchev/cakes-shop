@@ -2,14 +2,14 @@ import { parsePhoneNumberFromString} from 'libphonenumber-js';
 import { z } from 'zod';
 
 export const createOrderSchema = z.object({
-  name: z.string().trim().min(2, 'Введите имя'),
+  name: z.string().trim().min(2, 'Въведете име'),
   phone: z.string().trim().refine((value) => {
     const phone = parsePhoneNumberFromString(value, 'BG');
 
     return phone?.isValid() ?? false;
-  }, 'Введите корректный номер телефона'),
-  productId: z.string().trim().min(1, 'Выберите товар'),
-  date: z.string().trim().min(1, 'Выберите дату'),
+  }, 'Въведете коректен телефонен номер'),
+  productId: z.string().trim().min(1, 'Изберете продукт'),
+  date: z.string().trim().min(1, 'Изберете дата'),
   comment: z.string().trim().optional(),
   });
 
