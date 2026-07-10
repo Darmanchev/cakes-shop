@@ -2,12 +2,11 @@
 
 import { FormEvent, useState } from 'react';
 import { Send } from 'lucide-react';
-import type { Product } from '@/data/products';
-
-type FormStatus = 'idle' | 'sending' | 'success' | 'error';
+import type { Product } from '@/features/products/product.types';
+import type { OrderFormStatus } from '../order.types';
 
 export function OrderForm({ products }: { products: Product[] }) {
-  const [status, setStatus] = useState<FormStatus>('idle');
+  const [status, setStatus] = useState<OrderFormStatus>('idle');
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,10 +40,16 @@ export function OrderForm({ products }: { products: Product[] }) {
       </div>
 
       <div className="grid gap-2">
-        <label htmlFor="contact" className="text-sm font-medium text-stone-800">
-          Телефон или Telegram
+        <label htmlFor="phone" className="text-sm font-medium text-stone-800">
+          Телефон
         </label>
-        <input id="contact" name="contact" required className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700" />
+        <input
+            id="phone"
+            name="phone"
+            type="tel"
+            required
+            placeholder="+359..."
+            className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700" />
       </div>
 
       <div className="grid gap-2">

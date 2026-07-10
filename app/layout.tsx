@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
+import { SITE_DESCRIPTION, SITE_NAME } from '@/lib/constants';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Stas Cakes | Торты и синнабоны',
-  description: 'MVP сайта для заказа домашних тортов, синнабонов и наборов.',
+  title: `${SITE_NAME} | Торты и синнабоны`,
+  description: SITE_DESCRIPTION,
 };
 
 export default function RootLayout({

@@ -1,16 +1,4 @@
-export type Category = 'cakes' | 'cinnabons' | 'combos';
-
-export interface Product {
-  id: string;
-  name: string;
-  category: Category;
-  price: number;
-  description: string;
-  image: string;
-  weight?: string;
-  filling?: string;
-  prepTime: string;
-}
+import type { Product } from './product.types';
 
 // Для MVP товары можно хранить прямо в коде.
 // Позже этот массив легко заменить на данные из Supabase, CMS или админки.

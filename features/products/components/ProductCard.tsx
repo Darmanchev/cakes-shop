@@ -1,16 +1,13 @@
 import Image from 'next/image';
 import { Clock, ShoppingBag } from 'lucide-react';
-import type { Category, Product } from '@/data/products';
+import { formatPrice } from '@/lib/utils/format-price';
+import type { Category, Product } from '../product.types';
 
 const categoryLabels: Record<Category, string> = {
   cakes: 'Торт',
   cinnabons: 'Синнабон',
   combos: 'Набор',
 };
-
-function formatPrice(price: number) {
-  return new Intl.NumberFormat('ru-RU').format(price);
-}
 
 export function ProductCard({ product }: { product: Product }) {
   return (
