@@ -37,7 +37,10 @@ model Product {
 model Order {
   id        String      @id @default(cuid())
   name      String
-  phone   String
+  phone     String
+  email     String      @default("")
+  quantity  Int         @default(1)
+  deliveryAddress String @default("")
   productId String
   product   Product     @relation(fields: [productId], references: [id])
   date      DateTime

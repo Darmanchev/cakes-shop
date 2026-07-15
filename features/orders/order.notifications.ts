@@ -27,8 +27,11 @@ export function formatOrderTelegramMessage(order: OrderWithProduct) {
         '',
         `<b>Клиент:</b> ${escapeHtml(order.name)}`,
         `<b>Телефон:</b> ${escapeHtml(order.phone)}`,
+        `<b>Email:</b> ${escapeHtml(order.email)}`,
         `<b>Продукт:</b> ${escapeHtml(productName)}`,
+        `<b>Брой:</b> ${order.quantity}`,
         `<b>Дата:</b> ${formatOrderDate(order.date)}`,
+        `<b>Адрес за доставка:</b> ${escapeHtml(order.deliveryAddress)}`,
         `<b>Коментар:</b> ${comment}`,
     ].join('\n');
 }

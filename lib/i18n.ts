@@ -64,9 +64,12 @@ interface AppTranslations {
   form: {
     name: string;
     phone: string;
+    email: string;
     product: string;
     productPlaceholder: string;
+    quantity: string;
     date: string;
+    deliveryAddress: string;
     comment: string;
     sending: string;
     submit: string;
@@ -127,9 +130,12 @@ export const translations: Record<Language, AppTranslations> = {
     form: {
       name: 'Име',
       phone: 'Телефон',
+      email: 'Имейл',
       product: 'Какво искате да поръчате',
       productPlaceholder: 'Изберете продукт',
+      quantity: 'Количество',
       date: 'Дата, за която е нужна поръчката',
+      deliveryAddress: 'Адрес за доставка',
       comment: 'Коментар',
       sending: 'Изпращане...',
       submit: 'Изпрати запитване',
@@ -249,9 +255,12 @@ export const translations: Record<Language, AppTranslations> = {
     form: {
       name: 'Name',
       phone: 'Phone',
+      email: 'Email',
       product: 'What would you like to order',
       productPlaceholder: 'Choose a product',
+      quantity: 'Quantity',
       date: 'Date needed',
+      deliveryAddress: 'Delivery address',
       comment: 'Comment',
       sending: 'Sending...',
       submit: 'Send request',
@@ -371,9 +380,12 @@ export const translations: Record<Language, AppTranslations> = {
     form: {
       name: 'Имя',
       phone: 'Телефон',
+      email: 'Email',
       product: 'Что хотите заказать',
       productPlaceholder: 'Выберите товар',
+      quantity: 'Количество',
       date: 'Дата, к которой нужен заказ',
+      deliveryAddress: 'Адрес доставки',
       comment: 'Комментарий',
       sending: 'Отправляем...',
       submit: 'Отправить заявку',
