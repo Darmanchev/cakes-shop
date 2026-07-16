@@ -1,5 +1,5 @@
-import type { Order, Product } from '@prisma/client'
-import { translations } from '@/lib/i18n';
+import type {Order, Product} from '@prisma/client';
+import {translations} from '@/lib/i18n';
 
 type OrderWithProduct = Order & {
     product: Product;
@@ -15,7 +15,7 @@ function escapeHtml(value: string) {
     return value
         .replaceAll('&', '&amp;')
         .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
+        .replaceAll('>', '&gt;');
 }
 
 export function formatOrderTelegramMessage(order: OrderWithProduct) {

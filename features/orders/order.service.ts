@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { formatOrderTelegramMessage, sendTelegramMessage } from './order.notifications';
 import type { CreateOrderInput } from './order.schema';
-
+import type { OrderStatus } from '@prisma/client';
 
 export async function createOrder(order: CreateOrderInput) {
   const createdOrder = await prisma.order.create({
@@ -38,4 +38,11 @@ export async function getOrders() {
       createdAt: 'desc',
     },
   });
+}
+
+export async function updateOrderStatus(orderId: string, status: OrderStatus) {
+    return prisma.order.update({
+        where: { id: orderId },
+        data: { status }
+    });
 }
