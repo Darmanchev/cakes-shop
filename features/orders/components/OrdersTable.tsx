@@ -27,10 +27,10 @@ export function OrdersTable({orders}: { orders: Orders }) {
     }
 
     return (
-        <div className="overflow-hidden rounded-lg border border-stone-200 bg-white">
-            <div className="overflow-x-auto">
-                <table className="min-w-full border-collapse text-left text-sm">
-                    <thead className="bg-stone-100 text-stone-700">
+        <div className="rounded-lg border border-stone-200 bg-white">
+            <div className="max-h-[calc(100vh-180px)] overflow-auto">
+                <table className="min-w-[1600px] border-collapse text-left text-sm">
+                    <thead className="sticky top-0 z-10 bg-stone-100 text-stone-700 shadow-sm">
                     <tr>
                         <th className="px-4 py-3 font-medium">Клиент</th>
                         <th className="px-4 py-3 font-medium">Телефон</th>

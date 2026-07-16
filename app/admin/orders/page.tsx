@@ -23,7 +23,7 @@ export default async function AdminOrdersPage() {
 
     return (
         <main className="min-h-screen bg-[#fff8f2] px-4 py-8 text-stone-950 sm:px-6">
-            <div className="mx-auto max-w-7xl">
+            <div className="mx-auto w-full max-w-none">
                 <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <p className="text-sm text-stone-600">
