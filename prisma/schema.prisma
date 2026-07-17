@@ -23,7 +23,7 @@ model Product {
   id          String          @id
   name        String
   category    ProductCategory
-  price       Int
+  priceMinor  Int
   description String
   image       String
   weight      String?

@@ -18,7 +18,7 @@ function mapProductFromDb(product: {
   id: string;
   name: string;
   category: ProductCategory;
-  price: number;
+  priceMinor: number;
   description: string;
   image: string;
   weight: string | null;
@@ -29,7 +29,7 @@ function mapProductFromDb(product: {
     id: product.id,
     name: product.name,
     category: categoryFromDb[product.category],
-    price: product.price,
+    priceMinor: product.priceMinor,
     description: product.description,
     image: product.image,
     weight: product.weight ?? undefined,

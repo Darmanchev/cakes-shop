@@ -1,9 +1,10 @@
-import { localeByLanguage, type Language } from '@/lib/i18n';
+import {type Language, localeByLanguage} from '@/lib/i18n';
 
-export function formatPrice(price: number, language: Language) {
-  return new Intl.NumberFormat(localeByLanguage[language], {
-    style: 'currency',
-    currency: 'BGN',
-    maximumFractionDigits: 0,
-  }).format(price);
+export function formatPrice(priceMinor: number, language: Language) {
+    const priceEur = priceMinor / 100;
+
+    return new Intl.NumberFormat(localeByLanguage[language], {
+        style: 'currency',
+        currency: 'EUR',
+    }).format(priceEur);
 }

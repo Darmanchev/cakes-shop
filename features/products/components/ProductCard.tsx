@@ -40,7 +40,7 @@ export function ProductCard({ product }: { product: Product }) {
 
         <div className="mt-auto flex items-center justify-between gap-4 border-t border-stone-100 pt-4">
           <p className="text-lg font-semibold text-stone-950">
-            {t.productCard.from} {formatPrice(product.price, language)}
+            {t.productCard.from} {formatPrice(product.priceMinor, language)}
           </p>
           <a
             href="#order"

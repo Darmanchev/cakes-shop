@@ -23,7 +23,7 @@ async function main() {
             update: {
                 name: product.name,
                 category: categoryMap[product.category],
-                price: product.price,
+                priceMinor: product.priceMinor,
                 description: product.description,
                 image: product.image,
                 weight: product.weight,
@@ -34,7 +34,7 @@ async function main() {
                 id: product.id,
                 name: product.name,
                 category: categoryMap[product.category],
-                price: product.price,
+                priceMinor: product.priceMinor,
                 description: product.description,
                 image: product.image,
                 weight: product.weight,
