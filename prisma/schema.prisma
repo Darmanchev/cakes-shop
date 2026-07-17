@@ -12,6 +12,10 @@ enum ProductCategory {
   COMBOS
 }
 
+enum Currency {
+  EUR
+}
+
 enum OrderStatus {
   NEW
   CONFIRMED
@@ -35,17 +39,21 @@ model Product {
 }
 
 model Order {
-  id        String      @id @default(cuid())
-  name      String
-  phone     String
-  email     String      @default("")
-  quantity  Int         @default(1)
-  deliveryAddress String @default("")
-  productId String
-  product   Product     @relation(fields: [productId], references: [id])
-  date      DateTime
-  comment   String?
-  status    OrderStatus @default(NEW)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id              String      @id @default(cuid())
+  name            String
+  phone           String
+  email           String      @default("")
+  quantity        Int         @default(1)
+  deliveryAddress String      @default("")
+  productId       String
+  product         Product     @relation(fields: [productId], references: [id])
+  productName     String
+  unitPriceMinor  Int
+  currency        Currency
+  totalMinor      Int
+  date            DateTime
+  comment         String?
+  status          OrderStatus @default(NEW)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
