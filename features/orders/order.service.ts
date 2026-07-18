@@ -3,6 +3,13 @@ import { formatOrderTelegramMessage, sendTelegramMessage } from './order.notific
 import type { CreateOrderInput } from './order.schema';
 import { Currency, type OrderStatus } from '@prisma/client';
 
+export class ProductNotFoundError extends Error {
+    constructor() {
+        super('Product not found');
+        this.name = 'ProductNotFoundError';
+    }
+}
+
 export async function createOrder(order: CreateOrderInput) {
     const createdOrder = await prisma.$transaction(async (tx) => {
         const product = await tx.product.findUnique({
@@ -16,7 +23,7 @@ export async function createOrder(order: CreateOrderInput) {
         });
 
         if (!product) {
-            throw new Error('Product not found');
+            throw new ProductNotFoundError();
         }
 
         return tx.order.create({

@@ -1,5 +1,5 @@
-import { parsePhoneNumberFromString} from 'libphonenumber-js';
-import { z } from 'zod';
+import {parsePhoneNumberFromString} from 'libphonenumber-js';
+import {z} from 'zod';
 
 const ISO_DATE_FORMAT = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -8,11 +8,10 @@ function isValidIsoDate(value: string) {
         return false;
     }
 
-    const date = new Date(`${value}T00:00:000Z`);
-
+    const date = new Date(`${value}T00:00:00.000Z`);
     return (
         !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
-    )
+    );
 }
 
 function getTodayInSofia() {
@@ -32,91 +31,98 @@ function getTodayInSofia() {
 
 
 export const createOrderSchema = z.object({
-  name: z
-      .string()
-      .trim()
-      .min(2, 'Въведете име'),
+    name: z
+        .string()
+        .trim()
+        .min(2, 'Въведете име'),
 
-  phone: z
-      .string()
-      .trim()
-      .refine((value) => {
-        const phone = parsePhoneNumberFromString(value, 'BG');
+    phone: z
+        .string()
+        .trim()
+        .refine((value) => {
+            const phone = parsePhoneNumberFromString(value, 'BG');
 
-        return phone?.isValid() ?? false;
-      }, 'Въведете коректен телефонен номер'),
+            return phone?.isValid() ?? false;
+        }, 'Въведете коректен телефонен номер'),
 
-  email: z
-      .string()
-      .trim()
-      .email('Въведете email'),
+    email: z
+        .string()
+        .trim()
+        .email('Въведете email'),
 
-  quantity: z.coerce
-      .number()
-      .int('Бройка трябва да бъде целя число')
-      .min(1)
-      .max(20),
+    quantity: z.coerce
+        .number()
+        .int('Бройка трябва да бъде целя число')
+        .min(1)
+        .max(20),
 
-  productId: z
-      .string()
-      .trim()
-      .min(1, 'Изберете продукт'),
+    productId: z
+        .string()
+        .trim()
+        .min(1, 'Изберете продукт'),
 
-  date: z
-      .string()
-      .trim()
-      .superRefine((value, context) => {
-          if (!value) {
-              context.addIssue({
-                  code: 'custom',
-                  message: 'Изберете дата',
-              })
+    date: z
+        .string()
+        .trim()
+        .superRefine((value, context) => {
+            if (!value) {
+                context.addIssue({
+                    code: 'custom',
+                    message: 'Изберете дата',
+                });
 
-              return;
-          }
+                return;
+            }
 
-          if (!isValidIsoDate(value)) {
-              context.addIssue({
-                  code: 'custom',
-                  message: 'Въведете валидна дата',
-              });
+            if (!isValidIsoDate(value)) {
+                context.addIssue({
+                    code: 'custom',
+                    message: 'Въведете валидна дата',
+                });
 
-              return;
-          }
+                return;
+            }
 
-          if (value < getTodayInSofia()) {
-              context.addIssue({
-                  code: 'custom',
-                  message: 'Датата не може да бъде в миналото',
-              });
-          }
-      }),
+            if (value < getTodayInSofia()) {
+                context.addIssue({
+                    code: 'custom',
+                    message: 'Датата не може да бъде в миналото',
+                });
+            }
+        }),
 
-  deliveryAddress: z
-      .string()
-      .trim()
-      .min(5, 'Въведети адрес на доставка'),
+    deliveryAddress: z
+        .string()
+        .trim()
+        .min(5, 'Въведети адрес на доставка'),
 
-  comment: z
-      .string()
-      .trim()
-      .max(500).optional(),
-  });
+    comment: z
+        .string()
+        .trim()
+        .max(500).optional(),
+});
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 
-export function parseCreateOrderInput(value: unknown): CreateOrderInput | null {
-  const result = createOrderSchema.safeParse(value);
+export function parseCreateOrderInput(value: unknown) {
+    const result = createOrderSchema.safeParse(value);
 
-  if (!result.success) {
-    return null;
-  }
+    if (!result.success) {
+        return {
+            success: false as const,
+            fieldErrors: z.flattenError(result.error).fieldErrors,
+        };
+    }
 
-  const phone = parsePhoneNumberFromString(result.data.phone, 'BG');
+    const phone = parsePhoneNumberFromString(result.data.phone, 'BG');
 
-  return {
-    ...result.data,
-    phone: phone?.number.toString() ?? result.data.phone,
-  };
-
+    return {
+        success: true as const,
+        data: {
+            ...result.data,
+            phone: phone?.number.toString() ?? result.data.phone,
+        },
+    };
 }
+
+
