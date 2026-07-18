@@ -33,10 +33,7 @@ export async function createOrder(order: CreateOrderInput) {
                 totalMinor: product.priceMinor * order.quantity,
                 date: new Date(order.date),
                 comment: order.comment || null,
-            },
-            include: {
-                product: true,
-            },
+            }
         });
     });
 
@@ -51,9 +48,6 @@ export async function createOrder(order: CreateOrderInput) {
 
 export async function getOrders() {
   return prisma.order.findMany({
-    include: {
-      product: true,
-    },
     orderBy: {
       createdAt: 'desc',
     },

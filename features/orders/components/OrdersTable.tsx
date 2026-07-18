@@ -1,5 +1,6 @@
 import type {getOrders} from '../order.service';
 import {updateOrderStatusAction} from '../order.admin.actions';
+import { formatPrice } from '@/lib/utils/format-price';
 
 type Orders = Awaited<ReturnType<typeof getOrders>>;
 
@@ -29,16 +30,18 @@ export function OrdersTable({orders}: { orders: Orders }) {
     return (
         <div className="rounded-lg border border-stone-200 bg-white">
             <div className="max-h-[calc(100vh-180px)] overflow-auto">
-                <table className="min-w-[1600px] border-collapse text-left text-sm">
+                <table className="min-w-[1800px] border-collapse text-left text-sm">
                     <thead className="sticky top-0 z-10 bg-stone-100 text-stone-700 shadow-sm">
                     <tr>
                         <th className="px-4 py-3 font-medium">Клиент</th>
                         <th className="px-4 py-3 font-medium">Телефон</th>
                         <th className="px-4 py-3 font-medium">Email</th>
                         <th className="px-4 py-3 font-medium">Товар</th>
+                        <th className="px-4 py-3 font-medium">Цена</th>
                         <th className="px-4 py-3 font-medium">Количество</th>
+                        <th className="px-4 py-3 font-medium">Итого</th>
                         <th className="px-4 py-3 font-medium">Дата заказа</th>
-                        <th className="px-4 py-3 font-medium">Адрес за доставка</th>
+                        <th className="px-4 py-3 font-medium">Адрес доставки</th>
                         <th className="px-4 py-3 font-medium">Статус</th>
                         <th className="px-4 py-3 font-medium">Создан</th>
                         <th className="px-4 py-3 font-medium">Комментарий</th>
@@ -50,8 +53,10 @@ export function OrdersTable({orders}: { orders: Orders }) {
                             <td className="px-4 py-3 font-medium text-stone-950">{order.name}</td>
                             <td className="px-4 py-3 text-stone-700">{order.phone}</td>
                             <td className="px-4 py-3 text-stone-700">{order.email || '-'}</td>
-                            <td className="px-4 py-3 text-stone-700">{order.product.name}</td>
+                            <td className="px-4 py-3 text-stone-700">{order.productName}</td>
+                            <td className="px-4 py-3 text-stone-700">{formatPrice(order.unitPriceMinor, 'ru')}</td>
                             <td className="px-4 py-3 text-stone-700">{order.quantity}</td>
+                            <td className="whitespace-nowrap px-4 py-3 font-medium text-stone-950">{formatPrice(order.totalMinor, 'ru')}</td>
                             <td className="px-4 py-3 text-stone-700">{formatDate(order.date)}</td>
                             <td className="max-w-xs whitespace-normal px-4 py-3 text-stone-700">{order.deliveryAddress || '—'}</td>
                             <td className="px-4 py-3 text-stone-700">

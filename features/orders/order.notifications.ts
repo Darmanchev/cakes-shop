@@ -1,9 +1,5 @@
-import type {Order, Product} from '@prisma/client';
-import {translations} from '@/lib/i18n';
-
-type OrderWithProduct = Order & {
-    product: Product;
-};
+import type { Order } from '@prisma/client';
+import { formatPrice } from '@/lib/utils/format-price';
 
 function formatOrderDate(date: Date) {
     return new Intl.DateTimeFormat('bg-BG', {
@@ -18,9 +14,10 @@ function escapeHtml(value: string) {
         .replaceAll('>', '&gt;');
 }
 
-export function formatOrderTelegramMessage(order: OrderWithProduct) {
+export function formatOrderTelegramMessage(order: Order) {
     const comment = order.comment ? escapeHtml(order.comment) : '-';
-    const productName = translations.bg.products[order.product.id]?.name ?? order.product.name;
+    const unitPrice = formatPrice(order.unitPriceMinor, 'bg');
+    const total = formatPrice(order.totalMinor, 'bg');
 
     return [
         '<b>Нова поръчка</b>',
@@ -28,8 +25,10 @@ export function formatOrderTelegramMessage(order: OrderWithProduct) {
         `<b>Клиент:</b> ${escapeHtml(order.name)}`,
         `<b>Телефон:</b> ${escapeHtml(order.phone)}`,
         `<b>Email:</b> ${escapeHtml(order.email)}`,
-        `<b>Продукт:</b> ${escapeHtml(productName)}`,
+        `<b>Продукт:</b> ${escapeHtml(order.productName)}`,
+        `<b>Единична цена:</b> ${unitPrice}`,
         `<b>Брой:</b> ${order.quantity}`,
+        `<b>Общо:</b> ${total}`,
         `<b>Дата:</b> ${formatOrderDate(order.date)}`,
         `<b>Адрес за доставка:</b> ${escapeHtml(order.deliveryAddress)}`,
         `<b>Коментар:</b> ${comment}`,

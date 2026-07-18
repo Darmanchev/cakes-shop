@@ -1,16 +1,29 @@
-import { NextResponse } from 'next/server';
-import { parseCreateOrderInput } from '@/features/orders/order.schema';
-import { createOrder } from '@/features/orders/order.service';
+import {NextResponse} from 'next/server';
+import {parseCreateOrderInput} from '@/features/orders/order.schema';
+import {createOrder} from '@/features/orders/order.service';
 
 export async function POST(request: Request) {
-  const payload = await request.json();
-  const order = parseCreateOrderInput(payload);
+    let payload: unknown;
 
-  if (!order) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-  }
+    try {
+        payload = await request.json();
+    } catch {
+        return NextResponse.json(
+            {error: 'Invalid JSON body'},
+            {status: 400},
+        );
+    }
 
-  await createOrder(order);
+    const order = parseCreateOrderInput(payload);
 
-  return NextResponse.json({ ok: true });
+    if (!order) {
+        return NextResponse.json(
+            {error: 'Missing or invalid fields'},
+            {status: 400},
+        );
+    }
+
+    await createOrder(order);
+
+    return NextResponse.json({ok: true});
 }

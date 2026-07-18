@@ -139,7 +139,7 @@ export const translations: Record<Language, AppTranslations> = {
       comment: 'Коментар',
       sending: 'Изпращане...',
       submit: 'Изпрати запитване',
-      success: 'Запитването е изпратено. Следваща стъпка: свързване с Telegram.',
+      success: 'Запитването е изпратено.',
       error: 'Запитването не беше изпратено. Проверете сървъра и опитайте отново.',
     },
     products: {
