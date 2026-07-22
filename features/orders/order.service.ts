@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import type { CreateOrderInput } from './order.schema';
 import { Currency, type OrderStatus } from '@prisma/client';
+import {decryptOrderPii, encryptOrderPii} from '@/lib/security/pii';
 
 export class ProductNotFoundError extends Error {
     constructor() {
@@ -27,26 +28,40 @@ export async function createOrder(order: CreateOrderInput) {
             throw new ProductNotFoundError();
         }
 
+        const totalMinor = product.priceMinor * order.quantity;
+
+        if (!Number.isSafeInteger(totalMinor) || totalMinor > 2_147_483_647) {
+            throw new Error('Order total is outside the supported range');
+        }
+
+        const encrypted = encryptOrderPii({
+            name: order.name,
+            phone: order.phone,
+            email: order.email,
+            deliveryAddress: order.deliveryAddress,
+            comment: order.comment || null,
+        });
+
         return tx.order.create({
             data: {
-                name: order.name,
-                phone: order.phone,
-                email: order.email,
+                name: encrypted.name,
+                phone: encrypted.phone,
+                email: encrypted.email,
                 quantity: order.quantity,
                 deliveryType: order.deliveryType,
-                deliveryAddress: order.deliveryAddress,
+                deliveryAddress: encrypted.deliveryAddress,
                 productId: order.productId,
                 productName: product.name,
                 unitPriceMinor: product.priceMinor,
                 currency: Currency.EUR,
-                totalMinor: product.priceMinor * order.quantity,
+                totalMinor,
                 date: new Date(order.date),
-                comment: order.comment || null,
+                comment: encrypted.comment,
             }
         });
     });
 
-    return createdOrder;
+    return decryptOrderPii(createdOrder);
 }
 
 const DEFAULT_PAGE_SIZE = 50;
@@ -88,7 +103,7 @@ export async function getOrders(page = 1, pageSize = DEFAULT_PAGE_SIZE) {
     ]);
 
     return {
-        items,
+        items: items.map(decryptOrderPii),
         total,
         page: safePage,
         pageCount: Math.max(1, Math.ceil(total / safePageSize)),

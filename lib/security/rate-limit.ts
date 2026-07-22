@@ -1,8 +1,9 @@
-import 'server-only';
-
 import {createHmac} from 'node:crypto';
 import {Prisma} from '@prisma/client';
 import {prisma} from '@/lib/prisma';
+import {validateRateLimitSecret} from '@/lib/security/env';
+
+export {getClientIdentifier} from '@/lib/security/client-ip';
 
 interface RateLimitOptions {
     scope: string;
@@ -15,7 +16,9 @@ function getRateLimitSecret() {
     const secret = process.env.RATE_LIMIT_SECRET;
 
     if (secret) {
-        return secret;
+        return process.env.NODE_ENV === 'production'
+            ? validateRateLimitSecret(secret)
+            : secret;
     }
 
     if (process.env.NODE_ENV === 'production') {
@@ -25,25 +28,49 @@ function getRateLimitSecret() {
     return 'local-development-rate-limit-secret';
 }
 
-function hashIdentifier(identifier: string) {
+export function hashSecurityIdentifier(identifier: string) {
     return createHmac('sha256', getRateLimitSecret())
         .update(identifier)
         .digest('hex');
 }
 
-export function getClientIdentifier(headers: Headers) {
-    const forwardedFor = headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+let nextCleanupAt = 0;
 
-    return headers.get('cf-connecting-ip')
-        ?? headers.get('x-real-ip')
-        ?? forwardedFor
-        ?? 'unknown-client';
+async function deleteExpiredRateLimits(now: Date) {
+    const nowMs = now.getTime();
+
+    if (nowMs < nextCleanupAt) {
+        return;
+    }
+
+    // Set the deadline before awaiting so concurrent requests do not all run
+    // the same cleanup. Every application instance performs this periodically.
+    nextCleanupAt = nowMs + CLEANUP_INTERVAL_MS;
+
+    try {
+        await prisma.rateLimit.deleteMany({
+            where: {resetAt: {lte: now}},
+        });
+    } catch (error) {
+        console.error('Failed to delete expired rate limits', error);
+    }
 }
 
 export async function consumeRateLimit(options: RateLimitOptions) {
+    if (!Number.isInteger(options.limit) || options.limit < 1 ||
+        !Number.isInteger(options.windowMs) || options.windowMs < 1 ||
+        options.scope.length < 1 || options.scope.length > 100 ||
+        options.identifier.length < 1
+    ) {
+        throw new Error('Invalid rate limit options');
+    }
+
     const now = new Date();
     const nextReset = new Date(now.getTime() + options.windowMs);
-    const key = hashIdentifier(options.identifier);
+    const key = hashSecurityIdentifier(options.identifier);
+
+    await deleteExpiredRateLimits(now);
 
     const rows = await prisma.$queryRaw<Array<{count: number; resetAt: Date}>>(Prisma.sql`
         INSERT INTO "RateLimit" ("scope", "key", "count", "resetAt", "updatedAt")
@@ -78,7 +105,7 @@ export async function clearRateLimit(scope: string, identifier: string) {
     await prisma.rateLimit.deleteMany({
         where: {
             scope,
-            key: hashIdentifier(identifier),
+            key: hashSecurityIdentifier(identifier),
         },
     });
 }

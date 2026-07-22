@@ -1,6 +1,7 @@
 'use client';
 
 import {FormEvent, useState} from 'react';
+import Script from 'next/script';
 import {Send} from 'lucide-react';
 import {useLanguage} from '@/components/language/LanguageProvider';
 import type {Product} from '@/features/products/product.types';
@@ -21,6 +22,13 @@ function getTodayInSofia() {
     return `${year}-${month}-${day}`;
 }
 
+function getMaxOrderDate(minDate: string) {
+    const date = new Date(`${minDate}T00:00:00.000Z`);
+    date.setUTCDate(date.getUTCDate() + 365);
+
+    return date.toISOString().slice(0, 10);
+}
+
 function FieldError({messages}: { messages?: string[] }) {
     const message = messages?.[0];
 
@@ -33,12 +41,19 @@ function FieldError({messages}: { messages?: string[] }) {
     );
 }
 
-export function OrderForm({products}: { products: Product[] }) {
+export function OrderForm({
+    products,
+    turnstileSiteKey,
+}: {
+    products: Product[];
+    turnstileSiteKey?: string;
+}) {
     const [status, setStatus] = useState<OrderFormStatus>('idle');
     const [fieldErrors, setFieldErrors] = useState<OrderFieldErrors>({});
     const [deliveryType, setDeliveryType] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY');
     const {t} = useLanguage();
     const minOrderDate = getTodayInSofia();
+    const maxOrderDate = getMaxOrderDate(minOrderDate);
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -61,6 +76,7 @@ export function OrderForm({products}: { products: Product[] }) {
 
                 setFieldErrors(responseBody?.fieldErrors ?? {});
                 setStatus('error');
+                window.turnstile?.reset();
 
                 return;
             }
@@ -68,6 +84,7 @@ export function OrderForm({products}: { products: Product[] }) {
             setStatus('success');
             form.reset();
             setDeliveryType('DELIVERY');
+            window.turnstile?.reset();
         } catch (error) {
             console.error('Failed to submit order', error);
             setStatus('error');
@@ -80,6 +97,12 @@ export function OrderForm({products}: { products: Product[] }) {
 
     return (
         <form onSubmit={handleSubmit} className="grid gap-4 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
+            {turnstileSiteKey ? (
+                <Script
+                    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                    strategy="afterInteractive"
+                />
+            ) : null}
             <div className="grid gap-2">
                 <label htmlFor="name" className="text-sm font-medium text-stone-800">
                     {t.form.name}
@@ -159,7 +182,7 @@ export function OrderForm({products}: { products: Product[] }) {
                 <label htmlFor="date" className="text-sm font-medium text-stone-800">
                     {t.form.date}
                 </label>
-                <input id="date" name="date" type="date" min={minOrderDate} required
+                <input id="date" name="date" type="date" min={minOrderDate} max={maxOrderDate} required
                        className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"/>
                 <FieldError messages={fieldErrors.date}/>
             </div>
@@ -223,6 +246,15 @@ export function OrderForm({products}: { products: Product[] }) {
                 />
                 <FieldError messages={fieldErrors.comment}/>
             </div>
+
+            {turnstileSiteKey ? (
+                <div
+                    className="cf-turnstile"
+                    data-sitekey={turnstileSiteKey}
+                    data-action="create-order"
+                    data-response-field-name="turnstileToken"
+                />
+            ) : null}
 
             <button
                 type="submit"

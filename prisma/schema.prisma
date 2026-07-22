@@ -84,6 +84,25 @@ model AdminSession {
   tokenHash String   @id
   expiresAt DateTime
   createdAt DateTime @default(now())
+  lastSeenAt DateTime @default(now())
 
   @@index([expiresAt])
+  @@index([createdAt])
+}
+
+model AdminTotpUse {
+  counter BigInt   @id
+  usedAt  DateTime @default(now())
+
+  @@index([usedAt])
+}
+
+model AdminLoginEvent {
+  id             String   @id @default(cuid())
+  identifierHash String
+  outcome        String
+  createdAt      DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([identifierHash, createdAt])
 }

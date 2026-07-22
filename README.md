@@ -44,6 +44,11 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5435/stas_cakes_shop"
 ADMIN_PASSWORD_HASH="scrypt$...$..."
 ADMIN_TOTP_SECRET="BASE32_SECRET"
 RATE_LIMIT_SECRET="long-random-secret"
+PII_ENCRYPTION_KEY="base64url-encoded-32-byte-key"
+TRUSTED_PROXY_IP_HEADER="cf-connecting-ip"
+TURNSTILE_SITE_KEY="site-key"
+TURNSTILE_SECRET_KEY="secret-key"
+TURNSTILE_EXPECTED_HOSTNAME="cakes.example.com"
 ORDER_RETENTION_DAYS="365"
 
 # Optional notifications
@@ -76,6 +81,8 @@ prisma/       schema, migrations and seed
 docs/         short architecture and database notes
 ```
 
-## Current status and next steps
+## Security and production
 
-This is an unfinished MVP. `features/admin/admin.auth.ts` contains an incomplete admin-session implementation and currently prevents a clean TypeScript production build. The admin route is not protected yet. Before deployment I still need to finish authentication, add order-status actions, improve API error handling, add tests, provide `.env.example`, use real product images and configure a production database. Payments and a full shopping cart are outside the current MVP.
+The admin area uses a scrypt password, TOTP with replay prevention, revocable server-side sessions, a session cap and a login audit. Order submission uses persistent per-IP rate limits and requires Cloudflare Turnstile in production. Direct customer identifiers are encrypted with AES-256-GCM before they are stored.
+
+Run `npm run env:check` before deployment. Production PostgreSQL must use TLS, the origin must only accept traffic from a proxy that overwrites `TRUSTED_PROXY_IP_HEADER`, and database backups must be encrypted. After upgrading an existing database, run `npm run pii:encrypt-existing` once after configuring `PII_ENCRYPTION_KEY`.

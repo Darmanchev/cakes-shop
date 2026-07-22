@@ -5,10 +5,9 @@ import { redirect } from 'next/navigation';
 import {
     ADMIN_SESSION_COOKIE,
     ADMIN_SESSION_MAX_AGE_SECONDS,
-    createAdminSession,
+    authenticateAdmin,
     revokeAdminSession,
-    verifyAdminPassword,
-    verifyAdminTotp,
+    revokeAllAdminSessions,
 } from "./admin.auth";
 import {clearRateLimit, consumeRateLimit, getClientIdentifier} from '@/lib/security/rate-limit';
 
@@ -28,6 +27,14 @@ export async function loginAdmin(
     const totp = formData.get('totp');
     const requestHeaders = await headers();
     const clientIdentifier = getClientIdentifier(requestHeaders);
+
+    if (!clientIdentifier) {
+        console.error('Trusted proxy did not provide a valid client IP');
+        return {
+            error: 'Вход временно недоступен',
+        };
+    }
+
     const rateLimit = await consumeRateLimit({
         scope: LOGIN_RATE_LIMIT_SCOPE,
         identifier: clientIdentifier,
@@ -41,20 +48,19 @@ export async function loginAdmin(
         };
     }
 
-    if (
-        typeof password !== 'string' ||
-        typeof totp !== 'string' ||
-        password.length > 256 ||
-        !verifyAdminPassword(password) ||
-        !verifyAdminTotp(totp)
-    ) {
+    if (typeof password !== 'string' || typeof totp !== 'string' || password.length > 256) {
         return {
             error: 'Грешна парола',
         };
     }
 
+    const sessionToken = await authenticateAdmin(password, totp, clientIdentifier);
+
+    if (!sessionToken) {
+        return {error: 'Грешна парола или код'};
+    }
+
     await clearRateLimit(LOGIN_RATE_LIMIT_SCOPE, clientIdentifier);
-    const sessionToken = await createAdminSession();
     const cookieStore = await cookies();
 
     cookieStore.set(
@@ -62,7 +68,7 @@ export async function loginAdmin(
         sessionToken,
         {
             httpOnly: true,
-            sameSite: 'lax',
+            sameSite: 'strict',
             secure: process.env.NODE_ENV === 'production',
             path: '/',
             maxAge: ADMIN_SESSION_MAX_AGE_SECONDS,
@@ -78,6 +84,15 @@ export async function logoutAdmin() {
 
     await revokeAdminSession(sessionToken);
 
+    cookieStore.delete(ADMIN_SESSION_COOKIE);
+
+    redirect('/admin/login');
+}
+
+export async function logoutAllAdminSessions() {
+    await revokeAllAdminSessions();
+
+    const cookieStore = await cookies();
     cookieStore.delete(ADMIN_SESSION_COOKIE);
 
     redirect('/admin/login');

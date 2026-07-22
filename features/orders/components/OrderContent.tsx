@@ -5,7 +5,13 @@ import { useLanguage } from '@/components/language/LanguageProvider';
 import type { Product } from '@/features/products/product.types';
 import { OrderForm } from './OrderForm';
 
-export function OrderContent({ products }: { products: Product[] }) {
+export function OrderContent({
+  products,
+  turnstileSiteKey,
+}: {
+  products: Product[];
+  turnstileSiteKey?: string;
+}) {
   const { t } = useLanguage();
 
   return (
@@ -19,7 +25,7 @@ export function OrderContent({ products }: { products: Product[] }) {
         </p>
       </div>
 
-      <OrderForm products={products} />
+      <OrderForm products={products} turnstileSiteKey={turnstileSiteKey} />
     </section>
   );
 }

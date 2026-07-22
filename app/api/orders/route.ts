@@ -4,25 +4,36 @@ import {createOrder, ProductNotFoundError} from '@/features/orders/order.service
 import {formatOrderTelegramMessage, sendTelegramMessage} from '@/features/orders/order.notifications';
 import {RequestBodyError, readJsonBody} from '@/lib/http/read-json-body';
 import {consumeRateLimit, getClientIdentifier} from '@/lib/security/rate-limit';
+import {getClientIp} from '@/lib/security/client-ip';
+import {verifyTurnstileToken} from '@/lib/security/turnstile';
 
 const MAX_BODY_BYTES = 16 * 1024;
 const ORDER_RATE_LIMIT = 5;
+const ORDER_REQUEST_RATE_LIMIT = 30;
 const ORDER_RATE_WINDOW_MS = 10 * 60 * 1000;
 
 export async function POST(request: Request) {
-    const rateLimit = await consumeRateLimit({
-        scope: 'create-order',
-        identifier: getClientIdentifier(request.headers),
-        limit: ORDER_RATE_LIMIT,
+    const clientIdentifier = getClientIdentifier(request.headers);
+    const clientIp = getClientIp(request.headers);
+
+    if (!clientIdentifier) {
+        console.error('Trusted proxy did not provide a valid client IP');
+        return NextResponse.json({error: 'Service unavailable'}, {status: 503});
+    }
+
+    const requestRateLimit = await consumeRateLimit({
+        scope: 'create-order-request',
+        identifier: clientIdentifier,
+        limit: ORDER_REQUEST_RATE_LIMIT,
         windowMs: ORDER_RATE_WINDOW_MS,
     });
 
-    if (!rateLimit.allowed) {
+    if (!requestRateLimit.allowed) {
         return NextResponse.json(
-            {error: 'Too many order requests. Try again later.'},
+            {error: 'Too many requests. Try again later.'},
             {
                 status: 429,
-                headers: {'Retry-After': String(rateLimit.retryAfterSeconds)},
+                headers: {'Retry-After': String(requestRateLimit.retryAfterSeconds)},
             },
         );
     }
@@ -42,7 +53,16 @@ export async function POST(request: Request) {
         );
     }
 
-    const validation = parseCreateOrderInput(payload);
+    const turnstileToken = payload && typeof payload === 'object' && !Array.isArray(payload)
+        ? (payload as Record<string, unknown>).turnstileToken
+        : undefined;
+    const orderPayload = payload && typeof payload === 'object' && !Array.isArray(payload)
+        ? Object.fromEntries(
+            Object.entries(payload as Record<string, unknown>)
+                .filter(([key]) => key !== 'turnstileToken'),
+        )
+        : payload;
+    const validation = parseCreateOrderInput(orderPayload);
 
     if (!validation.success) {
         return NextResponse.json(
@@ -51,6 +71,30 @@ export async function POST(request: Request) {
                 fieldErrors: validation.fieldErrors,
             },
             {status: 422},
+        );
+    }
+
+    if (!await verifyTurnstileToken(turnstileToken, 'create-order', clientIp)) {
+        return NextResponse.json(
+            {error: 'Bot verification failed. Try again.'},
+            {status: 422},
+        );
+    }
+
+    const rateLimit = await consumeRateLimit({
+        scope: 'create-order',
+        identifier: clientIdentifier,
+        limit: ORDER_RATE_LIMIT,
+        windowMs: ORDER_RATE_WINDOW_MS,
+    });
+
+    if (!rateLimit.allowed) {
+        return NextResponse.json(
+            {error: 'Too many order requests. Try again later.'},
+            {
+                status: 429,
+                headers: {'Retry-After': String(rateLimit.retryAfterSeconds)},
+            },
         );
     }
 

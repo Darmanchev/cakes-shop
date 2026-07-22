@@ -1,11 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import {validateDatabaseUrl} from '@/lib/security/env';
 
 function getDatabaseUrl() {
   const databaseUrl = process.env.DATABASE_URL;
 
   if (databaseUrl) {
-    return databaseUrl;
+    return validateDatabaseUrl(databaseUrl);
   }
 
   if (process.env.NODE_ENV === 'production') {

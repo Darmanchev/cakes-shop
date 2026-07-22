@@ -1,130 +1,116 @@
 import 'server-only';
 
-import {
-    createHash,
-    createHmac,
-    randomBytes,
-    scryptSync,
-    timingSafeEqual,
-} from 'node:crypto';
+import {createHash, randomBytes} from 'node:crypto';
+import {Prisma} from '@prisma/client';
 import {prisma} from '@/lib/prisma';
+import {hashSecurityIdentifier} from '@/lib/security/rate-limit';
+import {
+    getMatchingAdminTotpCounter,
+    verifyAdminPassword,
+} from '@/lib/security/admin-credentials';
+
+export {verifyAdminPassword, verifyAdminTotp} from '@/lib/security/admin-credentials';
 
 export const ADMIN_SESSION_COOKIE = 'admin_session';
-export const ADMIN_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24;
+export const ADMIN_SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
+export const MAX_ACTIVE_ADMIN_SESSIONS = 5;
 
-const TOTP_PERIOD_SECONDS = 30;
-const TOTP_DIGITS = 6;
-
-function getRequiredEnv(name: 'ADMIN_PASSWORD_HASH' | 'ADMIN_TOTP_SECRET') {
-    const value = process.env[name]?.trim();
-
-    if (!value) {
-        throw new Error(`${name} is not configured`);
-    }
-
-    return value;
-}
-
-function safeCompare(left: Buffer | string, right: Buffer | string) {
-    const leftBuffer = Buffer.isBuffer(left) ? left : Buffer.from(left);
-    const rightBuffer = Buffer.isBuffer(right) ? right : Buffer.from(right);
-
-    return leftBuffer.length === rightBuffer.length
-        && timingSafeEqual(leftBuffer, rightBuffer);
-}
+const LOGIN_AUDIT_RETENTION_DAYS = 90;
 
 function hashSessionToken(token: string) {
     return createHash('sha256').update(token).digest('hex');
 }
 
-function decodeBase32(value: string) {
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-    const normalized = value.toUpperCase().replaceAll(' ', '').replace(/=+$/, '');
-    let bits = '';
 
-    for (const character of normalized) {
-        const index = alphabet.indexOf(character);
-
-        if (index < 0) {
-            throw new Error('ADMIN_TOTP_SECRET is not valid base32');
-        }
-
-        bits += index.toString(2).padStart(5, '0');
-    }
-
-    const bytes: number[] = [];
-
-    for (let index = 0; index + 8 <= bits.length; index += 8) {
-        bytes.push(Number.parseInt(bits.slice(index, index + 8), 2));
-    }
-
-    const decoded = Buffer.from(bytes);
-
-    if (decoded.length < 16) {
-        throw new Error('ADMIN_TOTP_SECRET must contain at least 128 bits');
-    }
-
-    return decoded;
-}
-
-function createTotp(secret: Buffer, counter: number) {
-    const counterBuffer = Buffer.alloc(8);
-    counterBuffer.writeBigUInt64BE(BigInt(counter));
-
-    const digest = createHmac('sha1', secret).update(counterBuffer).digest();
-    const offset = digest[digest.length - 1] & 0x0f;
-    const binary = (digest.readUInt32BE(offset) & 0x7fffffff) % (10 ** TOTP_DIGITS);
-
-    return binary.toString().padStart(TOTP_DIGITS, '0');
-}
-
-export function verifyAdminPassword(password: string) {
-    const [algorithm, saltEncoded, hashEncoded, extra] = getRequiredEnv('ADMIN_PASSWORD_HASH').split('$');
-
-    if (algorithm !== 'scrypt' || !saltEncoded || !hashEncoded || extra) {
-        throw new Error('ADMIN_PASSWORD_HASH has an invalid format');
-    }
-
-    const salt = Buffer.from(saltEncoded, 'base64url');
-    const expectedHash = Buffer.from(hashEncoded, 'base64url');
-
-    if (salt.length < 16 || expectedHash.length < 32) {
-        throw new Error('ADMIN_PASSWORD_HASH has an invalid format');
-    }
-
-    const actualHash = scryptSync(password, salt, expectedHash.length);
-
-    return safeCompare(actualHash, expectedHash);
-}
-
-export function verifyAdminTotp(code: string, now = Date.now()) {
-    if (!/^\d{6}$/.test(code)) {
-        return false;
-    }
-
-    const secret = decodeBase32(getRequiredEnv('ADMIN_TOTP_SECRET'));
-    const counter = Math.floor(now / 1000 / TOTP_PERIOD_SECONDS);
-
-    return [-1, 0, 1].some((offset) => (
-        safeCompare(code, createTotp(secret, counter + offset))
-    ));
-}
-
-export async function createAdminSession() {
-    const token = randomBytes(32).toString('base64url');
-    const expiresAt = new Date(Date.now() + ADMIN_SESSION_MAX_AGE_SECONDS * 1000);
+async function recordLoginEvent(identifier: string, outcome: string) {
+    const cutoff = new Date();
+    cutoff.setUTCDate(cutoff.getUTCDate() - LOGIN_AUDIT_RETENTION_DAYS);
 
     await prisma.$transaction([
-        prisma.adminSession.deleteMany({where: {expiresAt: {lte: new Date()}}}),
-        prisma.adminSession.create({
+        prisma.adminLoginEvent.create({
             data: {
-                tokenHash: hashSessionToken(token),
-                expiresAt,
+                identifierHash: hashSecurityIdentifier(identifier),
+                outcome,
             },
         }),
+        prisma.adminLoginEvent.deleteMany({where: {createdAt: {lt: cutoff}}}),
     ]);
+}
 
-    return token;
+export async function authenticateAdmin(
+    password: string,
+    totp: string,
+    identifier: string,
+) {
+    if (!verifyAdminPassword(password)) {
+        await recordLoginEvent(identifier, 'INVALID_CREDENTIALS');
+        return null;
+    }
+
+    const counter = getMatchingAdminTotpCounter(totp);
+
+    if (counter === null) {
+        await recordLoginEvent(identifier, 'INVALID_CREDENTIALS');
+        return null;
+    }
+
+    const token = randomBytes(32).toString('base64url');
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + ADMIN_SESSION_MAX_AGE_SECONDS * 1000);
+    const staleAuditCutoff = new Date(now);
+    staleAuditCutoff.setUTCDate(staleAuditCutoff.getUTCDate() - LOGIN_AUDIT_RETENTION_DAYS);
+
+    try {
+        await prisma.$transaction(async (tx) => {
+            await tx.adminTotpUse.create({data: {counter: BigInt(counter)}});
+            await tx.$queryRaw(Prisma.sql`
+                SELECT pg_advisory_xact_lock(hashtext('admin-session-cap'))
+            `);
+            await tx.adminTotpUse.deleteMany({
+                where: {usedAt: {lt: new Date(now.getTime() - 5 * 60 * 1000)}},
+            });
+            await tx.adminSession.deleteMany({where: {expiresAt: {lte: now}}});
+
+            const oldestSessions = await tx.adminSession.findMany({
+                orderBy: {createdAt: 'asc'},
+                select: {tokenHash: true},
+            });
+
+            if (oldestSessions.length >= MAX_ACTIVE_ADMIN_SESSIONS) {
+                const sessionsToDelete = oldestSessions.slice(
+                    0,
+                    oldestSessions.length - MAX_ACTIVE_ADMIN_SESSIONS + 1,
+                );
+                await tx.adminSession.deleteMany({
+                    where: {tokenHash: {in: sessionsToDelete.map((session) => session.tokenHash)}},
+                });
+            }
+
+            await tx.adminSession.create({
+                data: {
+                    tokenHash: hashSessionToken(token),
+                    expiresAt,
+                    lastSeenAt: now,
+                },
+            });
+            await tx.adminLoginEvent.create({
+                data: {
+                    identifierHash: hashSecurityIdentifier(identifier),
+                    outcome: 'SUCCESS',
+                },
+            });
+            await tx.adminLoginEvent.deleteMany({where: {createdAt: {lt: staleAuditCutoff}}});
+        });
+
+        return token;
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+            await recordLoginEvent(identifier, 'TOTP_REPLAY');
+            return null;
+        }
+
+        throw error;
+    }
 }
 
 export async function verifyAdminSessionToken(token: string | undefined) {
@@ -139,9 +125,18 @@ export async function verifyAdminSessionToken(token: string | undefined) {
         return false;
     }
 
-    if (session.expiresAt <= new Date()) {
+    const now = new Date();
+
+    if (session.expiresAt <= now) {
         await prisma.adminSession.delete({where: {tokenHash}}).catch(() => undefined);
         return false;
+    }
+
+    if (now.getTime() - session.lastSeenAt.getTime() > 5 * 60 * 1000) {
+        await prisma.adminSession.updateMany({
+            where: {tokenHash, expiresAt: {gt: now}},
+            data: {lastSeenAt: now},
+        });
     }
 
     return true;
@@ -155,4 +150,28 @@ export async function revokeAdminSession(token: string | undefined) {
     await prisma.adminSession.deleteMany({
         where: {tokenHash: hashSessionToken(token)},
     });
+}
+
+export async function revokeAllAdminSessions() {
+    await prisma.adminSession.deleteMany();
+}
+
+export async function getAdminSecuritySummary() {
+    const now = new Date();
+    const [activeSessions, loginEvents] = await prisma.$transaction([
+        prisma.adminSession.count({where: {expiresAt: {gt: now}}}),
+        prisma.adminLoginEvent.findMany({
+            orderBy: {createdAt: 'desc'},
+            take: 20,
+            select: {id: true, identifierHash: true, outcome: true, createdAt: true},
+        }),
+    ]);
+
+    return {
+        activeSessions,
+        loginEvents: loginEvents.map((event) => ({
+            ...event,
+            identifierHash: event.identifierHash.slice(0, 12),
+        })),
+    };
 }

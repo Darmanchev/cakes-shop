@@ -1,7 +1,9 @@
-import {parsePhoneNumberFromString} from 'libphonenumber-js';
+import {parsePhoneNumberFromString} from 'libphonenumber-js/core';
+import phoneMetadata from 'libphonenumber-js/metadata.max.json';
 import {z} from 'zod';
 
 const ISO_DATE_FORMAT = /^\d{4}-\d{2}-\d{2}$/;
+export const MAX_ORDER_ADVANCE_DAYS = 365;
 
 function isValidIsoDate(value: string) {
     if (!ISO_DATE_FORMAT.test(value)) {
@@ -29,6 +31,13 @@ function getTodayInSofia() {
     return `${year}-${month}-${day}`;
 }
 
+function addDaysToIsoDate(value: string, days: number) {
+    const date = new Date(`${value}T00:00:00.000Z`);
+    date.setUTCDate(date.getUTCDate() + days);
+
+    return date.toISOString().slice(0, 10);
+}
+
 
 export const createOrderSchema = z.object({
     name: z
@@ -42,7 +51,7 @@ export const createOrderSchema = z.object({
         .trim()
         .max(32, 'Телефонният номер е твърде дълъг')
         .refine((value) => {
-            const phone = parsePhoneNumberFromString(value, 'BG');
+            const phone = parsePhoneNumberFromString(value, 'BG', phoneMetadata);
 
             return phone?.isValid() ?? false;
         }, 'Въведете коректен телефонен номер'),
@@ -92,6 +101,11 @@ export const createOrderSchema = z.object({
                     code: 'custom',
                     message: 'Датата не може да бъде в миналото',
                 });
+            } else if (value > addDaysToIsoDate(getTodayInSofia(), MAX_ORDER_ADVANCE_DAYS)) {
+                context.addIssue({
+                    code: 'custom',
+                    message: `Датата не може да бъде след повече от ${MAX_ORDER_ADVANCE_DAYS} дни`,
+                });
             }
         }),
 
@@ -130,7 +144,7 @@ export function parseCreateOrderInput(value: unknown) {
         };
     }
 
-    const phone = parsePhoneNumberFromString(result.data.phone, 'BG');
+    const phone = parsePhoneNumberFromString(result.data.phone, 'BG', phoneMetadata);
 
     return {
         success: true as const,
@@ -140,4 +154,3 @@ export function parseCreateOrderInput(value: unknown) {
         },
     };
 }
-
