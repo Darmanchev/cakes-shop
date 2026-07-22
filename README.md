@@ -41,6 +41,10 @@ Create `.env`:
 
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5435/stas_cakes_shop"
+ADMIN_PASSWORD_HASH="scrypt$...$..."
+ADMIN_TOTP_SECRET="BASE32_SECRET"
+RATE_LIMIT_SECRET="long-random-secret"
+ORDER_RETENTION_DAYS="365"
 
 # Optional notifications
 TELEGRAM_BOT_TOKEN=
@@ -55,6 +59,9 @@ npm run db:migrate
 npm run db:seed
 npm run dev
 ```
+
+Create the password hash with the interactive `npm run admin:hash-password` command.
+Generate `ADMIN_TOTP_SECRET` with `npm run admin:generate-totp-secret` and add it to an authenticator app before using `/admin/login`.
 
 Open [http://localhost:3000](http://localhost:3000). The current order list is at `/admin/orders`.
 

@@ -16,6 +16,11 @@ enum Currency {
   EUR
 }
 
+enum DeliveryType {
+  DELIVERY
+  PICKUP
+}
+
 enum OrderStatus {
   NEW
   CONFIRMED
@@ -44,6 +49,7 @@ model Order {
   phone           String
   email           String      @default("")
   quantity        Int         @default(1)
+  deliveryType    DeliveryType
   deliveryAddress String      @default("")
   productId       String
   product         Product     @relation(fields: [productId], references: [id])
@@ -56,4 +62,28 @@ model Order {
   status          OrderStatus @default(NEW)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+
+  @@index([createdAt])
+  @@index([status, createdAt])
+  @@index([date])
+  @@index([productId])
+}
+
+model RateLimit {
+  scope     String
+  key       String
+  count     Int
+  resetAt   DateTime
+  updatedAt DateTime @updatedAt
+
+  @@id([scope, key])
+  @@index([resetAt])
+}
+
+model AdminSession {
+  tokenHash String   @id
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
 }

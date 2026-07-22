@@ -1,8 +1,22 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
+function getDatabaseUrl() {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (databaseUrl) {
+    return databaseUrl;
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('DATABASE_URL is required in production');
+  }
+
+  return 'postgresql://postgres:postgres@localhost:5435/stas_cakes_shop';
+}
+
 const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5435/stas_cakes_shop',
+  connectionString: getDatabaseUrl(),
 });
 
 const globalForPrisma = globalThis as unknown as {

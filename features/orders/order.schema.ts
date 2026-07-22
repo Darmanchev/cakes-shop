@@ -34,11 +34,13 @@ export const createOrderSchema = z.object({
     name: z
         .string()
         .trim()
-        .min(2, 'Въведете име'),
+        .min(2, 'Въведете име')
+        .max(100, 'Името е твърде дълго'),
 
     phone: z
         .string()
         .trim()
+        .max(32, 'Телефонният номер е твърде дълъг')
         .refine((value) => {
             const phone = parsePhoneNumberFromString(value, 'BG');
 
@@ -48,7 +50,8 @@ export const createOrderSchema = z.object({
     email: z
         .string()
         .trim()
-        .email('Въведете email'),
+        .email('Въведете email')
+        .max(254, 'Email адресът е твърде дълъг'),
 
     quantity: z.coerce
         .number()
@@ -59,7 +62,8 @@ export const createOrderSchema = z.object({
     productId: z
         .string()
         .trim()
-        .min(1, 'Изберете продукт'),
+        .min(1, 'Изберете продукт')
+        .max(100, 'Невалиден продукт'),
 
     date: z
         .string()
@@ -91,15 +95,27 @@ export const createOrderSchema = z.object({
             }
         }),
 
+    deliveryType: z.enum(['DELIVERY', 'PICKUP'], {
+        message: 'Изберете доставка или вземане на място',
+    }),
+
     deliveryAddress: z
         .string()
         .trim()
-        .min(5, 'Въведети адрес на доставка'),
+        .max(300, 'Адресът е твърде дълъг'),
 
     comment: z
         .string()
         .trim()
         .max(500).optional(),
+}).strict().superRefine((order, context) => {
+    if (order.deliveryType === 'DELIVERY' && order.deliveryAddress.length < 5) {
+        context.addIssue({
+            code: 'custom',
+            path: ['deliveryAddress'],
+            message: 'Въведете адрес на доставка',
+        });
+    }
 });
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
@@ -124,5 +140,4 @@ export function parseCreateOrderInput(value: unknown) {
         },
     };
 }
-
 

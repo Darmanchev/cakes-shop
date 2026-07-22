@@ -42,6 +42,23 @@ export default function AdminLoginPage() {
                     />
                 </div>
 
+                <div className="mt-4 grid gap-2">
+                    <label htmlFor="totp" className="text-sm font-medium text-stone-800">
+                        Код от приложението за удостоверяване
+                    </label>
+                    <input
+                        id="totp"
+                        name="totp"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        pattern="[0-9]{6}"
+                        maxLength={6}
+                        required
+                        className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+                    />
+                </div>
+
                 {state.error ? (
                     <p
                         className="mt-3 text-sm text-red-700"

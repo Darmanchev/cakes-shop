@@ -69,6 +69,9 @@ interface AppTranslations {
     productPlaceholder: string;
     quantity: string;
     date: string;
+    deliveryType: string;
+    delivery: string;
+    pickup: string;
     deliveryAddress: string;
     comment: string;
     sending: string;
@@ -135,6 +138,9 @@ export const translations: Record<Language, AppTranslations> = {
       productPlaceholder: 'Изберете продукт',
       quantity: 'Количество',
       date: 'Дата, за която е нужна поръчката',
+      deliveryType: 'Начин на получаване',
+      delivery: 'Доставка',
+      pickup: 'Вземане на място',
       deliveryAddress: 'Адрес за доставка',
       comment: 'Коментар',
       sending: 'Изпращане...',
@@ -260,6 +266,9 @@ export const translations: Record<Language, AppTranslations> = {
       productPlaceholder: 'Choose a product',
       quantity: 'Quantity',
       date: 'Date needed',
+      deliveryType: 'Fulfilment method',
+      delivery: 'Delivery',
+      pickup: 'Pickup',
       deliveryAddress: 'Delivery address',
       comment: 'Comment',
       sending: 'Sending...',
@@ -385,6 +394,9 @@ export const translations: Record<Language, AppTranslations> = {
       productPlaceholder: 'Выберите товар',
       quantity: 'Количество',
       date: 'Дата, к которой нужен заказ',
+      deliveryType: 'Способ получения',
+      delivery: 'Доставка',
+      pickup: 'Самовывоз',
       deliveryAddress: 'Адрес доставки',
       comment: 'Комментарий',
       sending: 'Отправляем...',

@@ -13,14 +13,14 @@ export async function updateOrderStatusAction(formData: FormData) {
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
 
-    if (!verifyAdminSessionToken(sessionToken)) {
+    if (!await verifyAdminSessionToken(sessionToken)) {
         redirect('/admin/login');
     }
 
     const orderId = formData.get('orderId');
     const status = formData.get('status');
 
-    if (typeof orderId !== 'string' || orderId.length === 0 ||
+    if (typeof orderId !== 'string' || orderId.length === 0 || orderId.length > 100 ||
         typeof status !== 'string' || !allowedStatuses.has(status)
     ) {
         throw new Error('Invalid order status payload');

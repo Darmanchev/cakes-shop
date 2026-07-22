@@ -2,7 +2,7 @@ import type {getOrders} from '../order.service';
 import {updateOrderStatusAction} from '../order.admin.actions';
 import { formatPrice } from '@/lib/utils/format-price';
 
-type Orders = Awaited<ReturnType<typeof getOrders>>;
+type Orders = Awaited<ReturnType<typeof getOrders>>['items'];
 
 const statusLabels = {
     NEW: 'New',
@@ -41,6 +41,7 @@ export function OrdersTable({orders}: { orders: Orders }) {
                         <th className="px-4 py-3 font-medium">Количество</th>
                         <th className="px-4 py-3 font-medium">Итого</th>
                         <th className="px-4 py-3 font-medium">Дата заказа</th>
+                        <th className="px-4 py-3 font-medium">Получение</th>
                         <th className="px-4 py-3 font-medium">Адрес доставки</th>
                         <th className="px-4 py-3 font-medium">Статус</th>
                         <th className="px-4 py-3 font-medium">Создан</th>
@@ -58,6 +59,9 @@ export function OrdersTable({orders}: { orders: Orders }) {
                             <td className="px-4 py-3 text-stone-700">{order.quantity}</td>
                             <td className="whitespace-nowrap px-4 py-3 font-medium text-stone-950">{formatPrice(order.totalMinor, 'ru')}</td>
                             <td className="px-4 py-3 text-stone-700">{formatDate(order.date)}</td>
+                            <td className="px-4 py-3 text-stone-700">
+                                {order.deliveryType === 'DELIVERY' ? 'Доставка' : 'Самовывоз'}
+                            </td>
                             <td className="max-w-xs whitespace-normal px-4 py-3 text-stone-700">{order.deliveryAddress || '—'}</td>
                             <td className="px-4 py-3 text-stone-700">
                                 <form action={updateOrderStatusAction} className="flex min-w-64 items-center gap-2">

@@ -15,23 +15,21 @@ function escapeHtml(value: string) {
 }
 
 export function formatOrderTelegramMessage(order: Order) {
-    const comment = order.comment ? escapeHtml(order.comment) : '-';
     const unitPrice = formatPrice(order.unitPriceMinor, 'bg');
     const total = formatPrice(order.totalMinor, 'bg');
 
     return [
         '<b>Нова поръчка</b>',
         '',
-        `<b>Клиент:</b> ${escapeHtml(order.name)}`,
-        `<b>Телефон:</b> ${escapeHtml(order.phone)}`,
-        `<b>Email:</b> ${escapeHtml(order.email)}`,
+        `<b>Номер:</b> ${escapeHtml(order.id)}`,
         `<b>Продукт:</b> ${escapeHtml(order.productName)}`,
         `<b>Единична цена:</b> ${unitPrice}`,
         `<b>Брой:</b> ${order.quantity}`,
         `<b>Общо:</b> ${total}`,
         `<b>Дата:</b> ${formatOrderDate(order.date)}`,
-        `<b>Адрес за доставка:</b> ${escapeHtml(order.deliveryAddress)}`,
-        `<b>Коментар:</b> ${comment}`,
+        `<b>Получаване:</b> ${order.deliveryType === 'DELIVERY' ? 'Доставка' : 'Вземане на място'}`,
+        '',
+        'Личните данни са достъпни само в админ панела.',
     ].join('\n');
 }
 
@@ -43,20 +41,49 @@ export async function sendTelegramMessage(message: string) {
         return;
     }
 
-    const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            chat_id: chatId,
-            text: message,
-            parse_mode: 'HTML',
-        }),
-    });
+    let lastError: unknown;
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Telegram notification failed: ${errorText}`);
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+        let shouldRetry = true;
+
+        try {
+            const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message,
+                    parse_mode: 'HTML',
+                }),
+                signal: AbortSignal.timeout(5_000),
+            });
+
+            if (response.ok) {
+                return;
+            }
+
+            const errorText = (await response.text()).slice(0, 500);
+            lastError = new Error(`Telegram notification failed (${response.status}): ${errorText}`);
+
+            if (response.status < 500 && response.status !== 429) {
+                shouldRetry = false;
+            }
+        } catch (error) {
+            lastError = error;
+        }
+
+        if (!shouldRetry) {
+            break;
+        }
+
+        if (attempt < 3) {
+            await new Promise((resolve) => setTimeout(resolve, attempt * 250));
+        }
     }
+
+    throw lastError instanceof Error
+        ? lastError
+        : new Error('Telegram notification failed');
 }
