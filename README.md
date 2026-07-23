@@ -145,3 +145,33 @@ docker run --rm --env-file .env -p 3000:3000 stas-cakes-shop
 
 The final image runs as a non-root user and exposes `/api/health` as a
 PostgreSQL-backed readiness check.
+
+### Coolify on Contabo
+
+Create PostgreSQL as a separate Coolify resource in the same project and
+environment. Enable database SSL with `verify-full`, then use the SSL-enabled
+internal connection URL as `DATABASE_URL`. Keep the database private.
+
+Deploy this repository as a **Docker Compose** resource:
+
+- Base directory: `/`
+- Docker Compose location: `/docker-compose.coolify.yaml`
+- Connect to Predefined Network: enabled
+- Application domain: `https://your-domain.example:3000`
+
+The `migrate` service applies committed Prisma migrations and runs the
+idempotent product seed before `app` starts. Coolify excludes this one-time
+service from overall health checks.
+
+Set the required variables from `.env.example` in Coolify. They are runtime
+variables and do not need to be exposed during the image build. Use
+`TRUSTED_PROXY_IP_HEADER=x-real-ip` when Coolify's Traefik proxy is directly
+internet-facing. Mark `ADMIN_PASSWORD_HASH` as **Literal** in Coolify because
+the scrypt value contains `$` characters.
+
+Both services mount Coolify's generated CA certificate from
+`/data/coolify/ssl/coolify-ca.crt`. Do not remove this mount while using
+`sslmode=verify-full`.
+
+Configure scheduled PostgreSQL backups in Coolify and store an additional copy
+in S3-compatible object storage outside the Contabo server.

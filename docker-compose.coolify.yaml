@@ -1,0 +1,45 @@
+services:
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: release
+    command:
+      - sh
+      - -c
+      - npm run db:migrate:deploy && npm run db:seed
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?}
+      NODE_EXTRA_CA_CERTS: /etc/ssl/certs/coolify-ca.crt
+    volumes:
+      - /data/coolify/ssl/coolify-ca.crt:/etc/ssl/certs/coolify-ca.crt:ro
+    restart: "no"
+    exclude_from_hc: true
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:?}
+      ADMIN_TOTP_SECRET: ${ADMIN_TOTP_SECRET:?}
+      RATE_LIMIT_SECRET: ${RATE_LIMIT_SECRET:?}
+      PII_ENCRYPTION_KEY: ${PII_ENCRYPTION_KEY:?}
+      TRUSTED_PROXY_IP_HEADER: ${TRUSTED_PROXY_IP_HEADER:-x-real-ip}
+      TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY:?}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:?}
+      TURNSTILE_EXPECTED_HOSTNAME: ${TURNSTILE_EXPECTED_HOSTNAME:?}
+      ORDER_RETENTION_DAYS: ${ORDER_RETENTION_DAYS:-365}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      NODE_EXTRA_CA_CERTS: /etc/ssl/certs/coolify-ca.crt
+    volumes:
+      - /data/coolify/ssl/coolify-ca.crt:/etc/ssl/certs/coolify-ca.crt:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    expose:
+      - "3000"
+    restart: unless-stopped
