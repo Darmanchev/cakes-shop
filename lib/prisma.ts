@@ -9,6 +9,10 @@ function getDatabaseUrl() {
     return validateDatabaseUrl(databaseUrl);
   }
 
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    return 'postgresql://build:build@localhost:5432/build';
+  }
+
   if (process.env.NODE_ENV === 'production') {
     throw new Error('DATABASE_URL is required in production');
   }

@@ -28,7 +28,7 @@ function getDatabaseUrl() {
 export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: {
-    seed: 'tsx prisma/seed.ts',
+    seed: 'node --import tsx prisma/seed.ts',
   },
   datasource: {
     url: getDatabaseUrl(),
