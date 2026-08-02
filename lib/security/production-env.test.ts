@@ -69,7 +69,18 @@ describe('production environment validation', () => {
 
         assert.throws(
             validateProductionEnvironment,
-            /DATABASE_URL must require TLS/,
+            /sslmode=verify-full/,
+        );
+    });
+
+    it('rejects TLS without certificate hostname verification', () => {
+        setValidProductionEnvironment();
+        process.env.DATABASE_URL =
+            'postgresql://deploy:secret@db.example.com:5432/cakes?sslmode=require';
+
+        assert.throws(
+            validateProductionEnvironment,
+            /sslmode=verify-full/,
         );
     });
 });

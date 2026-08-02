@@ -1,11 +1,13 @@
 # syntax=docker/dockerfile:1
 
-FROM node:22.20.0-bookworm-slim AS base
+FROM node:22.23.1-bookworm-slim AS base
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends ca-certificates openssl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system --gid 1001 nodejs \
+    && useradd --system --uid 1001 --gid nodejs nextjs
 
 FROM base AS dependencies
 COPY package.json package-lock.json ./
@@ -16,6 +18,7 @@ RUN npm ci
 FROM dependencies AS release
 ENV NODE_ENV=production
 COPY . .
+USER nextjs
 CMD ["npm", "run", "db:migrate:deploy"]
 
 FROM dependencies AS builder
@@ -26,9 +29,6 @@ FROM base AS runner
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
-
-RUN groupadd --system --gid 1001 nodejs \
-    && useradd --system --uid 1001 --gid nodejs nextjs
 
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./

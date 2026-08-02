@@ -20,17 +20,25 @@ afterEach(() => {
 });
 
 describe('production environment validation', () => {
-    it('requires database TLS at runtime', () => {
+    it('requires full database certificate and hostname verification at runtime', () => {
         setEnvironment('NODE_ENV', 'production');
         delete process.env.NEXT_PHASE;
 
         assert.throws(
             () => validateDatabaseUrl('postgresql://user:pass@db.example.com/app'),
-            /must require TLS/,
+            /sslmode=verify-full/,
+        );
+        assert.throws(
+            () => validateDatabaseUrl('postgresql://user:pass@db.example.com/app?sslmode=require'),
+            /sslmode=verify-full/,
         );
         assert.equal(
             validateDatabaseUrl('postgresql://user:pass@db.example.com/app?sslmode=verify-full'),
             'postgresql://user:pass@db.example.com/app?sslmode=verify-full',
+        );
+        assert.throws(
+            () => validateDatabaseUrl('postgresql://localhost/app?sslmode=verify-full'),
+            /must not use a local database host/,
         );
     });
 

@@ -152,6 +152,10 @@ Create PostgreSQL as a separate Coolify resource in the same project and
 environment. Enable database SSL with `verify-full`, then use the SSL-enabled
 internal connection URL as `DATABASE_URL`. Keep the database private.
 
+Push and select the `codex/production` branch as Coolify's production branch.
+Enable automatic deployment on push only for this branch; keep pull-request
+previews disabled unless they use separate secrets and a separate database.
+
 Deploy this repository as a **Docker Compose** resource:
 
 - Base directory: `/`
@@ -168,6 +172,9 @@ variables and do not need to be exposed during the image build. Use
 `TRUSTED_PROXY_IP_HEADER=x-real-ip` when Coolify's Traefik proxy is directly
 internet-facing. Mark `ADMIN_PASSWORD_HASH` as **Literal** in Coolify because
 the scrypt value contains `$` characters.
+
+Do not map port `3000` to the host. Assign the domain to the `app` service as
+`https://your-domain.example:3000`; Coolify's proxy will expose it on HTTPS.
 
 Both services mount Coolify's generated CA certificate from
 `/data/coolify/ssl/coolify-ca.crt`. Do not remove this mount while using
