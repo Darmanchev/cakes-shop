@@ -4,8 +4,6 @@ import {createOrder, ProductNotFoundError} from '@/features/orders/order.service
 import {formatOrderTelegramMessage, sendTelegramMessage} from '@/features/orders/order.notifications';
 import {RequestBodyError, readJsonBody} from '@/lib/http/read-json-body';
 import {consumeRateLimit, getClientIdentifier} from '@/lib/security/rate-limit';
-import {getClientIp} from '@/lib/security/client-ip';
-import {verifyTurnstileToken} from '@/lib/security/turnstile';
 
 const MAX_BODY_BYTES = 16 * 1024;
 const ORDER_RATE_LIMIT = 5;
@@ -14,7 +12,6 @@ const ORDER_RATE_WINDOW_MS = 10 * 60 * 1000;
 
 export async function POST(request: Request) {
     const clientIdentifier = getClientIdentifier(request.headers);
-    const clientIp = getClientIp(request.headers);
 
     if (!clientIdentifier) {
         console.error('Trusted proxy did not provide a valid client IP');
@@ -53,16 +50,7 @@ export async function POST(request: Request) {
         );
     }
 
-    const turnstileToken = payload && typeof payload === 'object' && !Array.isArray(payload)
-        ? (payload as Record<string, unknown>).turnstileToken
-        : undefined;
-    const orderPayload = payload && typeof payload === 'object' && !Array.isArray(payload)
-        ? Object.fromEntries(
-            Object.entries(payload as Record<string, unknown>)
-                .filter(([key]) => key !== 'turnstileToken'),
-        )
-        : payload;
-    const validation = parseCreateOrderInput(orderPayload);
+    const validation = parseCreateOrderInput(payload);
 
     if (!validation.success) {
         return NextResponse.json(
@@ -70,13 +58,6 @@ export async function POST(request: Request) {
                 error: 'Validation failed',
                 fieldErrors: validation.fieldErrors,
             },
-            {status: 422},
-        );
-    }
-
-    if (!await verifyTurnstileToken(turnstileToken, 'create-order', clientIp)) {
-        return NextResponse.json(
-            {error: 'Bot verification failed. Try again.'},
             {status: 422},
         );
     }

@@ -5,12 +5,12 @@ export function proxy(request: NextRequest) {
     const isDevelopment = process.env.NODE_ENV === 'development';
     const contentSecurityPolicy = [
         "default-src 'self'",
-        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://challenges.cloudflare.com${isDevelopment ? " 'unsafe-eval'" : ''}`,
+        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ''}`,
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: https://images.unsplash.com",
         "font-src 'self' data:",
-        "connect-src 'self' https://challenges.cloudflare.com",
-        "frame-src https://challenges.cloudflare.com",
+        "connect-src 'self'",
+        "frame-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",
         "frame-ancestors 'none'",

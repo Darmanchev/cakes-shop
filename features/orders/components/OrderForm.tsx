@@ -1,7 +1,6 @@
 'use client';
 
 import {FormEvent, useState} from 'react';
-import Script from 'next/script';
 import {Send} from 'lucide-react';
 import {useLanguage} from '@/components/language/LanguageProvider';
 import type {Product} from '@/features/products/product.types';
@@ -41,13 +40,7 @@ function FieldError({messages}: { messages?: string[] }) {
     );
 }
 
-export function OrderForm({
-    products,
-    turnstileSiteKey,
-}: {
-    products: Product[];
-    turnstileSiteKey?: string;
-}) {
+export function OrderForm({products}: {products: Product[]}) {
     const [status, setStatus] = useState<OrderFormStatus>('idle');
     const [fieldErrors, setFieldErrors] = useState<OrderFieldErrors>({});
     const [deliveryType, setDeliveryType] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY');
@@ -76,7 +69,6 @@ export function OrderForm({
 
                 setFieldErrors(responseBody?.fieldErrors ?? {});
                 setStatus('error');
-                window.turnstile?.reset();
 
                 return;
             }
@@ -84,7 +76,6 @@ export function OrderForm({
             setStatus('success');
             form.reset();
             setDeliveryType('DELIVERY');
-            window.turnstile?.reset();
         } catch (error) {
             console.error('Failed to submit order', error);
             setStatus('error');
@@ -97,12 +88,6 @@ export function OrderForm({
 
     return (
         <form onSubmit={handleSubmit} className="grid gap-4 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
-            {turnstileSiteKey ? (
-                <Script
-                    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-                    strategy="afterInteractive"
-                />
-            ) : null}
             <div className="grid gap-2">
                 <label htmlFor="name" className="text-sm font-medium text-stone-800">
                     {t.form.name}
@@ -246,15 +231,6 @@ export function OrderForm({
                 />
                 <FieldError messages={fieldErrors.comment}/>
             </div>
-
-            {turnstileSiteKey ? (
-                <div
-                    className="cf-turnstile"
-                    data-sitekey={turnstileSiteKey}
-                    data-action="create-order"
-                    data-response-field-name="turnstileToken"
-                />
-            ) : null}
 
             <button
                 type="submit"

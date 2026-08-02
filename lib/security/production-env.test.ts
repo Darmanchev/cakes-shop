@@ -9,9 +9,6 @@ const ENVIRONMENT_NAMES = [
     'RATE_LIMIT_SECRET',
     'PII_ENCRYPTION_KEY',
     'TRUSTED_PROXY_IP_HEADER',
-    'TURNSTILE_SECRET_KEY',
-    'TURNSTILE_EXPECTED_HOSTNAME',
-    'TURNSTILE_SITE_KEY',
 ] as const;
 
 const originalEnvironment = Object.fromEntries(
@@ -28,9 +25,6 @@ function setValidProductionEnvironment() {
     process.env.PII_ENCRYPTION_KEY =
         'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
     process.env.TRUSTED_PROXY_IP_HEADER = 'cf-connecting-ip';
-    process.env.TURNSTILE_SECRET_KEY = 'secret-key';
-    process.env.TURNSTILE_EXPECTED_HOSTNAME = 'cakes.example.com';
-    process.env.TURNSTILE_SITE_KEY = 'site-key';
 }
 
 afterEach(() => {

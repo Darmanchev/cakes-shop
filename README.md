@@ -45,10 +45,7 @@ ADMIN_PASSWORD_HASH="scrypt$...$..."
 ADMIN_TOTP_SECRET="BASE32_SECRET"
 RATE_LIMIT_SECRET="long-random-secret"
 PII_ENCRYPTION_KEY="base64url-encoded-32-byte-key"
-TRUSTED_PROXY_IP_HEADER="cf-connecting-ip"
-TURNSTILE_SITE_KEY="site-key"
-TURNSTILE_SECRET_KEY="secret-key"
-TURNSTILE_EXPECTED_HOSTNAME="cakes.example.com"
+TRUSTED_PROXY_IP_HEADER="x-real-ip"
 ORDER_RETENTION_DAYS="365"
 
 # Optional notifications
@@ -83,7 +80,7 @@ docs/         short architecture and database notes
 
 ## Security and production
 
-The admin area uses a scrypt password, TOTP with replay prevention, revocable server-side sessions, a session cap and a login audit. Order submission uses persistent per-IP rate limits and requires Cloudflare Turnstile in production. Direct customer identifiers are encrypted with AES-256-GCM before they are stored.
+The admin area uses a scrypt password, TOTP with replay prevention, revocable server-side sessions, a session cap and a login audit. Order submission uses persistent per-IP rate limits. Direct customer identifiers are encrypted with AES-256-GCM before they are stored.
 
 Run `npm run env:check` before deployment. Production PostgreSQL must use TLS, the origin must only accept traffic from a proxy that overwrites `TRUSTED_PROXY_IP_HEADER`, and database backups must be encrypted. After upgrading an existing database, run `npm run pii:encrypt-existing` once after configuring `PII_ENCRYPTION_KEY`.
 
