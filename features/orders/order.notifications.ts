@@ -1,5 +1,5 @@
-import type { Order } from '@prisma/client';
 import { formatPrice } from '@/lib/utils/format-price';
+import type { OrderWithItems } from './order.service';
 
 function formatOrderDate(date: Date) {
     return new Intl.DateTimeFormat('bg-BG', {
@@ -14,17 +14,22 @@ function escapeHtml(value: string) {
         .replaceAll('>', '&gt;');
 }
 
-export function formatOrderTelegramMessage(order: Order) {
-    const unitPrice = formatPrice(order.unitPriceMinor, 'bg');
+export function formatOrderTelegramMessage(order: OrderWithItems) {
     const total = formatPrice(order.totalMinor, 'bg');
+    const products = order.items.length > 0
+        ? order.items
+        : [{
+            productName: order.productName,
+            quantity: order.quantity,
+            unitPriceMinor: order.unitPriceMinor,
+        }];
 
     return [
         '<b>Нова поръчка</b>',
         '',
         `<b>Номер:</b> ${escapeHtml(order.id)}`,
-        `<b>Продукт:</b> ${escapeHtml(order.productName)}`,
-        `<b>Единична цена:</b> ${unitPrice}`,
-        `<b>Брой:</b> ${order.quantity}`,
+        '<b>Продукти:</b>',
+        ...products.map((item) => `• ${escapeHtml(item.productName)} — ${item.quantity} бр. × ${formatPrice(item.unitPriceMinor, 'bg')}`),
         `<b>Общо:</b> ${total}`,
         `<b>Дата:</b> ${formatOrderDate(order.date)}`,
         `<b>Получаване:</b> ${order.deliveryType === 'DELIVERY' ? 'Доставка' : 'Вземане на място'}`,

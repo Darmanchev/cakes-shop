@@ -100,7 +100,7 @@ export async function POST(request: Request) {
                 {
                     error: 'Product not found',
                     fieldErrors: {
-                        productId: ['Избраният продукт не съществува'],
+                        items: ['Един от избраните продукти не съществува'],
                     },
                 },
                 {status: 404},

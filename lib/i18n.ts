@@ -68,7 +68,13 @@ interface AppTranslations {
     product: string;
     productPlaceholder: string;
     quantity: string;
+    productComment: string;
+    orderItems: string;
+    addProduct: string;
+    removeProduct: string;
     date: string;
+    dateHint: string;
+    openCalendar: string;
     deliveryType: string;
     delivery: string;
     pickup: string;
@@ -137,7 +143,13 @@ export const translations: Record<Language, AppTranslations> = {
       product: 'Какво искате да поръчате',
       productPlaceholder: 'Изберете продукт',
       quantity: 'Количество',
+      productComment: 'Коментар към продукта',
+      orderItems: 'Продукти в поръчката',
+      addProduct: 'Добави продукт',
+      removeProduct: 'Премахни продукта',
       date: 'Дата, за която е нужна поръчката',
+      dateHint: 'Въведете ДД.ММ.ГГГГ или изберете дата от календара.',
+      openCalendar: 'Отвори календар',
       deliveryType: 'Начин на получаване',
       delivery: 'Доставка',
       pickup: 'Вземане на място',
@@ -248,9 +260,9 @@ export const translations: Record<Language, AppTranslations> = {
     orderSteps: {
       title: 'How ordering works',
       steps: [
-        { title: '1. Request', text: 'Choose a product and leave your contact details.' },
-        { title: '2. Details', text: 'We agree on flavor, weight, date, and deposit.' },
-        { title: '3. Pickup', text: 'Pickup or delivery at the agreed time.' },
+        { title: '1. Request', text: 'Choose an order and leave your contact details.' },
+        { title: '2. Details', text: 'We confirm the order details.' },
+        { title: '3. Receiving', text: 'Pickup or delivery at the agreed time.' },
       ],
     },
     order: {
@@ -265,7 +277,13 @@ export const translations: Record<Language, AppTranslations> = {
       product: 'What would you like to order',
       productPlaceholder: 'Choose a product',
       quantity: 'Quantity',
+      productComment: 'Product comment',
+      orderItems: 'Order items',
+      addProduct: 'Add product',
+      removeProduct: 'Remove product',
       date: 'Date needed',
+      dateHint: 'Enter DD.MM.YYYY or choose a date from the calendar.',
+      openCalendar: 'Open calendar',
       deliveryType: 'Fulfilment method',
       delivery: 'Delivery',
       pickup: 'Pickup',
@@ -376,8 +394,8 @@ export const translations: Record<Language, AppTranslations> = {
     orderSteps: {
       title: 'Как работает заказ',
       steps: [
-        { title: '1. Заявка', text: 'Клиент выбирает товар и оставляет контакты.' },
-        { title: '2. Уточнение', text: 'Вы согласуете начинку, вес, дату и предоплату.' },
+        { title: '1. Заявка', text: 'Выберите заказ и оставьте ваши контакты.' },
+        { title: '2. Уточнение', text: 'Согласование заказа.' },
         { title: '3. Получение', text: 'Самовывоз или доставка в согласованное время.' },
       ],
     },
@@ -393,7 +411,13 @@ export const translations: Record<Language, AppTranslations> = {
       product: 'Что хотите заказать',
       productPlaceholder: 'Выберите товар',
       quantity: 'Количество',
+      productComment: 'Комментарий к товару',
+      orderItems: 'Товары в заказе',
+      addProduct: 'Добавить товар',
+      removeProduct: 'Удалить товар',
       date: 'Дата, к которой нужен заказ',
+      dateHint: 'Введите ДД.ММ.ГГГГ или выберите дату в календаре.',
+      openCalendar: 'Открыть календарь',
       deliveryType: 'Способ получения',
       delivery: 'Доставка',
       pickup: 'Самовывоз',

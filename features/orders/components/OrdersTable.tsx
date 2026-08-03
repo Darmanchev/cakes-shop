@@ -49,14 +49,36 @@ export function OrdersTable({orders}: { orders: Orders }) {
                     </tr>
                     </thead>
                     <tbody className="divide-y divide-stone-200">
-                    {orders.map((order) => (
-                        <tr key={order.id}>
+                    {orders.map((order) => {
+                        const items = order.items.length > 0
+                            ? order.items
+                            : [{
+                                id: order.id,
+                                productName: order.productName,
+                                unitPriceMinor: order.unitPriceMinor,
+                                quantity: order.quantity,
+                                totalMinor: order.totalMinor,
+                                comment: null,
+                            }];
+
+                        return <tr key={order.id}>
                             <td className="px-4 py-3 font-medium text-stone-950">{order.name}</td>
                             <td className="px-4 py-3 text-stone-700">{order.phone}</td>
                             <td className="px-4 py-3 text-stone-700">{order.email || '-'}</td>
-                            <td className="px-4 py-3 text-stone-700">{order.productName}</td>
-                            <td className="px-4 py-3 text-stone-700">{formatPrice(order.unitPriceMinor, 'ru')}</td>
-                            <td className="px-4 py-3 text-stone-700">{order.quantity}</td>
+                            <td className="px-4 py-3 text-stone-700">
+                                <div className="grid gap-2">
+                                    {items.map((item) => <div key={item.id}>
+                                        <p>{item.productName}</p>
+                                        {item.comment ? <p className="mt-1 text-xs text-stone-500">{item.comment}</p> : null}
+                                    </div>)}
+                                </div>
+                            </td>
+                            <td className="px-4 py-3 text-stone-700">
+                                <div className="grid gap-2">{items.map((item) => <p key={item.id}>{formatPrice(item.unitPriceMinor, 'ru')}</p>)}</div>
+                            </td>
+                            <td className="px-4 py-3 text-stone-700">
+                                <div className="grid gap-2">{items.map((item) => <p key={item.id}>{item.quantity}</p>)}</div>
+                            </td>
                             <td className="whitespace-nowrap px-4 py-3 font-medium text-stone-950">{formatPrice(order.totalMinor, 'ru')}</td>
                             <td className="px-4 py-3 text-stone-700">{formatDate(order.date)}</td>
                             <td className="px-4 py-3 text-stone-700">
@@ -84,8 +106,8 @@ export function OrdersTable({orders}: { orders: Orders }) {
                             </td>
                             <td className="px-4 py-3 text-stone-700">{formatDate(order.createdAt)}</td>
                             <td className="px-4 py-3 text-stone-700">{order.comment || '—'}</td>
-                        </tr>
-                    ))}
+                        </tr>;
+                    })}
                     </tbody>
                 </table>
             </div>
