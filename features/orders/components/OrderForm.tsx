@@ -1,10 +1,21 @@
 'use client';
 
-import {FormEvent, useState} from 'react';
-import {Send} from 'lucide-react';
+import {FormEvent, useRef, useState} from 'react';
+import {Plus, Send, Trash2} from 'lucide-react';
 import {useLanguage} from '@/components/language/LanguageProvider';
 import type {Product} from '@/features/products/product.types';
 import type {OrderApiErrorResponse, OrderFieldErrors, OrderFormStatus} from '../order.types';
+
+type OrderItemForm = {
+    key: number;
+    productId: string;
+    quantity: number;
+    comment: string;
+};
+
+function createOrderItem(key: number): OrderItemForm {
+    return {key, productId: '', quantity: 1, comment: ''};
+}
 
 function getTodayInSofia() {
     const parts = new Intl.DateTimeFormat('en-GB', {
@@ -28,6 +39,19 @@ function getMaxOrderDate(minDate: string) {
     return date.toISOString().slice(0, 10);
 }
 
+function formatDateForTyping(isoDate: string) {
+    return isoDate.split('-').reverse().join('.');
+}
+
+function getIsoDate(value: string) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return value;
+    }
+
+    const match = /^(\d{2})[./-](\d{2})[./-](\d{4})$/.exec(value);
+    return match ? `${match[3]}-${match[2]}-${match[1]}` : '';
+}
+
 function FieldError({messages}: { messages?: string[] }) {
     const message = messages?.[0];
 
@@ -41,12 +65,21 @@ function FieldError({messages}: { messages?: string[] }) {
 }
 
 export function OrderForm({products}: {products: Product[]}) {
+    const nextItemKey = useRef(1);
     const [status, setStatus] = useState<OrderFormStatus>('idle');
     const [fieldErrors, setFieldErrors] = useState<OrderFieldErrors>({});
     const [deliveryType, setDeliveryType] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY');
+    const [items, setItems] = useState<OrderItemForm[]>(() => [createOrderItem(0)]);
+    const [date, setDate] = useState('');
     const {t} = useLanguage();
     const minOrderDate = getTodayInSofia();
     const maxOrderDate = getMaxOrderDate(minOrderDate);
+
+    function updateItem(key: number, update: Partial<Omit<OrderItemForm, 'key'>>) {
+        setItems((currentItems) => currentItems.map((item) => (
+            item.key === key ? {...item, ...update} : item
+        )));
+    }
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -55,7 +88,10 @@ export function OrderForm({products}: {products: Product[]}) {
 
         const form = event.currentTarget;
         const formData = new FormData(form);
-        const payload = Object.fromEntries(formData.entries());
+        const payload = {
+            ...Object.fromEntries(formData.entries()),
+            items: items.map(({productId, quantity, comment}) => ({productId, quantity, comment})),
+        };
 
         try {
             const response = await fetch('/api/orders', {
@@ -76,6 +112,9 @@ export function OrderForm({products}: {products: Product[]}) {
             setStatus('success');
             form.reset();
             setDeliveryType('DELIVERY');
+            nextItemKey.current = 1;
+            setItems([createOrderItem(0)]);
+            setDate('');
         } catch (error) {
             console.error('Failed to submit order', error);
             setStatus('error');
@@ -87,7 +126,7 @@ export function OrderForm({products}: {products: Product[]}) {
     );
 
     return (
-        <form onSubmit={handleSubmit} className="grid gap-4 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
+        <form onSubmit={handleSubmit} className="grid min-w-0 gap-4 rounded-lg border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="grid gap-2">
                 <label htmlFor="name" className="text-sm font-medium text-stone-800">
                     {t.form.name}
@@ -129,46 +168,119 @@ export function OrderForm({products}: {products: Product[]}) {
                 <FieldError messages={fieldErrors.email}/>
             </div>
 
-            <div className="grid gap-2">
-                <label htmlFor="productId" className="text-sm font-medium text-stone-800">
-                    {t.form.product}
-                </label>
-                <select id="productId" name="productId" required
-                        className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700">
-                    <option value="">{t.form.productPlaceholder}</option>
-                    {products.map((product) => (
-                        <option key={product.id} value={product.id}>
-                            {t.products[product.id]?.name ?? product.name}
-                        </option>
-                    ))}
-                </select>
-                <FieldError messages={fieldErrors.productId}/>
-            </div>
+            <fieldset className="grid gap-3">
+                <legend className="text-sm font-medium text-stone-800">{t.form.orderItems}</legend>
+                {items.map((item, index) => (
+                    <div key={item.key} className="grid gap-3 rounded-md border border-stone-200 bg-stone-50 p-3 sm:grid-cols-[minmax(0,1fr)_112px]">
+                        <div className="grid gap-2">
+                            <label htmlFor={`product-${item.key}`} className="text-sm font-medium text-stone-800">
+                                {t.form.product}
+                            </label>
+                            <select
+                                id={`product-${item.key}`}
+                                required
+                                value={item.productId}
+                                onChange={(event) => updateItem(item.key, {productId: event.target.value})}
+                                className="h-11 rounded-md border border-stone-300 bg-white px-3 outline-none focus:border-rose-700"
+                            >
+                                <option value="">{t.form.productPlaceholder}</option>
+                                {products.map((product) => (
+                                    <option key={product.id} value={product.id}>
+                                        {t.products[product.id]?.name ?? product.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-            <div className="grid gap-2">
-                <label htmlFor="quantity" className="text-sm font-medium text-stone-800">
-                    {t.form.quantity}
-                </label>
+                        <div className="grid gap-2">
+                            <label htmlFor={`quantity-${item.key}`} className="text-sm font-medium text-stone-800">
+                                {t.form.quantity}
+                            </label>
+                            <input
+                                id={`quantity-${item.key}`}
+                                type="number"
+                                min={1}
+                                max={20}
+                                required
+                                value={item.quantity}
+                                onChange={(event) => updateItem(item.key, {quantity: Number(event.target.value)})}
+                                className="h-11 rounded-md border border-stone-300 bg-white px-3 outline-none focus:border-rose-700"
+                            />
+                        </div>
 
-                <input
-                    id="quantity"
-                    name="quantity"
-                    type="number"
-                    min={1}
-                    max={20}
-                    defaultValue={1}
-                    required
-                    className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
-                />
-                <FieldError messages={fieldErrors.quantity}/>
-            </div>
+                        <div className="grid gap-2 sm:col-span-2">
+                            <label htmlFor={`item-comment-${item.key}`} className="text-sm font-medium text-stone-800">
+                                {t.form.productComment}
+                            </label>
+                            <div className="flex gap-2">
+                                <textarea
+                                    id={`item-comment-${item.key}`}
+                                    rows={2}
+                                    maxLength={500}
+                                    value={item.comment}
+                                    onChange={(event) => updateItem(item.key, {comment: event.target.value})}
+                                    className="min-w-0 flex-1 resize-none rounded-md border border-stone-300 bg-white px-3 py-2 outline-none focus:border-rose-700"
+                                />
+                                {items.length > 1 ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => setItems((currentItems) => currentItems.filter(({key}) => key !== item.key))}
+                                        className="self-end rounded-md border border-stone-300 p-2.5 text-stone-600 hover:border-rose-700 hover:text-rose-700"
+                                        aria-label={`${t.form.removeProduct} ${index + 1}`}
+                                        title={t.form.removeProduct}
+                                    >
+                                        <Trash2 size={18} aria-hidden="true"/>
+                                    </button>
+                                ) : null}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                <div className="flex justify-end">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const itemKey = nextItemKey.current++;
+                            setItems((currentItems) => [...currentItems, createOrderItem(itemKey)]);
+                        }}
+                        disabled={items.length >= 10}
+                        className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-stone-300 bg-white px-3 text-sm font-medium text-stone-800 hover:border-rose-700 disabled:cursor-not-allowed disabled:opacity-50 min-[400px]:w-auto"
+                    >
+                        <Plus size={17} aria-hidden="true"/>
+                        {t.form.addProduct}
+                    </button>
+                </div>
+                <FieldError messages={fieldErrors.items}/>
+            </fieldset>
 
             <div className="grid gap-2">
                 <label htmlFor="date" className="text-sm font-medium text-stone-800">
                     {t.form.date}
                 </label>
-                <input id="date" name="date" type="date" min={minOrderDate} max={maxOrderDate} required
-                       className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"/>
+                <div className="flex gap-2">
+                    <input
+                        id="date"
+                        name="date"
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="ДД.ММ.ГГГГ"
+                        value={date}
+                        onChange={(event) => setDate(event.target.value)}
+                        required
+                        className="h-11 min-w-0 flex-1 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+                    />
+                    <input
+                        type="date"
+                        value={getIsoDate(date)}
+                        min={minOrderDate}
+                        max={maxOrderDate}
+                        onChange={(event) => setDate(formatDateForTyping(event.target.value))}
+                        aria-label={t.form.openCalendar}
+                        title={t.form.openCalendar}
+                        className="h-11 w-12 rounded-md border border-stone-300 bg-white px-1 text-transparent outline-none focus:border-rose-700"
+                    />
+                </div>
+                <p className="text-sm text-stone-600">{t.form.dateHint}</p>
                 <FieldError messages={fieldErrors.date}/>
             </div>
 
@@ -176,25 +288,13 @@ export function OrderForm({products}: {products: Product[]}) {
                 <legend className="text-sm font-medium text-stone-800">
                     {t.form.deliveryType}
                 </legend>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-col gap-3 min-[400px]:flex-row min-[400px]:flex-wrap min-[400px]:gap-4">
                     <label className="inline-flex items-center gap-2">
-                        <input
-                            type="radio"
-                            name="deliveryType"
-                            value="DELIVERY"
-                            checked={deliveryType === 'DELIVERY'}
-                            onChange={() => setDeliveryType('DELIVERY')}
-                        />
+                        <input type="radio" name="deliveryType" value="DELIVERY" checked={deliveryType === 'DELIVERY'} onChange={() => setDeliveryType('DELIVERY')}/>
                         {t.form.delivery}
                     </label>
                     <label className="inline-flex items-center gap-2">
-                        <input
-                            type="radio"
-                            name="deliveryType"
-                            value="PICKUP"
-                            checked={deliveryType === 'PICKUP'}
-                            onChange={() => setDeliveryType('PICKUP')}
-                        />
+                        <input type="radio" name="deliveryType" value="PICKUP" checked={deliveryType === 'PICKUP'} onChange={() => setDeliveryType('PICKUP')}/>
                         {t.form.pickup}
                     </label>
                 </div>
@@ -202,50 +302,27 @@ export function OrderForm({products}: {products: Product[]}) {
             </fieldset>
 
             {deliveryType === 'DELIVERY' ? <div className="grid gap-2">
-                <label htmlFor="deliveryAddress" className="text-sm font-medium text-stone-800">
-                    {t.form.deliveryAddress}
-                </label>
-
-                <textarea
-                    id="deliveryAddress"
-                    name="deliveryAddress"
-                    rows={3}
-                    required
-                    maxLength={300}
-                    autoComplete="street-address"
-                    className="resize-none rounded-md border border-stone-300 px-3 py-2 outline-none focus:border-rose-700"
-                />
+                <label htmlFor="deliveryAddress" className="text-sm font-medium text-stone-800">{t.form.deliveryAddress}</label>
+                <textarea id="deliveryAddress" name="deliveryAddress" rows={3} required maxLength={300} autoComplete="street-address"
+                          className="resize-none rounded-md border border-stone-300 px-3 py-2 outline-none focus:border-rose-700"/>
                 <FieldError messages={fieldErrors.deliveryAddress}/>
             </div> : <input type="hidden" name="deliveryAddress" value=""/>}
 
             <div className="grid gap-2">
-                <label htmlFor="comment" className="text-sm font-medium text-stone-800">
-                    {t.form.comment}
-                </label>
-                <textarea
-                    id="comment"
-                    name="comment"
-                    rows={4}
-                    maxLength={500}
-                    className="resize-none rounded-md border border-stone-300 px-3 py-2 outline-none focus:border-rose-700"
-                />
+                <label htmlFor="comment" className="text-sm font-medium text-stone-800">{t.form.comment}</label>
+                <textarea id="comment" name="comment" rows={4} maxLength={500}
+                          className="resize-none rounded-md border border-stone-300 px-3 py-2 outline-none focus:border-rose-700"/>
                 <FieldError messages={fieldErrors.comment}/>
             </div>
 
-            <button
-                type="submit"
-                disabled={status === 'sending'}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-stone-950 px-5 text-sm font-medium text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
+            <button type="submit" disabled={status === 'sending'}
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-stone-950 px-5 text-sm font-medium text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60">
                 <Send size={17} aria-hidden="true"/>
                 {status === 'sending' ? t.form.sending : t.form.submit}
             </button>
 
             {status === 'success' ? <p className="text-sm text-emerald-700">{t.form.success}</p> : null}
-            {status === 'error' && !hasFieldErrors ? (
-                <p className="text-sm text-red-700" role="alert">{t.form.error}</p>
-            ) : null}
-
+            {status === 'error' && !hasFieldErrors ? <p className="text-sm text-red-700" role="alert">{t.form.error}</p> : null}
         </form>
     );
 }

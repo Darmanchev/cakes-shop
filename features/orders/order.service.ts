@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import type { CreateOrderInput } from './order.schema';
-import { Currency, type OrderStatus } from '@prisma/client';
-import {decryptOrderPii, encryptOrderPii} from '@/lib/security/pii';
+import { Currency, type Order, type OrderItem, type OrderStatus } from '@prisma/client';
+import {decryptOrderPii, decryptPii, encryptOrderPii, encryptPii} from '@/lib/security/pii';
 
 export class ProductNotFoundError extends Error {
     constructor() {
@@ -10,29 +10,67 @@ export class ProductNotFoundError extends Error {
     }
 }
 
+export type OrderWithItems = Order & {items: OrderItem[]};
+
+function decryptOrderWithItems(order: OrderWithItems): OrderWithItems {
+    return {
+        ...decryptOrderPii(order),
+        items: order.items.map((item) => ({
+            ...item,
+            comment: item.comment === null ? null : decryptPii(item.comment),
+        })),
+    };
+}
+
 export async function createOrder(order: CreateOrderInput) {
     await deleteExpiredOrders();
 
     const createdOrder = await prisma.$transaction(async (tx) => {
-        const product = await tx.product.findUnique({
+        const productIds = [...new Set(order.items.map((item) => item.productId))];
+        const products = await tx.product.findMany({
             where: {
-                id: order.productId,
+                id: {in: productIds},
             },
             select: {
+                id: true,
                 name: true,
                 priceMinor: true,
             },
         });
 
-        if (!product) {
+        if (products.length !== productIds.length) {
             throw new ProductNotFoundError();
         }
 
-        const totalMinor = product.priceMinor * order.quantity;
+        const productsById = new Map(products.map((product) => [product.id, product]));
+        const items = order.items.map((item) => {
+            const product = productsById.get(item.productId);
+
+            if (!product) {
+                throw new ProductNotFoundError();
+            }
+
+            const totalMinor = product.priceMinor * item.quantity;
+            if (!Number.isSafeInteger(totalMinor) || totalMinor > 2_147_483_647) {
+                throw new Error('Order item total is outside the supported range');
+            }
+
+            return {
+                productId: product.id,
+                productName: product.name,
+                unitPriceMinor: product.priceMinor,
+                quantity: item.quantity,
+                totalMinor,
+                comment: item.comment ? encryptPii(item.comment) : null,
+            };
+        });
+        const totalMinor = items.reduce((total, item) => total + item.totalMinor, 0);
 
         if (!Number.isSafeInteger(totalMinor) || totalMinor > 2_147_483_647) {
             throw new Error('Order total is outside the supported range');
         }
+
+        const firstItem = items[0];
 
         const encrypted = encryptOrderPii({
             name: order.name,
@@ -47,21 +85,23 @@ export async function createOrder(order: CreateOrderInput) {
                 name: encrypted.name,
                 phone: encrypted.phone,
                 email: encrypted.email,
-                quantity: order.quantity,
+                quantity: firstItem.quantity,
                 deliveryType: order.deliveryType,
                 deliveryAddress: encrypted.deliveryAddress,
-                productId: order.productId,
-                productName: product.name,
-                unitPriceMinor: product.priceMinor,
+                productId: firstItem.productId,
+                productName: firstItem.productName,
+                unitPriceMinor: firstItem.unitPriceMinor,
                 currency: Currency.EUR,
                 totalMinor,
                 date: new Date(order.date),
                 comment: encrypted.comment,
-            }
+                items: {create: items},
+            },
+            include: {items: true},
         });
     });
 
-    return decryptOrderPii(createdOrder);
+    return decryptOrderWithItems(createdOrder);
 }
 
 const DEFAULT_PAGE_SIZE = 50;
@@ -98,12 +138,13 @@ export async function getOrders(page = 1, pageSize = DEFAULT_PAGE_SIZE) {
             orderBy: {createdAt: 'desc'},
             skip: (safePage - 1) * safePageSize,
             take: safePageSize,
+            include: {items: true},
         }),
         prisma.order.count(),
     ]);
 
     return {
-        items: items.map(decryptOrderPii),
+        items: items.map(decryptOrderWithItems),
         total,
         page: safePage,
         pageCount: Math.max(1, Math.ceil(total / safePageSize)),

@@ -22,7 +22,7 @@ export function ProductCard({ product }: { product: Product }) {
         />
       </div>
 
-      <div className="flex flex-grow flex-col space-y-4 p-5">
+      <div className="flex flex-grow flex-col space-y-4 p-4 sm:p-5">
         <div>
           <p className="text-sm text-rose-700">{t.productCard.categories[product.category]}</p>
           <h3 className="mt-1 text-xl font-semibold text-stone-950">{productCopy.name}</h3>
@@ -38,7 +38,7 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-4 border-t border-stone-100 pt-4">
+        <div className="mt-auto flex flex-col items-stretch gap-3 border-t border-stone-100 pt-4 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
           <p className="text-lg font-semibold text-stone-950">
             {t.productCard.from} {formatPrice(product.priceMinor, language)}
           </p>

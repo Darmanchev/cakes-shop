@@ -19,8 +19,11 @@ function validOrder() {
         name: 'Иван Петров',
         phone: '0888 123 456',
         email: 'ivan@example.com',
-        quantity: '2',
-        productId: 'cake-1',
+        items: [{
+            productId: 'cake-1',
+            quantity: '2',
+            comment: '',
+        }],
         date: dateInSofia(7),
         deliveryType: 'DELIVERY',
         deliveryAddress: 'ул. Витоша 1',
@@ -29,12 +32,38 @@ function validOrder() {
 }
 
 describe('create order validation', () => {
-    it('normalizes a valid Bulgarian phone and quantity', () => {
+    it('normalizes a valid Bulgarian phone, quantity, and manually entered date', () => {
         const result = parseCreateOrderInput(validOrder());
         assert.equal(result.success, true);
         if (result.success) {
             assert.equal(result.data.phone, '+359888123456');
-            assert.equal(result.data.quantity, 2);
+            assert.equal(result.data.items[0].quantity, 2);
+        }
+    });
+
+    it('accepts dates typed as DD.MM.YYYY', () => {
+        const result = parseCreateOrderInput({
+            ...validOrder(),
+            date: dateInSofia(7).split('-').reverse().join('.'),
+        });
+
+        assert.equal(result.success, true);
+        if (result.success) assert.equal(result.data.date, dateInSofia(7));
+    });
+
+    it('accepts multiple products with separate comments', () => {
+        const result = parseCreateOrderInput({
+            ...validOrder(),
+            items: [
+                {productId: 'cake-1', quantity: '1', comment: 'Без орехи'},
+                {productId: 'cake-2', quantity: '2', comment: 'Надпис: Честит рожден ден'},
+            ],
+        });
+
+        assert.equal(result.success, true);
+        if (result.success) {
+            assert.equal(result.data.items.length, 2);
+            assert.equal(result.data.items[1].quantity, 2);
         }
     });
 
