@@ -30,7 +30,7 @@ export function ProductHero() {
         </div>
       </div>
 
-      <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-stone-100 shadow-sm sm:aspect-[4/5]">
+      <div className="relative hidden aspect-[4/5] overflow-hidden rounded-lg bg-stone-100 shadow-sm sm:block">
         <Image
           src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1200&q=85"
           alt={t.hero.imageAlt}
