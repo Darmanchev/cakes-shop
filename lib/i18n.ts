@@ -72,7 +72,6 @@ interface AppTranslations {
     addProduct: string;
     removeProduct: string;
     date: string;
-    dateHint: string;
     openCalendar: string;
     deliveryType: string;
     delivery: string;
@@ -146,7 +145,6 @@ export const translations: Record<Language, AppTranslations> = {
       addProduct: 'Добави продукт',
       removeProduct: 'Премахни продукта',
       date: 'Дата, за която е нужна поръчката',
-      dateHint: 'Въведете ДД.ММ.ГГГГ или изберете дата от календара.',
       openCalendar: 'Отвори календар',
       deliveryType: 'Начин на получаване',
       delivery: 'Доставка',
@@ -279,7 +277,6 @@ export const translations: Record<Language, AppTranslations> = {
       addProduct: 'Add product',
       removeProduct: 'Remove product',
       date: 'Date needed',
-      dateHint: 'Enter DD.MM.YYYY or choose a date from the calendar.',
       openCalendar: 'Open calendar',
       deliveryType: 'Fulfilment method',
       delivery: 'Delivery',
@@ -412,7 +409,6 @@ export const translations: Record<Language, AppTranslations> = {
       addProduct: 'Добавить товар',
       removeProduct: 'Удалить товар',
       date: 'Дата, к которой нужен заказ',
-      dateHint: 'Введите ДД.ММ.ГГГГ или выберите дату в календаре.',
       openCalendar: 'Открыть календарь',
       deliveryType: 'Способ получения',
       delivery: 'Доставка',
