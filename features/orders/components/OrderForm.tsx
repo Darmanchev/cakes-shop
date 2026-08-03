@@ -1,6 +1,6 @@
 'use client';
 
-import {FormEvent, useState} from 'react';
+import {FormEvent, useRef, useState} from 'react';
 import {Plus, Send, Trash2} from 'lucide-react';
 import {useLanguage} from '@/components/language/LanguageProvider';
 import type {Product} from '@/features/products/product.types';
@@ -13,10 +13,8 @@ type OrderItemForm = {
     comment: string;
 };
 
-let nextItemKey = 1;
-
-function createOrderItem(): OrderItemForm {
-    return {key: nextItemKey++, productId: '', quantity: 1, comment: ''};
+function createOrderItem(key: number): OrderItemForm {
+    return {key, productId: '', quantity: 1, comment: ''};
 }
 
 function getTodayInSofia() {
@@ -67,10 +65,11 @@ function FieldError({messages}: { messages?: string[] }) {
 }
 
 export function OrderForm({products}: {products: Product[]}) {
+    const nextItemKey = useRef(1);
     const [status, setStatus] = useState<OrderFormStatus>('idle');
     const [fieldErrors, setFieldErrors] = useState<OrderFieldErrors>({});
     const [deliveryType, setDeliveryType] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY');
-    const [items, setItems] = useState<OrderItemForm[]>(() => [createOrderItem()]);
+    const [items, setItems] = useState<OrderItemForm[]>(() => [createOrderItem(0)]);
     const [date, setDate] = useState('');
     const {t} = useLanguage();
     const minOrderDate = getTodayInSofia();
@@ -113,7 +112,8 @@ export function OrderForm({products}: {products: Product[]}) {
             setStatus('success');
             form.reset();
             setDeliveryType('DELIVERY');
-            setItems([createOrderItem()]);
+            nextItemKey.current = 1;
+            setItems([createOrderItem(0)]);
             setDate('');
         } catch (error) {
             console.error('Failed to submit order', error);
@@ -126,7 +126,7 @@ export function OrderForm({products}: {products: Product[]}) {
     );
 
     return (
-        <form onSubmit={handleSubmit} className="grid gap-4 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
+        <form onSubmit={handleSubmit} className="grid min-w-0 gap-4 rounded-lg border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="grid gap-2">
                 <label htmlFor="name" className="text-sm font-medium text-stone-800">
                     {t.form.name}
@@ -239,9 +239,12 @@ export function OrderForm({products}: {products: Product[]}) {
                 <div className="flex justify-end">
                     <button
                         type="button"
-                        onClick={() => setItems((currentItems) => [...currentItems, createOrderItem()])}
+                        onClick={() => {
+                            const itemKey = nextItemKey.current++;
+                            setItems((currentItems) => [...currentItems, createOrderItem(itemKey)]);
+                        }}
                         disabled={items.length >= 10}
-                        className="inline-flex h-10 items-center gap-2 rounded-md border border-stone-300 bg-white px-3 text-sm font-medium text-stone-800 hover:border-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-stone-300 bg-white px-3 text-sm font-medium text-stone-800 hover:border-rose-700 disabled:cursor-not-allowed disabled:opacity-50 min-[400px]:w-auto"
                     >
                         <Plus size={17} aria-hidden="true"/>
                         {t.form.addProduct}
@@ -285,7 +288,7 @@ export function OrderForm({products}: {products: Product[]}) {
                 <legend className="text-sm font-medium text-stone-800">
                     {t.form.deliveryType}
                 </legend>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-col gap-3 min-[400px]:flex-row min-[400px]:flex-wrap min-[400px]:gap-4">
                     <label className="inline-flex items-center gap-2">
                         <input type="radio" name="deliveryType" value="DELIVERY" checked={deliveryType === 'DELIVERY'} onChange={() => setDeliveryType('DELIVERY')}/>
                         {t.form.delivery}

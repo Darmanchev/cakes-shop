@@ -44,7 +44,6 @@ interface AppTranslations {
   };
   catalog: {
     title: string;
-    description: string;
     sections: Record<Category, string>;
   };
   productCard: {
@@ -107,7 +106,6 @@ export const translations: Record<Language, AppTranslations> = {
     },
     catalog: {
       title: 'Каталог',
-      description: 'Подбрани торти, синнабони и сетове, които могат да се адаптират според повода.',
       sections: {
         cakes: 'Торти',
         cinnabons: 'Синнабони',
@@ -241,7 +239,6 @@ export const translations: Record<Language, AppTranslations> = {
     },
     catalog: {
       title: 'Catalog',
-      description: 'A curated selection of cakes, cinnabons, and sets that can be adapted to your occasion.',
       sections: {
         cakes: 'Cakes',
         cinnabons: 'Cinnabons',
@@ -375,7 +372,6 @@ export const translations: Record<Language, AppTranslations> = {
     },
     catalog: {
       title: 'Каталог',
-      description: 'Небольшая подборка тортов, синнабонов и наборов, которые можно адаптировать под ваш повод.',
       sections: {
         cakes: 'Торты',
         cinnabons: 'Синнабоны',

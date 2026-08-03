@@ -35,9 +35,9 @@ export default async function AdminOrdersPage({searchParams}: AdminOrdersPagePro
     ]);
 
     return (
-        <main className="min-h-screen bg-[#fff8f2] px-4 py-8 text-stone-950 sm:px-6">
+        <main className="min-h-screen bg-[#fff8f2] px-4 py-6 text-stone-950 sm:px-6 sm:py-8">
             <div className="mx-auto w-full max-w-none">
-                <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                     <div>
                         <p className="text-sm text-stone-600">
                             Админ-панель
@@ -48,7 +48,7 @@ export default async function AdminOrdersPage({searchParams}: AdminOrdersPagePro
                         </h1>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
                         <Link
                             href="/"
                             className="inline-flex h-11 items-center justify-center rounded-md border border-stone-300 bg-white px-4 text-sm font-medium hover:border-stone-950"
@@ -56,7 +56,7 @@ export default async function AdminOrdersPage({searchParams}: AdminOrdersPagePro
                             На сайт
                         </Link>
 
-                        <form action={logoutAdmin}>
+                        <form action={logoutAdmin} className="grid">
                             <button
                                 type="submit"
                                 className="inline-flex h-11 items-center justify-center rounded-md bg-stone-950 px-4 text-sm font-medium text-white hover:bg-stone-800"
@@ -64,7 +64,7 @@ export default async function AdminOrdersPage({searchParams}: AdminOrdersPagePro
                                 Выйти
                             </button>
                         </form>
-                        <form action={logoutAllAdminSessions}>
+                        <form action={logoutAllAdminSessions} className="col-span-2 grid sm:col-span-1">
                             <button
                                 type="submit"
                                 className="inline-flex h-11 items-center justify-center rounded-md border border-red-300 bg-white px-4 text-sm font-medium text-red-800 hover:bg-red-50"
@@ -80,14 +80,14 @@ export default async function AdminOrdersPage({searchParams}: AdminOrdersPagePro
                 <section className="mt-6 rounded-lg border border-stone-200 bg-white p-5">
                     <h2 className="text-lg font-semibold">Журнал входов</h2>
                     <div className="mt-3 overflow-x-auto">
-                        <table className="w-full text-left text-sm">
+                        <table className="min-w-[620px] text-left text-sm sm:w-full">
                             <thead><tr className="text-stone-600"><th className="py-2">Время</th><th>Результат</th><th>Клиент (hash)</th></tr></thead>
                             <tbody className="divide-y divide-stone-100">
                             {security.loginEvents.map((event) => (
                                 <tr key={event.id}>
                                     <td className="py-2">{event.createdAt.toLocaleString('ru-RU')}</td>
                                     <td>{event.outcome}</td>
-                                    <td className="font-mono">{event.identifierHash}</td>
+                                    <td className="break-all font-mono">{event.identifierHash}</td>
                                 </tr>
                             ))}
                             </tbody>
@@ -96,7 +96,7 @@ export default async function AdminOrdersPage({searchParams}: AdminOrdersPagePro
                 </section>
 
                 {orders.pageCount > 1 ? (
-                    <nav className="mt-4 flex items-center justify-between" aria-label="Страницы заказов">
+                    <nav className="mt-4 grid grid-cols-2 items-center gap-3 sm:flex sm:justify-between" aria-label="Страницы заказов">
                         <Link
                             href={`/admin/orders?page=${Math.max(1, orders.page - 1)}`}
                             aria-disabled={orders.page <= 1}
@@ -104,7 +104,7 @@ export default async function AdminOrdersPage({searchParams}: AdminOrdersPagePro
                         >
                             Назад
                         </Link>
-                        <span className="text-sm text-stone-600">
+                        <span className="order-first col-span-2 text-center text-sm text-stone-600 sm:order-none sm:col-span-1">
                             Страница {orders.page} от {orders.pageCount} · {orders.total} заказа
                         </span>
                         <Link
