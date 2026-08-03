@@ -19,7 +19,7 @@ function setValidProductionEnvironment() {
     process.env.DATABASE_URL =
         'postgresql://deploy:secret@db.example.com:5432/cakes?sslmode=verify-full';
     process.env.ADMIN_PASSWORD_HASH =
-        'scrypt$AAAAAAAAAAAAAAAAAAAAAA$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+        'scrypt:AAAAAAAAAAAAAAAAAAAAAA:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
     process.env.ADMIN_TOTP_SECRET = 'AAAAAAAAAAAAAAAAAAAAAAAAAA';
     process.env.RATE_LIMIT_SECRET = '0123456789abcdef0123456789abcdef';
     process.env.PII_ENCRYPTION_KEY =

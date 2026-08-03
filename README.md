@@ -41,7 +41,7 @@ Create `.env`:
 
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5435/stas_cakes_shop"
-ADMIN_PASSWORD_HASH="scrypt$...$..."
+ADMIN_PASSWORD_HASH="scrypt:...:..."
 ADMIN_TOTP_SECRET="BASE32_SECRET"
 RATE_LIMIT_SECRET="long-random-secret"
 PII_ENCRYPTION_KEY="base64url-encoded-32-byte-key"
@@ -167,8 +167,8 @@ service from overall health checks.
 Set the required variables from `.env.example` in Coolify. They are runtime
 variables and do not need to be exposed during the image build. Use
 `TRUSTED_PROXY_IP_HEADER=x-real-ip` when Coolify's Traefik proxy is directly
-internet-facing. Mark `ADMIN_PASSWORD_HASH` as **Literal** in Coolify because
-the scrypt value contains `$` characters.
+internet-facing. The generated `ADMIN_PASSWORD_HASH` uses a colon-delimited
+format that can be pasted into Coolify without Compose escaping.
 
 Do not map port `3000` to the host. Assign the domain to the `app` service as
 `https://your-domain.example:3000`; Coolify's proxy will expose it on HTTPS.

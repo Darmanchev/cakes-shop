@@ -4,7 +4,7 @@
 
 ```env
 DATABASE_URL="postgresql://user:password@db.example.com:5432/stas_cakes_shop?sslmode=verify-full"
-ADMIN_PASSWORD_HASH="scrypt$base64url-salt$base64url-hash"
+ADMIN_PASSWORD_HASH="scrypt:base64url-salt:base64url-hash"
 ADMIN_TOTP_SECRET="BASE32_SECRET_FROM_AUTHENTICATOR_APP"
 RATE_LIMIT_SECRET="случайная-строка-минимум-32-байта"
 PII_ENCRYPTION_KEY="base64url-ключ-ровно-32-байта"

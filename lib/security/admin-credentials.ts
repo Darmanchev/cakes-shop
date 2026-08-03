@@ -63,7 +63,9 @@ export function createAdminTotpForTest(secretBase32: string, counter: number) {
 }
 
 export function verifyAdminPassword(password: string) {
-    const [algorithm, saltEncoded, hashEncoded, extra] = getRequiredEnv('ADMIN_PASSWORD_HASH').split('$');
+    const configuredHash = getRequiredEnv('ADMIN_PASSWORD_HASH');
+    const separator = configuredHash.startsWith('scrypt:') ? ':' : '$';
+    const [algorithm, saltEncoded, hashEncoded, extra] = configuredHash.split(separator);
 
     if (algorithm !== 'scrypt' || !saltEncoded || !hashEncoded || extra) {
         throw new Error('ADMIN_PASSWORD_HASH has an invalid format');
