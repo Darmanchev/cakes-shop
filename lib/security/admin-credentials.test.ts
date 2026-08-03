@@ -19,13 +19,21 @@ afterEach(() => {
 });
 
 describe('admin credentials', () => {
-    it('verifies scrypt password hashes without accepting another password', () => {
+    it('verifies the Coolify-safe scrypt format without accepting another password', () => {
         const salt = Buffer.alloc(16, 5);
         const hash = scryptSync('correct horse', salt, 64);
-        process.env.ADMIN_PASSWORD_HASH = `scrypt$${salt.toString('base64url')}$${hash.toString('base64url')}`;
+        process.env.ADMIN_PASSWORD_HASH = `scrypt:${salt.toString('base64url')}:${hash.toString('base64url')}`;
 
         assert.equal(verifyAdminPassword('correct horse'), true);
         assert.equal(verifyAdminPassword('wrong horse'), false);
+    });
+
+    it('keeps compatibility with existing dollar-delimited hashes', () => {
+        const salt = Buffer.alloc(16, 6);
+        const hash = scryptSync('existing password', salt, 64);
+        process.env.ADMIN_PASSWORD_HASH = `scrypt$${salt.toString('base64url')}$${hash.toString('base64url')}`;
+
+        assert.equal(verifyAdminPassword('existing password'), true);
     });
 
     it('accepts clock skew but returns the exact counter for replay prevention', () => {

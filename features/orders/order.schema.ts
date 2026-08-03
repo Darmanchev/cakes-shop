@@ -38,6 +38,35 @@ function addDaysToIsoDate(value: string, days: number) {
     return date.toISOString().slice(0, 10);
 }
 
+function normalizeOrderDate(value: string) {
+    const trimmed = value.trim();
+    const match = /^(\d{2})[./-](\d{2})[./-](\d{4})$/.exec(trimmed);
+
+    if (!match) {
+        return trimmed;
+    }
+
+    return `${match[3]}-${match[2]}-${match[1]}`;
+}
+
+const orderItemSchema = z.object({
+    productId: z
+        .string()
+        .trim()
+        .min(1, 'Изберете продукт'),
+
+    quantity: z.coerce
+        .number()
+        .int('Бройката трябва да бъде цяло число')
+        .min(1)
+        .max(20),
+
+    comment: z
+        .string()
+        .trim()
+        .max(500, 'Коментарът към продукта е твърде дълъг')
+        .optional(),
+}).strict();
 
 export const createOrderSchema = z.object({
     name: z
@@ -62,21 +91,13 @@ export const createOrderSchema = z.object({
         .email('Въведете email')
         .max(254, 'Email адресът е твърде дълъг'),
 
-    quantity: z.coerce
-        .number()
-        .int('Бройка трябва да бъде целя число')
-        .min(1)
-        .max(20),
-
-    productId: z
-        .string()
-        .trim()
-        .min(1, 'Изберете продукт')
-        .max(100, 'Невалиден продукт'),
+    items: z.array(orderItemSchema)
+        .min(1, 'Добавете поне един продукт')
+        .max(10, 'Можете да добавите най-много 10 продукта'),
 
     date: z
         .string()
-        .trim()
+        .transform(normalizeOrderDate)
         .superRefine((value, context) => {
             if (!value) {
                 context.addIssue({

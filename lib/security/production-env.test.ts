@@ -9,9 +9,6 @@ const ENVIRONMENT_NAMES = [
     'RATE_LIMIT_SECRET',
     'PII_ENCRYPTION_KEY',
     'TRUSTED_PROXY_IP_HEADER',
-    'TURNSTILE_SECRET_KEY',
-    'TURNSTILE_EXPECTED_HOSTNAME',
-    'TURNSTILE_SITE_KEY',
 ] as const;
 
 const originalEnvironment = Object.fromEntries(
@@ -22,15 +19,12 @@ function setValidProductionEnvironment() {
     process.env.DATABASE_URL =
         'postgresql://deploy:secret@db.example.com:5432/cakes?sslmode=verify-full';
     process.env.ADMIN_PASSWORD_HASH =
-        'scrypt$AAAAAAAAAAAAAAAAAAAAAA$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+        'scrypt:AAAAAAAAAAAAAAAAAAAAAA:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
     process.env.ADMIN_TOTP_SECRET = 'AAAAAAAAAAAAAAAAAAAAAAAAAA';
     process.env.RATE_LIMIT_SECRET = '0123456789abcdef0123456789abcdef';
     process.env.PII_ENCRYPTION_KEY =
         'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
     process.env.TRUSTED_PROXY_IP_HEADER = 'cf-connecting-ip';
-    process.env.TURNSTILE_SECRET_KEY = 'secret-key';
-    process.env.TURNSTILE_EXPECTED_HOSTNAME = 'cakes.example.com';
-    process.env.TURNSTILE_SITE_KEY = 'site-key';
 }
 
 afterEach(() => {
@@ -69,7 +63,18 @@ describe('production environment validation', () => {
 
         assert.throws(
             validateProductionEnvironment,
-            /DATABASE_URL must require TLS/,
+            /sslmode=verify-full/,
+        );
+    });
+
+    it('rejects TLS without certificate hostname verification', () => {
+        setValidProductionEnvironment();
+        process.env.DATABASE_URL =
+            'postgresql://deploy:secret@db.example.com:5432/cakes?sslmode=require';
+
+        assert.throws(
+            validateProductionEnvironment,
+            /sslmode=verify-full/,
         );
     });
 });

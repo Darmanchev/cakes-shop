@@ -13,10 +13,10 @@ export function OrderStepsSection() {
   ];
 
   return (
-    <section id="how" className="bg-[#eef6ee] py-14">
+    <section id="how" className="bg-[#eef6ee] py-10 sm:py-14">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <h2 className="text-3xl font-bold sm:text-4xl">{t.orderSteps.title}</h2>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="mt-6 grid gap-4 sm:mt-8 md:grid-cols-3">
           {t.orderSteps.steps.map((step, index) => (
             <InfoCard key={step.title} icon={icons[index]} title={step.title} text={step.text} />
           ))}

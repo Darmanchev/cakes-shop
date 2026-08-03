@@ -12,11 +12,10 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
   const { t } = useLanguage();
 
   return (
-    <section id="catalog" className="bg-white py-14">
+    <section id="catalog" className="bg-white py-10 sm:py-14">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="max-w-2xl">
           <h2 className="text-3xl font-bold sm:text-4xl">{t.catalog.title}</h2>
-          <p className="mt-3 text-stone-700">{t.catalog.description}</p>
         </div>
 
         <ProductSection title={t.catalog.sections.cakes} products={productsByCategory.cakes} />
@@ -33,7 +32,7 @@ function ProductSection({ title, products }: { title: string; products: Product[
   }
 
   return (
-    <div className="mt-10">
+    <div className="mt-8 sm:mt-10">
       <h3 className="mb-4 text-2xl font-semibold">{title}</h3>
       <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3">
         {products.map((product) => (

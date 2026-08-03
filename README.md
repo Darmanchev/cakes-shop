@@ -41,14 +41,11 @@ Create `.env`:
 
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5435/stas_cakes_shop"
-ADMIN_PASSWORD_HASH="scrypt$...$..."
+ADMIN_PASSWORD_HASH="scrypt:...:..."
 ADMIN_TOTP_SECRET="BASE32_SECRET"
 RATE_LIMIT_SECRET="long-random-secret"
 PII_ENCRYPTION_KEY="base64url-encoded-32-byte-key"
-TRUSTED_PROXY_IP_HEADER="cf-connecting-ip"
-TURNSTILE_SITE_KEY="site-key"
-TURNSTILE_SECRET_KEY="secret-key"
-TURNSTILE_EXPECTED_HOSTNAME="cakes.example.com"
+TRUSTED_PROXY_IP_HEADER="x-real-ip"
 ORDER_RETENTION_DAYS="365"
 
 # Optional notifications
@@ -83,7 +80,7 @@ docs/         short architecture and database notes
 
 ## Security and production
 
-The admin area uses a scrypt password, TOTP with replay prevention, revocable server-side sessions, a session cap and a login audit. Order submission uses persistent per-IP rate limits and requires Cloudflare Turnstile in production. Direct customer identifiers are encrypted with AES-256-GCM before they are stored.
+The admin area uses a scrypt password, TOTP with replay prevention, revocable server-side sessions, a session cap and a login audit. Order submission uses persistent per-IP rate limits. Direct customer identifiers are encrypted with AES-256-GCM before they are stored.
 
 Run `npm run env:check` before deployment. Production PostgreSQL must use TLS, the origin must only accept traffic from a proxy that overwrites `TRUSTED_PROXY_IP_HEADER`, and database backups must be encrypted. After upgrading an existing database, run `npm run pii:encrypt-existing` once after configuring `PII_ENCRYPTION_KEY`.
 
@@ -152,6 +149,10 @@ Create PostgreSQL as a separate Coolify resource in the same project and
 environment. Enable database SSL with `verify-full`, then use the SSL-enabled
 internal connection URL as `DATABASE_URL`. Keep the database private.
 
+Push and select the `codex/production` branch as Coolify's production branch.
+Enable automatic deployment on push only for this branch; keep pull-request
+previews disabled unless they use separate secrets and a separate database.
+
 Deploy this repository as a **Docker Compose** resource:
 
 - Base directory: `/`
@@ -166,8 +167,11 @@ service from overall health checks.
 Set the required variables from `.env.example` in Coolify. They are runtime
 variables and do not need to be exposed during the image build. Use
 `TRUSTED_PROXY_IP_HEADER=x-real-ip` when Coolify's Traefik proxy is directly
-internet-facing. Mark `ADMIN_PASSWORD_HASH` as **Literal** in Coolify because
-the scrypt value contains `$` characters.
+internet-facing. The generated `ADMIN_PASSWORD_HASH` uses a colon-delimited
+format that can be pasted into Coolify without Compose escaping.
+
+Do not map port `3000` to the host. Assign the domain to the `app` service as
+`https://your-domain.example:3000`; Coolify's proxy will expose it on HTTPS.
 
 Both services mount Coolify's generated CA certificate from
 `/data/coolify/ssl/coolify-ca.crt`. Do not remove this mount while using

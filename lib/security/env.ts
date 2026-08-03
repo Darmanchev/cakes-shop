@@ -1,7 +1,7 @@
 const LOCAL_DATABASE_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
 
 export function getRequiredSecret(
-    name: 'RATE_LIMIT_SECRET' | 'PII_ENCRYPTION_KEY' | 'TURNSTILE_SECRET_KEY',
+    name: 'RATE_LIMIT_SECRET' | 'PII_ENCRYPTION_KEY',
 ) {
     const value = process.env[name]?.trim();
 
@@ -38,13 +38,13 @@ export function validateDatabaseUrl(databaseUrl: string) {
     ) {
         const sslMode = url.searchParams.get('sslmode');
 
-        if (!['require', 'verify-ca', 'verify-full'].includes(sslMode ?? '')) {
+        if (sslMode !== 'verify-full') {
             throw new Error(
-                'Production DATABASE_URL must require TLS with sslmode=require, verify-ca, or verify-full',
+                'Production DATABASE_URL must use sslmode=verify-full',
             );
         }
 
-        if (LOCAL_DATABASE_HOSTS.has(url.hostname) && sslMode !== 'verify-full') {
+        if (LOCAL_DATABASE_HOSTS.has(url.hostname)) {
             throw new Error('Production DATABASE_URL must not use a local database host');
         }
     }

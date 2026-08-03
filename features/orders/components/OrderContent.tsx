@@ -5,17 +5,11 @@ import { useLanguage } from '@/components/language/LanguageProvider';
 import type { Product } from '@/features/products/product.types';
 import { OrderForm } from './OrderForm';
 
-export function OrderContent({
-  products,
-  turnstileSiteKey,
-}: {
-  products: Product[];
-  turnstileSiteKey?: string;
-}) {
+export function OrderContent({products}: {products: Product[]}) {
   const { t } = useLanguage();
 
   return (
-    <section id="order" className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[0.8fr_1fr]">
+    <section id="order" className="mx-auto grid max-w-6xl gap-6 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[0.8fr_1fr] lg:gap-8">
       <div>
         <h2 className="text-3xl font-bold sm:text-4xl">{t.order.title}</h2>
         <p className="mt-3 leading-7 text-stone-700">{t.order.description}</p>
@@ -25,7 +19,7 @@ export function OrderContent({
         </p>
       </div>
 
-      <OrderForm products={products} turnstileSiteKey={turnstileSiteKey} />
+      <OrderForm products={products} />
     </section>
   );
 }
