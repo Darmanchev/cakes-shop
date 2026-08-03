@@ -168,7 +168,7 @@ export function OrderForm({products}: {products: Product[]}) {
                 <FieldError messages={fieldErrors.email}/>
             </div>
 
-            <fieldset className="grid gap-3">
+            <fieldset className="mb-2 grid gap-3">
                 <legend className="text-sm font-medium text-stone-800">{t.form.orderItems}</legend>
                 {items.map((item, index) => (
                     <div key={item.key} className="grid gap-3 rounded-md border border-stone-200 bg-stone-50 p-3 sm:grid-cols-[minmax(0,1fr)_112px]">
@@ -280,7 +280,6 @@ export function OrderForm({products}: {products: Product[]}) {
                         className="h-11 w-12 rounded-md border border-stone-300 bg-white px-1 text-transparent outline-none focus:border-rose-700"
                     />
                 </div>
-                <p className="text-sm text-stone-600">{t.form.dateHint}</p>
                 <FieldError messages={fieldErrors.date}/>
             </div>
 
