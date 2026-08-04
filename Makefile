@@ -8,7 +8,7 @@ DB_USER := postgres
 DB_PASSWORD := postgres
 DATABASE_URL := postgresql://$(DB_USER):$(DB_PASSWORD)@localhost:$(DB_PORT)/$(DB_NAME)
 
-.PHONY: isntall dev build start lint db-generate db-migrate db-up db-down db-reset db-seed
+.PHONY: install dev build start lint test demo demo-down demo-reset db-generate db-migrate db-up db-down db-reset db-seed
 
 install:
 	npm ci
@@ -24,6 +24,18 @@ start:
 
 lint:
 	npm run lint
+
+test:
+	npm test
+
+demo:
+	docker compose up --build
+
+demo-down:
+	docker compose down
+
+demo-reset:
+	docker compose down --volumes
 
 db-generate:
 	npm run db:generate

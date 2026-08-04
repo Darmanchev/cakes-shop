@@ -3,10 +3,10 @@ name: CI/CD
 on:
   pull_request:
     branches:
-      - codex/production
+      - main
   push:
     branches:
-      - codex/production
+      - main
   workflow_dispatch:
 
 permissions:
@@ -42,7 +42,7 @@ jobs:
 
   deploy:
     name: Deploy to Coolify
-    if: github.event_name == 'push' && github.ref == 'refs/heads/codex/production'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: quality
     runs-on: ubuntu-latest
     timeout-minutes: 5

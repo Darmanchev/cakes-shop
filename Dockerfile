@@ -21,6 +21,14 @@ COPY . .
 USER nextjs
 CMD ["npm", "run", "db:migrate:deploy"]
 
+FROM dependencies AS development
+ENV NODE_ENV=development
+COPY --chown=nextjs:nodejs . .
+RUN chown nextjs:nodejs /app
+USER nextjs
+EXPOSE 3000
+CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
+
 FROM dependencies AS builder
 COPY . .
 RUN npm run build
