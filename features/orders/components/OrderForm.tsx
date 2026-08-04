@@ -1,7 +1,7 @@
 'use client';
 
 import {FormEvent, useRef, useState} from 'react';
-import {Plus, Send, Trash2} from 'lucide-react';
+import {CalendarDays, Plus, Send, Trash2} from 'lucide-react';
 import {useLanguage} from '@/components/language/LanguageProvider';
 import type {Product} from '@/features/products/product.types';
 import type {OrderApiErrorResponse, OrderFieldErrors, OrderFormStatus} from '../order.types';
@@ -169,7 +169,7 @@ export function OrderForm({products}: {products: Product[]}) {
             </div>
 
             <fieldset className="mb-2 grid gap-3">
-                <legend className="text-sm font-medium text-stone-800">{t.form.orderItems}</legend>
+                <legend className="mb-2 text-sm font-medium text-stone-800">{t.form.orderItems}</legend>
                 {items.map((item, index) => (
                     <div key={item.key} className="grid gap-3 rounded-md border border-stone-200 bg-stone-50 p-3 sm:grid-cols-[minmax(0,1fr)_112px]">
                         <div className="grid gap-2">
@@ -269,16 +269,23 @@ export function OrderForm({products}: {products: Product[]}) {
                         required
                         className="h-11 min-w-0 flex-1 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
                     />
-                    <input
-                        type="date"
-                        value={getIsoDate(date)}
-                        min={minOrderDate}
-                        max={maxOrderDate}
-                        onChange={(event) => setDate(formatDateForTyping(event.target.value))}
-                        aria-label={t.form.openCalendar}
-                        title={t.form.openCalendar}
-                        className="h-11 w-12 rounded-md border border-stone-300 bg-white px-1 text-transparent outline-none focus:border-rose-700"
-                    />
+                    <div className="relative h-11 w-12 shrink-0 rounded-md border border-stone-300 bg-white focus-within:border-rose-700">
+                        <CalendarDays
+                            size={20}
+                            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-stone-700"
+                            aria-hidden="true"
+                        />
+                        <input
+                            type="date"
+                            value={getIsoDate(date)}
+                            min={minOrderDate}
+                            max={maxOrderDate}
+                            onChange={(event) => setDate(formatDateForTyping(event.target.value))}
+                            aria-label={t.form.openCalendar}
+                            title={t.form.openCalendar}
+                            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                        />
+                    </div>
                 </div>
                 <FieldError messages={fieldErrors.date}/>
             </div>
