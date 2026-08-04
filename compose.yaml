@@ -1,0 +1,66 @@
+name: stas-cakes-shop-local
+
+x-app-environment: &app-environment
+  DATABASE_URL: postgresql://cakes_demo:local-demo-only@database:5432/stas_cakes_shop
+  ADMIN_PASSWORD_HASH: scrypt:cCdRGbz9NXQy68u7LQuthA:d8EgUhRNABujLHHkwF7AiCzAr9TGW1Kjyr8P1ZL13exO-eAuYgueqvMDalDNanmAWOEk-KI6iD8WZO3Ao8f4IA
+  ADMIN_TOTP_SECRET: JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP
+  RATE_LIMIT_SECRET: local-demo-rate-limit-secret-32-bytes-minimum
+  PII_ENCRYPTION_KEY: AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE
+  ORDER_RETENTION_DAYS: "365"
+  TELEGRAM_BOT_TOKEN: ""
+  TELEGRAM_CHAT_ID: ""
+
+services:
+  database:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_DB: stas_cakes_shop
+      POSTGRES_USER: cakes_demo
+      POSTGRES_PASSWORD: local-demo-only
+    volumes:
+      - local-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cakes_demo -d stas_cakes_shop"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    command: ["sh", "-c", "npm run db:migrate:deploy && npm run db:seed"]
+    environment:
+      DATABASE_URL: postgresql://cakes_demo:local-demo-only@database:5432/stas_cakes_shop
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: "no"
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    environment: *app-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:3000:3000"
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  local-postgres-data:

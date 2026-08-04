@@ -2,6 +2,39 @@
 
 Stas Cakes Shop is an MVP for a small home bakery. The goal is intentionally practical: show the catalog, accept an order for a specific date, store it in PostgreSQL and give the owner a simple place to review incoming orders.
 
+## Demo
+
+The repository includes an isolated local demo with its own PostgreSQL database
+and non-production credentials. Requirements: Docker with Docker Compose.
+
+```bash
+git clone https://github.com/Darmanchev/cakes-shop.git
+cd cakes-shop
+docker compose up --build
+```
+
+Open [http://localhost:3000](http://localhost:3000). The application is bound to
+`127.0.0.1`, so it is not exposed to other devices on the network.
+
+The optional local admin page is at
+[http://localhost:3000/admin/login](http://localhost:3000/admin/login). Its demo
+password is `local-demo-admin`; add the local-only TOTP secret
+`JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP` to an authenticator application to get the
+six-digit code. These credentials are intentionally public and cannot access
+the production application or database.
+
+Stop the demo while keeping its local data:
+
+```bash
+docker compose down
+```
+
+Delete all local demo data:
+
+```bash
+docker compose down --volumes
+```
+
 ## Implemented
 
 - catalog for cakes, cinnabons and combo sets;
@@ -26,9 +59,9 @@ The main difficulty was moving from a static catalog to database-backed pages. A
 - Zod, libphonenumber-js
 - optional Telegram Bot API
 
-## Local setup
+## Local development
 
-Requirements: Node.js 20+, npm and Docker.
+Requirements: Node.js 22, npm and Docker.
 
 ```bash
 git clone https://github.com/Darmanchev/cakes-shop.git
@@ -149,8 +182,11 @@ Create PostgreSQL as a separate Coolify resource in the same project and
 environment. Enable database SSL with `verify-full`, then use the SSL-enabled
 internal connection URL as `DATABASE_URL`. Keep the database private.
 
-Push and select the `deployment` branch as Coolify's production branch.
-Enable automatic deployment on push only for this branch; keep pull-request
+Push and select the `main` branch as Coolify's production branch. Store
+`COOLIFY_TOKEN` and `COOLIFY_WEBHOOK` in GitHub Actions secrets. The CI workflow
+runs lint, tests and the production build, then calls the Coolify webhook only
+after all checks pass. Disable Coolify's additional automatic deployment on
+push to avoid starting two deployments for the same commit. Keep pull-request
 previews disabled unless they use separate secrets and a separate database.
 
 Deploy this repository as a **Docker Compose** resource:
@@ -169,6 +205,10 @@ variables and do not need to be exposed during the image build. Use
 `TRUSTED_PROXY_IP_HEADER=x-real-ip` when Coolify's Traefik proxy is directly
 internet-facing. The generated `ADMIN_PASSWORD_HASH` uses a colon-delimited
 format that can be pasted into Coolify without Compose escaping.
+
+Never reuse values from `compose.yaml` in production. That file contains only
+public local-demo credentials. Production secrets stay in Coolify and GitHub
+Actions; `.env` files are excluded from Git and Docker build contexts.
 
 Do not map port `3000` to the host. Assign the domain to the `app` service as
 `https://your-domain.example:3000`; Coolify's proxy will expose it on HTTPS.
