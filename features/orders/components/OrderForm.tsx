@@ -272,7 +272,7 @@ export function OrderForm({products}: {products: Product[]}) {
                     <div className="relative h-11 w-12 shrink-0 rounded-md border border-stone-300 bg-white focus-within:border-rose-700">
                         <CalendarDays
                             size={20}
-                            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-stone-700"
+                            className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-stone-700"
                             aria-hidden="true"
                         />
                         <input
@@ -283,7 +283,7 @@ export function OrderForm({products}: {products: Product[]}) {
                             onChange={(event) => setDate(formatDateForTyping(event.target.value))}
                             aria-label={t.form.openCalendar}
                             title={t.form.openCalendar}
-                            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                            className="absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0"
                         />
                     </div>
                 </div>
