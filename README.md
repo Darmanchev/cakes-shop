@@ -149,7 +149,7 @@ Create PostgreSQL as a separate Coolify resource in the same project and
 environment. Enable database SSL with `verify-full`, then use the SSL-enabled
 internal connection URL as `DATABASE_URL`. Keep the database private.
 
-Push and select the `codex/production` branch as Coolify's production branch.
+Push and select the `deployment` branch as Coolify's production branch.
 Enable automatic deployment on push only for this branch; keep pull-request
 previews disabled unless they use separate secrets and a separate database.
 
