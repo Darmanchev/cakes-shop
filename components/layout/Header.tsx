@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, ShoppingBag, X } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { useLanguage } from '@/components/language/LanguageProvider';
+import { useCart } from '@/features/cart/CartProvider';
 import { SITE_NAME } from '@/lib/constants';
 
 export function Header() {
   const { t } = useLanguage();
+  const { totalItems } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -24,6 +26,19 @@ export function Header() {
               </a>
             ))}
           </nav>
+          <a
+            href="#order"
+            className="relative inline-flex size-10 shrink-0 items-center justify-center rounded-md border border-stone-200 bg-white text-stone-800 transition hover:border-rose-700 hover:text-rose-700"
+            aria-label={`${t.cart.label}: ${totalItems}`}
+            title={t.cart.label}
+          >
+            <ShoppingBag size={19} aria-hidden="true" />
+            {totalItems > 0 ? (
+              <span className="absolute -right-1.5 -top-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-rose-700 px-1 text-[11px] font-semibold leading-5 text-white">
+                {totalItems}
+              </span>
+            ) : null}
+          </a>
           <LanguageSwitcher />
           <button
             type="button"

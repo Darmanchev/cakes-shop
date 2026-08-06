@@ -50,6 +50,15 @@ interface AppTranslations {
     categories: Record<Category, string>;
     from: string;
     order: string;
+    add: string;
+    pieces: string;
+    quantity: string;
+    increase: string;
+    remove: string;
+    limitReached: string;
+  };
+  cart: {
+    label: string;
   };
   orderSteps: {
     title: string;
@@ -82,6 +91,8 @@ interface AppTranslations {
     submit: string;
     success: string;
     error: string;
+    emptyCart: string;
+    chooseProducts: string;
   };
   products: Record<string, ProductCopy>;
 }
@@ -119,6 +130,15 @@ export const translations: Record<Language, AppTranslations> = {
       },
       from: 'от',
       order: 'Поръчай',
+      add: 'Добави',
+      pieces: 'бр.',
+      quantity: 'Количество',
+      increase: 'Увеличи количеството за',
+      remove: 'Премахни',
+      limitReached: 'Можете да добавите най-много 10 различни продукта',
+    },
+    cart: {
+      label: 'Кошница',
     },
     orderSteps: {
       title: 'Как работи поръчката',
@@ -155,6 +175,8 @@ export const translations: Record<Language, AppTranslations> = {
       submit: 'Изпрати запитване',
       success: 'Запитването е изпратено.',
       error: 'Запитването не беше изпратено. Проверете сървъра и опитайте отново.',
+      emptyCart: 'Все още няма избрани продукти.',
+      chooseProducts: 'Изберете продукти от каталога',
     },
     products: {
       'cake-1': {
@@ -251,6 +273,15 @@ export const translations: Record<Language, AppTranslations> = {
       },
       from: 'from',
       order: 'Order',
+      add: 'Add',
+      pieces: 'pcs.',
+      quantity: 'Quantity',
+      increase: 'Increase quantity for',
+      remove: 'Remove',
+      limitReached: 'You can add up to 10 different products',
+    },
+    cart: {
+      label: 'Cart',
     },
     orderSteps: {
       title: 'How ordering works',
@@ -287,6 +318,8 @@ export const translations: Record<Language, AppTranslations> = {
       submit: 'Send request',
       success: 'Request sent. Next step: connect Telegram.',
       error: 'Could not send the request. Check the server and try again.',
+      emptyCart: 'No products selected yet.',
+      chooseProducts: 'Choose products from the catalog',
     },
     products: {
       'cake-1': {
@@ -383,6 +416,15 @@ export const translations: Record<Language, AppTranslations> = {
       },
       from: 'от',
       order: 'Заказать',
+      add: 'Добавить',
+      pieces: 'шт.',
+      quantity: 'Количество',
+      increase: 'Увеличить количество для',
+      remove: 'Удалить',
+      limitReached: 'Можно добавить не более 10 разных товаров',
+    },
+    cart: {
+      label: 'Корзина',
     },
     orderSteps: {
       title: 'Как работает заказ',
@@ -419,6 +461,8 @@ export const translations: Record<Language, AppTranslations> = {
       submit: 'Отправить заявку',
       success: 'Заявка отправлена. Следующий шаг: подключить Telegram.',
       error: 'Не получилось отправить заявку. Проверьте сервер и попробуйте еще раз.',
+      emptyCart: 'Товары пока не выбраны.',
+      chooseProducts: 'Выбрать товары в каталоге',
     },
     products: {
       'cake-1': {

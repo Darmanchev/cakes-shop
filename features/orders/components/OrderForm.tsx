@@ -1,21 +1,13 @@
 'use client';
 
-import {FormEvent, useRef, useState} from 'react';
-import {CalendarDays, Plus, Send, Trash2} from 'lucide-react';
+import {FormEvent, useMemo, useState} from 'react';
+import {CalendarDays, Send} from 'lucide-react';
 import {useLanguage} from '@/components/language/LanguageProvider';
+import {useCart} from '@/features/cart/CartProvider';
+import {QuantitySelector} from '@/features/cart/components/QuantitySelector';
 import type {Product} from '@/features/products/product.types';
+import {formatPrice} from '@/lib/utils/format-price';
 import type {OrderApiErrorResponse, OrderFieldErrors, OrderFormStatus} from '../order.types';
-
-type OrderItemForm = {
-    key: number;
-    productId: string;
-    quantity: number;
-    comment: string;
-};
-
-function createOrderItem(key: number): OrderItemForm {
-    return {key, productId: '', quantity: 1, comment: ''};
-}
 
 function getTodayInSofia() {
     const parts = new Intl.DateTimeFormat('en-GB', {
@@ -65,21 +57,18 @@ function FieldError({messages}: { messages?: string[] }) {
 }
 
 export function OrderForm({products}: {products: Product[]}) {
-    const nextItemKey = useRef(1);
     const [status, setStatus] = useState<OrderFormStatus>('idle');
     const [fieldErrors, setFieldErrors] = useState<OrderFieldErrors>({});
     const [deliveryType, setDeliveryType] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY');
-    const [items, setItems] = useState<OrderItemForm[]>(() => [createOrderItem(0)]);
     const [date, setDate] = useState('');
-    const {t} = useLanguage();
+    const {items, setQuantity, removeItem, updateComment, clearCart} = useCart();
+    const {language, t} = useLanguage();
+    const productsById = useMemo(
+        () => new Map(products.map((product) => [product.id, product])),
+        [products],
+    );
     const minOrderDate = getTodayInSofia();
     const maxOrderDate = getMaxOrderDate(minOrderDate);
-
-    function updateItem(key: number, update: Partial<Omit<OrderItemForm, 'key'>>) {
-        setItems((currentItems) => currentItems.map((item) => (
-            item.key === key ? {...item, ...update} : item
-        )));
-    }
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -112,9 +101,8 @@ export function OrderForm({products}: {products: Product[]}) {
             setStatus('success');
             form.reset();
             setDeliveryType('DELIVERY');
-            nextItemKey.current = 1;
-            setItems([createOrderItem(0)]);
             setDate('');
+            clearCart();
         } catch (error) {
             console.error('Failed to submit order', error);
             setStatus('error');
@@ -170,86 +158,53 @@ export function OrderForm({products}: {products: Product[]}) {
 
             <fieldset className="mb-2 grid gap-3">
                 <legend className="mb-2 text-sm font-medium text-stone-800">{t.form.orderItems}</legend>
-                {items.map((item, index) => (
-                    <div key={item.key} className="grid gap-3 rounded-md border border-stone-200 bg-stone-50 p-3 sm:grid-cols-[minmax(0,1fr)_112px]">
-                        <div className="grid gap-2">
-                            <label htmlFor={`product-${item.key}`} className="text-sm font-medium text-stone-800">
-                                {t.form.product}
-                            </label>
-                            <select
-                                id={`product-${item.key}`}
-                                required
-                                value={item.productId}
-                                onChange={(event) => updateItem(item.key, {productId: event.target.value})}
-                                className="h-11 rounded-md border border-stone-300 bg-white px-3 outline-none focus:border-rose-700"
-                            >
-                                <option value="">{t.form.productPlaceholder}</option>
-                                {products.map((product) => (
-                                    <option key={product.id} value={product.id}>
-                                        {t.products[product.id]?.name ?? product.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                {items.length === 0 ? (
+                    <div className="rounded-md border border-dashed border-stone-300 bg-stone-50 p-4 text-sm text-stone-700">
+                        <p>{t.form.emptyCart}</p>
+                        <a href="#catalog" className="mt-2 inline-flex font-medium text-rose-700 hover:text-rose-800">
+                            {t.form.chooseProducts}
+                        </a>
+                    </div>
+                ) : items.map((item) => {
+                    const product = productsById.get(item.productId);
+                    const productName = t.products[item.productId]?.name ?? product?.name ?? item.productId;
 
-                        <div className="grid gap-2">
-                            <label htmlFor={`quantity-${item.key}`} className="text-sm font-medium text-stone-800">
-                                {t.form.quantity}
-                            </label>
-                            <input
-                                id={`quantity-${item.key}`}
-                                type="number"
-                                min={1}
-                                max={20}
-                                required
-                                value={item.quantity}
-                                onChange={(event) => updateItem(item.key, {quantity: Number(event.target.value)})}
-                                className="h-11 rounded-md border border-stone-300 bg-white px-3 outline-none focus:border-rose-700"
-                            />
-                        </div>
+                    return (
+                        <div key={item.productId} className="grid gap-3 rounded-md border border-stone-200 bg-stone-50 p-3">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="min-w-0">
+                                    <p className="font-semibold text-stone-950">{productName}</p>
+                                    {product ? (
+                                        <p className="mt-1 text-sm text-stone-600">
+                                            {t.productCard.from} {formatPrice(product.priceMinor * item.quantity, language)}
+                                        </p>
+                                    ) : null}
+                                </div>
+                                <QuantitySelector
+                                    productName={productName}
+                                    quantity={item.quantity}
+                                    onChange={(quantity) => setQuantity(item.productId, quantity)}
+                                    onRemove={() => removeItem(item.productId)}
+                                    className="w-full sm:w-auto"
+                                />
+                            </div>
 
-                        <div className="grid gap-2 sm:col-span-2">
-                            <label htmlFor={`item-comment-${item.key}`} className="text-sm font-medium text-stone-800">
-                                {t.form.productComment}
-                            </label>
-                            <div className="flex gap-2">
+                            <div className="grid gap-2">
+                                <label htmlFor={`item-comment-${item.productId}`} className="text-sm font-medium text-stone-800">
+                                    {t.form.productComment}
+                                </label>
                                 <textarea
-                                    id={`item-comment-${item.key}`}
+                                    id={`item-comment-${item.productId}`}
                                     rows={2}
                                     maxLength={500}
                                     value={item.comment}
-                                    onChange={(event) => updateItem(item.key, {comment: event.target.value})}
-                                    className="min-w-0 flex-1 resize-none rounded-md border border-stone-300 bg-white px-3 py-2 outline-none focus:border-rose-700"
+                                    onChange={(event) => updateComment(item.productId, event.target.value)}
+                                    className="min-w-0 resize-none rounded-md border border-stone-300 bg-white px-3 py-2 outline-none focus:border-rose-700"
                                 />
-                                {items.length > 1 ? (
-                                    <button
-                                        type="button"
-                                        onClick={() => setItems((currentItems) => currentItems.filter(({key}) => key !== item.key))}
-                                        className="self-end rounded-md border border-stone-300 p-2.5 text-stone-600 hover:border-rose-700 hover:text-rose-700"
-                                        aria-label={`${t.form.removeProduct} ${index + 1}`}
-                                        title={t.form.removeProduct}
-                                    >
-                                        <Trash2 size={18} aria-hidden="true"/>
-                                    </button>
-                                ) : null}
                             </div>
                         </div>
-                    </div>
-                ))}
-                <div className="flex justify-end">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            const itemKey = nextItemKey.current++;
-                            setItems((currentItems) => [...currentItems, createOrderItem(itemKey)]);
-                        }}
-                        disabled={items.length >= 10}
-                        className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-stone-300 bg-white px-3 text-sm font-medium text-stone-800 hover:border-rose-700 disabled:cursor-not-allowed disabled:opacity-50 min-[400px]:w-auto"
-                    >
-                        <Plus size={17} aria-hidden="true"/>
-                        {t.form.addProduct}
-                    </button>
-                </div>
+                    );
+                })}
                 <FieldError messages={fieldErrors.items}/>
             </fieldset>
 
@@ -321,7 +276,7 @@ export function OrderForm({products}: {products: Product[]}) {
                 <FieldError messages={fieldErrors.comment}/>
             </div>
 
-            <button type="submit" disabled={status === 'sending'}
+            <button type="submit" disabled={status === 'sending' || items.length === 0}
                     className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-stone-950 px-5 text-sm font-medium text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60">
                 <Send size={17} aria-hidden="true"/>
                 {status === 'sending' ? t.form.sending : t.form.submit}
