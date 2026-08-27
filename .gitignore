@@ -43,3 +43,6 @@ next-env.d.ts
 
 .idea
 /app/generated/prisma
+
+.pytest_cache
+/photo

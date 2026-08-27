@@ -37,6 +37,34 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Build production Docker image
+        run: docker build --target runner --tag stas-cakes-shop:ci .
+
+      - name: Smoke-test production image
+        run: 
+          docker run --detach --rm \
+            --name stas-cakes-shop-ci \
+            --publish 3000:3000 \
+            --env DATABASE_URL='postgresql://ci:ci@database.example.invalid:5432/stas_cakes_shop?sslmode=verify-full' \
+            --env ADMIN_PASSWORD_HASH='scrypt:AAAAAAAAAAAAAAAAAAAAAA:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' \
+            --env ADMIN_TOTP_SECRET='JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP' \
+            --env RATE_LIMIT_SECRET='ci-only-rate-limit-secret-with-at-least-32-bytes' \
+            --env PII_ENCRYPTION_KEY='AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE' \
+            --env TRUSTED_PROXY_IP_HEADER='x-real-ip' \
+            stas-cakes-shop:ci
+
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error http://127.0.0.1:3000/api/live; then
+              docker stop stas-cakes-shop-ci
+              exit 0
+            fi
+            sleep 1
+          done
+
+          docker logs stas-cakes-shop-ci
+          docker stop stas-cakes-shop-ci
+          exit 1
+
       - name: Build
         run: npm run build
 
