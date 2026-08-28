@@ -3,9 +3,11 @@ name: CI/CD
 on:
   pull_request:
     branches:
+      - develop
       - main
   push:
     branches:
+      - develop 
       - main
   workflow_dispatch:
 
@@ -41,7 +43,7 @@ jobs:
         run: docker build --target runner --tag stas-cakes-shop:ci .
 
       - name: Smoke-test production image
-        run: 
+        run: |
           docker run --detach --rm \
             --name stas-cakes-shop-ci \
             --publish 3000:3000 \
