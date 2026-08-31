@@ -32,7 +32,7 @@ export function ProductHero() {
 
       <div className="relative hidden aspect-[4/5] overflow-hidden rounded-lg bg-stone-100 shadow-sm sm:block">
         <Image
-          src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1200&q=85"
+          src="/products/cake_napoleon_with_fruits.jpg"
           alt={t.hero.imageAlt}
           fill
           priority

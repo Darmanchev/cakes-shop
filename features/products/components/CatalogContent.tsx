@@ -5,7 +5,7 @@ import { ProductCard } from './ProductCard';
 import type { Category, Product } from '../product.types';
 
 interface CatalogContentProps {
-  productsByCategory: Record<Category, Product[]>;
+  productsByCategory: Pick<Record<Category, Product[]>, 'cakes' | 'cinnabons'>;
 }
 
 export function CatalogContent({ productsByCategory }: CatalogContentProps) {
@@ -20,7 +20,6 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
 
         <ProductSection title={t.catalog.sections.cakes} products={productsByCategory.cakes} />
         <ProductSection title={t.catalog.sections.cinnabons} products={productsByCategory.cinnabons} />
-        <ProductSection title={t.catalog.sections.combos} products={productsByCategory.combos} />
       </div>
     </section>
   );
