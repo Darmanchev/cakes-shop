@@ -1,3 +1,7 @@
-import type { Category } from './product.types';
+import type { Category } from "./product.types";
 
-export const productCategories = ['cakes', 'cinnabons', 'combos'] satisfies Category[];
+export const productCategories = [
+  "cakes",
+  "cinnabons",
+  "combos",
+] satisfies Category[];

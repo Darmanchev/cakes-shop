@@ -1,15 +1,22 @@
-'use client';
+"use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useSyncExternalStore } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useSyncExternalStore,
+} from "react";
 import {
   defaultLanguage,
   LANGUAGES,
   type Language,
   translations,
-} from '@/lib/i18n';
+} from "@/lib/i18n";
 
-const languageStorageKey = 'stas-cakes-language';
-const languageChangeEvent = 'stas-cakes-language-change';
+const languageStorageKey = "stas-cakes-language";
+const languageChangeEvent = "stas-cakes-language-change";
 
 interface LanguageContextValue {
   language: Language;
@@ -24,7 +31,7 @@ function isLanguage(value: string | null): value is Language {
 }
 
 function getStoredLanguage(): Language {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return defaultLanguage;
   }
 
@@ -34,11 +41,11 @@ function getStoredLanguage(): Language {
 }
 
 function subscribeToLanguageChanges(callback: () => void) {
-  window.addEventListener('storage', callback);
+  window.addEventListener("storage", callback);
   window.addEventListener(languageChangeEvent, callback);
 
   return () => {
-    window.removeEventListener('storage', callback);
+    window.removeEventListener("storage", callback);
     window.removeEventListener(languageChangeEvent, callback);
   };
 }
@@ -68,14 +75,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     [language, setLanguage],
   );
 
-  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+  return (
+    <LanguageContext.Provider value={value}>
+      {children}
+    </LanguageContext.Provider>
+  );
 }
 
 export function useLanguage() {
   const context = useContext(LanguageContext);
 
   if (!context) {
-    throw new Error('useLanguage must be used within LanguageProvider');
+    throw new Error("useLanguage must be used within LanguageProvider");
   }
 
   return context;

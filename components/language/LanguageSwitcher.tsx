@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import { Globe2 } from 'lucide-react';
-import { languageOptions } from '@/lib/i18n';
-import { useLanguage } from './LanguageProvider';
+import { languageOptions } from "@/lib/i18n";
+import { useLanguage } from "./LanguageProvider";
 
 export function LanguageSwitcher() {
   const { language, setLanguage } = useLanguage();
 
   return (
-    <div className="inline-flex shrink-0 items-center gap-0.5 rounded-md border border-stone-200 bg-white p-1 sm:gap-1" aria-label="Language switcher">
-      <Globe2 size={16} className="ml-1 hidden text-stone-500 min-[380px]:block" aria-hidden="true" />
+    <div
+      className="inline-flex shrink-0 items-center gap-0.5"
+      aria-label="Language switcher"
+    >
       {languageOptions.map((option) => (
         <button
           key={option.code}
@@ -17,10 +18,10 @@ export function LanguageSwitcher() {
           aria-label={option.ariaLabel}
           aria-pressed={language === option.code}
           onClick={() => setLanguage(option.code)}
-          className={`h-8 rounded px-1.5 text-xs font-semibold transition sm:px-2 ${
+          className={`h-7 rounded-sm px-2 text-[11px] font-semibold transition sm:px-2.5 ${
             language === option.code
-              ? 'bg-rose-700 text-white'
-              : 'text-stone-700 hover:bg-stone-100 hover:text-stone-950'
+              ? "bg-[#7c1028] text-white"
+              : "text-stone-700 hover:bg-[#f0e5da] hover:text-stone-950"
           }`}
         >
           {option.label}

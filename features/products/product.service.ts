@@ -1,6 +1,6 @@
-import { ProductCategory } from '@prisma/client';
-import { prisma} from '@/lib/prisma';
-import type { Category, Product } from './product.types';
+import { ProductCategory } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import type { Category, Product } from "./product.types";
 
 const categoryMap: Record<Category, ProductCategory> = {
   cakes: ProductCategory.CAKES,
@@ -9,9 +9,9 @@ const categoryMap: Record<Category, ProductCategory> = {
 };
 
 const categoryFromDb: Record<ProductCategory, Category> = {
-  [ProductCategory.CAKES]: 'cakes',
-  [ProductCategory.CINNABONS]: 'cinnabons',
-  [ProductCategory.COMBOS]: 'combos',
+  [ProductCategory.CAKES]: "cakes",
+  [ProductCategory.CINNABONS]: "cinnabons",
+  [ProductCategory.COMBOS]: "combos",
 };
 
 function mapProductFromDb(product: {
@@ -40,7 +40,7 @@ function mapProductFromDb(product: {
 
 export async function getProducts() {
   const products = await prisma.product.findMany({
-    orderBy: { createdAt: 'asc' },
+    orderBy: { createdAt: "asc" },
   });
 
   return products.map(mapProductFromDb);
@@ -49,7 +49,7 @@ export async function getProducts() {
 export async function getProductsByCategory(category: Category) {
   const products = await prisma.product.findMany({
     where: { category: categoryMap[category] },
-    orderBy: { createdAt: 'asc' },
+    orderBy: { createdAt: "asc" },
   });
 
   return products.map(mapProductFromDb);

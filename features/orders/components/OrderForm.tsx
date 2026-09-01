@@ -1,289 +1,385 @@
-'use client';
+"use client";
 
-import {FormEvent, useMemo, useState} from 'react';
-import {CalendarDays, Send} from 'lucide-react';
-import {useLanguage} from '@/components/language/LanguageProvider';
-import {useCart} from '@/features/cart/CartProvider';
-import {QuantitySelector} from '@/features/cart/components/QuantitySelector';
-import type {Product} from '@/features/products/product.types';
-import {formatPrice} from '@/lib/utils/format-price';
-import type {OrderApiErrorResponse, OrderFieldErrors, OrderFormStatus} from '../order.types';
+import { FormEvent, useMemo, useState } from "react";
+import { CalendarDays, Send } from "lucide-react";
+import { useLanguage } from "@/components/language/LanguageProvider";
+import { useCart } from "@/features/cart/CartProvider";
+import { QuantitySelector } from "@/features/cart/components/QuantitySelector";
+import type { Product } from "@/features/products/product.types";
+import { formatPrice } from "@/lib/utils/format-price";
+import type {
+  OrderApiErrorResponse,
+  OrderFieldErrors,
+  OrderFormStatus,
+} from "../order.types";
 
 function getTodayInSofia() {
-    const parts = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Europe/Sofia',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-    }).formatToParts(new Date());
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Sofia",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
 
-    const year = parts.find((part) => part.type === 'year')?.value;
-    const month = parts.find((part) => part.type === 'month')?.value;
-    const day = parts.find((part) => part.type === 'day')?.value;
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
 
-    return `${year}-${month}-${day}`;
+  return `${year}-${month}-${day}`;
 }
 
 function getMaxOrderDate(minDate: string) {
-    const date = new Date(`${minDate}T00:00:00.000Z`);
-    date.setUTCDate(date.getUTCDate() + 365);
+  const date = new Date(`${minDate}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + 365);
 
-    return date.toISOString().slice(0, 10);
+  return date.toISOString().slice(0, 10);
 }
 
 function formatDateForTyping(isoDate: string) {
-    return isoDate.split('-').reverse().join('.');
+  return isoDate.split("-").reverse().join(".");
 }
 
 function getIsoDate(value: string) {
-    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        return value;
-    }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
 
-    const match = /^(\d{2})[./-](\d{2})[./-](\d{4})$/.exec(value);
-    return match ? `${match[3]}-${match[2]}-${match[1]}` : '';
+  const match = /^(\d{2})[./-](\d{2})[./-](\d{4})$/.exec(value);
+  return match ? `${match[3]}-${match[2]}-${match[1]}` : "";
 }
 
-function FieldError({messages}: { messages?: string[] }) {
-    const message = messages?.[0];
+function FieldError({ messages }: { messages?: string[] }) {
+  const message = messages?.[0];
 
-    if (!message) {
-        return null;
-    }
+  if (!message) {
+    return null;
+  }
 
-    return (
-        <p className="text-sm text-red-700" role="alert">{message}</p>
-    );
+  return (
+    <p className="text-sm text-red-700" role="alert">
+      {message}
+    </p>
+  );
 }
 
-export function OrderForm({products}: {products: Product[]}) {
-    const [status, setStatus] = useState<OrderFormStatus>('idle');
-    const [fieldErrors, setFieldErrors] = useState<OrderFieldErrors>({});
-    const [deliveryType, setDeliveryType] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY');
-    const [date, setDate] = useState('');
-    const {items, setQuantity, removeItem, updateComment, clearCart} = useCart();
-    const {language, t} = useLanguage();
-    const productsById = useMemo(
-        () => new Map(products.map((product) => [product.id, product])),
-        [products],
-    );
-    const minOrderDate = getTodayInSofia();
-    const maxOrderDate = getMaxOrderDate(minOrderDate);
+export function OrderForm({ products }: { products: Product[] }) {
+  const [status, setStatus] = useState<OrderFormStatus>("idle");
+  const [fieldErrors, setFieldErrors] = useState<OrderFieldErrors>({});
+  const [deliveryType, setDeliveryType] = useState<"DELIVERY" | "PICKUP">(
+    "DELIVERY",
+  );
+  const [date, setDate] = useState("");
+  const { items, setQuantity, removeItem, updateComment, clearCart } =
+    useCart();
+  const { language, t } = useLanguage();
+  const productsById = useMemo(
+    () => new Map(products.map((product) => [product.id, product])),
+    [products],
+  );
+  const minOrderDate = getTodayInSofia();
+  const maxOrderDate = getMaxOrderDate(minOrderDate);
 
-    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        setStatus('sending');
-        setFieldErrors({});
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus("sending");
+    setFieldErrors({});
 
-        const form = event.currentTarget;
-        const formData = new FormData(form);
-        const payload = {
-            ...Object.fromEntries(formData.entries()),
-            items: items.map(({productId, quantity, comment}) => ({productId, quantity, comment})),
-        };
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      ...Object.fromEntries(formData.entries()),
+      items: items.map(({ productId, quantity, comment }) => ({
+        productId,
+        quantity,
+        comment,
+      })),
+    };
 
-        try {
-            const response = await fetch('/api/orders', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload),
-            });
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-            if (!response.ok) {
-                const responseBody = await response.json().catch(() => null) as OrderApiErrorResponse | null;
+      if (!response.ok) {
+        const responseBody = (await response
+          .json()
+          .catch(() => null)) as OrderApiErrorResponse | null;
 
-                setFieldErrors(responseBody?.fieldErrors ?? {});
-                setStatus('error');
+        setFieldErrors(responseBody?.fieldErrors ?? {});
+        setStatus("error");
 
-                return;
-            }
+        return;
+      }
 
-            setStatus('success');
-            form.reset();
-            setDeliveryType('DELIVERY');
-            setDate('');
-            clearCart();
-        } catch (error) {
-            console.error('Failed to submit order', error);
-            setStatus('error');
-        }
+      setStatus("success");
+      form.reset();
+      setDeliveryType("DELIVERY");
+      setDate("");
+      clearCart();
+    } catch (error) {
+      console.error("Failed to submit order", error);
+      setStatus("error");
     }
+  }
 
-    const hasFieldErrors = Object.values(fieldErrors).some(
-        (messages) => messages?.length,
-    );
+  const hasFieldErrors = Object.values(fieldErrors).some(
+    (messages) => messages?.length,
+  );
 
-    return (
-        <form onSubmit={handleSubmit} className="grid min-w-0 gap-4 rounded-lg border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
-            <div className="grid gap-2">
-                <label htmlFor="name" className="text-sm font-medium text-stone-800">
-                    {t.form.name}
-                </label>
-                <input id="name" name="name" maxLength={100} required
-                       className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"/>
-                <FieldError messages={fieldErrors.name}/>
-            </div>
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="grid min-w-0 gap-4 rounded-xl border border-[#e1d2c8] bg-[#fffdfa] p-5 shadow-sm sm:p-6"
+    >
+      <div className="grid gap-2">
+        <label htmlFor="name" className="text-sm font-medium text-stone-800">
+          {t.form.name}
+        </label>
+        <input
+          id="name"
+          name="name"
+          maxLength={100}
+          required
+          className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+        />
+        <FieldError messages={fieldErrors.name} />
+      </div>
 
-            <div className="grid gap-2">
-                <label htmlFor="phone" className="text-sm font-medium text-stone-800">
-                    {t.form.phone}
-                </label>
-                <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    maxLength={32}
-                    required
-                    placeholder="+359..."
-                    className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"/>
-                <FieldError messages={fieldErrors.phone}/>
-            </div>
+      <div className="grid gap-2">
+        <label htmlFor="phone" className="text-sm font-medium text-stone-800">
+          {t.form.phone}
+        </label>
+        <input
+          id="phone"
+          name="phone"
+          type="tel"
+          maxLength={32}
+          required
+          placeholder="+359..."
+          className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+        />
+        <FieldError messages={fieldErrors.phone} />
+      </div>
 
-            <div className="grid gap-2">
-                <label htmlFor="email" className="text-sm font-medium text-stone-800">
-                    {t.form.email}
-                </label>
+      <div className="grid gap-2">
+        <label htmlFor="email" className="text-sm font-medium text-stone-800">
+          {t.form.email}
+        </label>
 
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    maxLength={254}
-                    required
-                    className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
-                />
-                <FieldError messages={fieldErrors.email}/>
-            </div>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          maxLength={254}
+          required
+          className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+        />
+        <FieldError messages={fieldErrors.email} />
+      </div>
 
-            <fieldset className="mb-2 grid gap-3">
-                <legend className="mb-2 text-sm font-medium text-stone-800">{t.form.orderItems}</legend>
-                {items.length === 0 ? (
-                    <div className="rounded-md border border-dashed border-stone-300 bg-stone-50 p-4 text-sm text-stone-700">
-                        <p>{t.form.emptyCart}</p>
-                        <a href="#catalog" className="mt-2 inline-flex font-medium text-rose-700 hover:text-rose-800">
-                            {t.form.chooseProducts}
-                        </a>
-                    </div>
-                ) : items.map((item) => {
-                    const product = productsById.get(item.productId);
-                    const productName = t.products[item.productId]?.name ?? product?.name ?? item.productId;
+      <fieldset className="mb-2 grid gap-3">
+        <legend className="mb-2 text-sm font-medium text-stone-800">
+          {t.form.orderItems}
+        </legend>
+        {items.length === 0 ? (
+          <div className="rounded-md border border-dashed border-stone-300 bg-stone-50 p-4 text-sm text-stone-700">
+            <p>{t.form.emptyCart}</p>
+            <a
+              href="#catalog"
+              className="mt-2 inline-flex font-medium text-rose-700 hover:text-rose-800"
+            >
+              {t.form.chooseProducts}
+            </a>
+          </div>
+        ) : (
+          items.map((item) => {
+            const product = productsById.get(item.productId);
+            const productName =
+              t.products[item.productId]?.name ??
+              product?.name ??
+              item.productId;
 
-                    return (
-                        <div key={item.productId} className="grid gap-3 rounded-md border border-stone-200 bg-stone-50 p-3">
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div className="min-w-0">
-                                    <p className="font-semibold text-stone-950">{productName}</p>
-                                    {product ? (
-                                        <p className="mt-1 text-sm text-stone-600">
-                                            {t.productCard.from} {formatPrice(product.priceMinor * item.quantity, language)}
-                                        </p>
-                                    ) : null}
-                                </div>
-                                <QuantitySelector
-                                    productName={productName}
-                                    quantity={item.quantity}
-                                    onChange={(quantity) => setQuantity(item.productId, quantity)}
-                                    onRemove={() => removeItem(item.productId)}
-                                    className="w-full sm:w-auto"
-                                />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <label htmlFor={`item-comment-${item.productId}`} className="text-sm font-medium text-stone-800">
-                                    {t.form.productComment}
-                                </label>
-                                <textarea
-                                    id={`item-comment-${item.productId}`}
-                                    rows={2}
-                                    maxLength={500}
-                                    value={item.comment}
-                                    onChange={(event) => updateComment(item.productId, event.target.value)}
-                                    className="min-w-0 resize-none rounded-md border border-stone-300 bg-white px-3 py-2 outline-none focus:border-rose-700"
-                                />
-                            </div>
-                        </div>
-                    );
-                })}
-                <FieldError messages={fieldErrors.items}/>
-            </fieldset>
-
-            <div className="grid gap-2">
-                <label htmlFor="date" className="text-sm font-medium text-stone-800">
-                    {t.form.date}
-                </label>
-                <div className="flex gap-2">
-                    <input
-                        id="date"
-                        name="date"
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="ДД.ММ.ГГГГ"
-                        value={date}
-                        onChange={(event) => setDate(event.target.value)}
-                        required
-                        className="h-11 min-w-0 flex-1 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
-                    />
-                    <div className="relative h-11 w-12 shrink-0 rounded-md border border-stone-300 bg-white focus-within:border-rose-700">
-                        <CalendarDays
-                            size={20}
-                            className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-stone-700"
-                            aria-hidden="true"
-                        />
-                        <input
-                            type="date"
-                            value={getIsoDate(date)}
-                            min={minOrderDate}
-                            max={maxOrderDate}
-                            onChange={(event) => setDate(formatDateForTyping(event.target.value))}
-                            aria-label={t.form.openCalendar}
-                            title={t.form.openCalendar}
-                            className="absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0"
-                        />
-                    </div>
+            return (
+              <div
+                key={item.productId}
+                className="grid gap-3 rounded-md border border-stone-200 bg-stone-50 p-3"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-stone-950">
+                      {productName}
+                    </p>
+                    {product ? (
+                      <p className="mt-1 text-sm text-stone-600">
+                        {t.productCard.from}{" "}
+                        {formatPrice(
+                          product.priceMinor * item.quantity,
+                          language,
+                        )}
+                      </p>
+                    ) : null}
+                  </div>
+                  <QuantitySelector
+                    productName={productName}
+                    quantity={item.quantity}
+                    onChange={(quantity) =>
+                      setQuantity(item.productId, quantity)
+                    }
+                    onRemove={() => removeItem(item.productId)}
+                    className="w-full sm:w-auto"
+                  />
                 </div>
-                <FieldError messages={fieldErrors.date}/>
-            </div>
 
-            <fieldset className="grid gap-2">
-                <legend className="text-sm font-medium text-stone-800">
-                    {t.form.deliveryType}
-                </legend>
-                <div className="flex flex-col gap-3 min-[400px]:flex-row min-[400px]:flex-wrap min-[400px]:gap-4">
-                    <label className="inline-flex items-center gap-2">
-                        <input type="radio" name="deliveryType" value="DELIVERY" checked={deliveryType === 'DELIVERY'} onChange={() => setDeliveryType('DELIVERY')}/>
-                        {t.form.delivery}
-                    </label>
-                    <label className="inline-flex items-center gap-2">
-                        <input type="radio" name="deliveryType" value="PICKUP" checked={deliveryType === 'PICKUP'} onChange={() => setDeliveryType('PICKUP')}/>
-                        {t.form.pickup}
-                    </label>
+                <div className="grid gap-2">
+                  <label
+                    htmlFor={`item-comment-${item.productId}`}
+                    className="text-sm font-medium text-stone-800"
+                  >
+                    {t.form.productComment}
+                  </label>
+                  <textarea
+                    id={`item-comment-${item.productId}`}
+                    rows={2}
+                    maxLength={500}
+                    value={item.comment}
+                    onChange={(event) =>
+                      updateComment(item.productId, event.target.value)
+                    }
+                    className="min-w-0 resize-none rounded-md border border-stone-300 bg-white px-3 py-2 outline-none focus:border-rose-700"
+                  />
                 </div>
-                <FieldError messages={fieldErrors.deliveryType}/>
-            </fieldset>
+              </div>
+            );
+          })
+        )}
+        <FieldError messages={fieldErrors.items} />
+      </fieldset>
 
-            {deliveryType === 'DELIVERY' ? <div className="grid gap-2">
-                <label htmlFor="deliveryAddress" className="text-sm font-medium text-stone-800">{t.form.deliveryAddress}</label>
-                <textarea id="deliveryAddress" name="deliveryAddress" rows={3} required maxLength={300} autoComplete="street-address"
-                          className="resize-none rounded-md border border-stone-300 px-3 py-2 outline-none focus:border-rose-700"/>
-                <FieldError messages={fieldErrors.deliveryAddress}/>
-            </div> : <input type="hidden" name="deliveryAddress" value=""/>}
+      <div className="grid gap-2">
+        <label htmlFor="date" className="text-sm font-medium text-stone-800">
+          {t.form.date}
+        </label>
+        <div className="flex gap-2">
+          <input
+            id="date"
+            name="date"
+            type="text"
+            inputMode="numeric"
+            placeholder="ДД.ММ.ГГГГ"
+            value={date}
+            onChange={(event) => setDate(event.target.value)}
+            required
+            className="h-11 min-w-0 flex-1 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+          />
+          <div className="relative h-11 w-12 shrink-0 rounded-md border border-stone-300 bg-white focus-within:border-rose-700">
+            <CalendarDays
+              size={20}
+              className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-stone-700"
+              aria-hidden="true"
+            />
+            <input
+              type="date"
+              value={getIsoDate(date)}
+              min={minOrderDate}
+              max={maxOrderDate}
+              onChange={(event) =>
+                setDate(formatDateForTyping(event.target.value))
+              }
+              aria-label={t.form.openCalendar}
+              title={t.form.openCalendar}
+              className="absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0"
+            />
+          </div>
+        </div>
+        <FieldError messages={fieldErrors.date} />
+      </div>
 
-            <div className="grid gap-2">
-                <label htmlFor="comment" className="text-sm font-medium text-stone-800">{t.form.comment}</label>
-                <textarea id="comment" name="comment" rows={4} maxLength={500}
-                          className="resize-none rounded-md border border-stone-300 px-3 py-2 outline-none focus:border-rose-700"/>
-                <FieldError messages={fieldErrors.comment}/>
-            </div>
+      <fieldset className="grid gap-2">
+        <legend className="text-sm font-medium text-stone-800">
+          {t.form.deliveryType}
+        </legend>
+        <div className="flex flex-col gap-3 min-[400px]:flex-row min-[400px]:flex-wrap min-[400px]:gap-4">
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="radio"
+              name="deliveryType"
+              value="DELIVERY"
+              checked={deliveryType === "DELIVERY"}
+              onChange={() => setDeliveryType("DELIVERY")}
+            />
+            {t.form.delivery}
+          </label>
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="radio"
+              name="deliveryType"
+              value="PICKUP"
+              checked={deliveryType === "PICKUP"}
+              onChange={() => setDeliveryType("PICKUP")}
+            />
+            {t.form.pickup}
+          </label>
+        </div>
+        <FieldError messages={fieldErrors.deliveryType} />
+      </fieldset>
 
-            <button type="submit" disabled={status === 'sending' || items.length === 0}
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-stone-950 px-5 text-sm font-medium text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60">
-                <Send size={17} aria-hidden="true"/>
-                {status === 'sending' ? t.form.sending : t.form.submit}
-            </button>
+      {deliveryType === "DELIVERY" ? (
+        <div className="grid gap-2">
+          <label
+            htmlFor="deliveryAddress"
+            className="text-sm font-medium text-stone-800"
+          >
+            {t.form.deliveryAddress}
+          </label>
+          <textarea
+            id="deliveryAddress"
+            name="deliveryAddress"
+            rows={3}
+            required
+            maxLength={300}
+            autoComplete="street-address"
+            className="resize-none rounded-md border border-stone-300 px-3 py-2 outline-none focus:border-rose-700"
+          />
+          <FieldError messages={fieldErrors.deliveryAddress} />
+        </div>
+      ) : (
+        <input type="hidden" name="deliveryAddress" value="" />
+      )}
 
-            {status === 'success' ? <p className="text-sm text-emerald-700">{t.form.success}</p> : null}
-            {status === 'error' && !hasFieldErrors ? <p className="text-sm text-red-700" role="alert">{t.form.error}</p> : null}
-        </form>
-    );
+      <div className="grid gap-2">
+        <label htmlFor="comment" className="text-sm font-medium text-stone-800">
+          {t.form.comment}
+        </label>
+        <textarea
+          id="comment"
+          name="comment"
+          rows={4}
+          maxLength={500}
+          className="resize-none rounded-md border border-stone-300 px-3 py-2 outline-none focus:border-rose-700"
+        />
+        <FieldError messages={fieldErrors.comment} />
+      </div>
+
+      <button
+        type="submit"
+        disabled={status === "sending" || items.length === 0}
+        className="inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-[#7c1028] px-5 text-sm font-medium text-white transition hover:bg-[#5d0a1d] disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <Send size={17} aria-hidden="true" />
+        {status === "sending" ? t.form.sending : t.form.submit}
+      </button>
+
+      {status === "success" ? (
+        <p className="text-sm text-emerald-700">{t.form.success}</p>
+      ) : null}
+      {status === "error" && !hasFieldErrors ? (
+        <p className="text-sm text-red-700" role="alert">
+          {t.form.error}
+        </p>
+      ) : null}
+    </form>
+  );
 }
