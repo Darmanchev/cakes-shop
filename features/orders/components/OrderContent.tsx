@@ -1,25 +1,29 @@
-'use client';
+"use client";
 
-import { MapPin } from 'lucide-react';
-import { useLanguage } from '@/components/language/LanguageProvider';
-import type { Product } from '@/features/products/product.types';
-import { OrderForm } from './OrderForm';
+import { MapPin } from "lucide-react";
+import { useLanguage } from "@/components/language/LanguageProvider";
+import type { Product } from "@/features/products/product.types";
+import { OrderForm } from "./OrderForm";
 
-export function OrderContent({products}: {products: Product[]}) {
+export function OrderContent({ products }: { products: Product[] }) {
   const { t } = useLanguage();
 
   return (
-    <section id="order" className="mx-auto grid max-w-6xl gap-6 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[0.8fr_1fr] lg:gap-8">
-      <div>
-        <h2 className="text-3xl font-bold sm:text-4xl">{t.order.title}</h2>
-        <p className="mt-3 leading-7 text-stone-700">{t.order.description}</p>
-        <p className="mt-6 flex items-center gap-2 text-sm text-stone-700">
-          <MapPin size={17} aria-hidden="true" />
-          {t.order.deliveryNote}
-        </p>
-      </div>
+    <section id="order" className="bg-[#fcf9f5] px-4 py-12 sm:px-6 sm:py-16">
+      <div className="mx-auto grid max-w-7xl gap-8 rounded-xl border border-[#e2cfc3] bg-[#f2dfd9] px-5 py-8 sm:px-9 sm:py-10 lg:grid-cols-[0.8fr_1fr] lg:gap-12 lg:px-14">
+        <div className="lg:py-4">
+          <h2 className="font-display text-4xl font-medium leading-tight tracking-[-0.04em] sm:text-5xl">
+            {t.order.title}
+          </h2>
+          <p className="mt-3 leading-7 text-stone-700">{t.order.description}</p>
+          <p className="mt-6 flex items-center gap-2 text-sm text-stone-700">
+            <MapPin size={17} aria-hidden="true" />
+            {t.order.deliveryNote}
+          </p>
+        </div>
 
-      <OrderForm products={products} />
+        <OrderForm products={products} />
+      </div>
     </section>
   );
 }

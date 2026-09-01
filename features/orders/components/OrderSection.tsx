@@ -1,8 +1,8 @@
-import { getProducts } from '@/features/products/product.service';
-import { OrderContent } from './OrderContent';
+import { getProducts } from "@/features/products/product.service";
+import { OrderContent } from "./OrderContent";
 
 export async function OrderSection() {
-    const products = await  getProducts();
+  const products = await getProducts();
 
-    return <OrderContent products={products} />;
+  return <OrderContent products={products} />;
 }

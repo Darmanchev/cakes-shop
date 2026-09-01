@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Plus, Trash2 } from 'lucide-react';
-import { useLanguage } from '@/components/language/LanguageProvider';
-import { MAX_CART_ITEM_QUANTITY } from '../cart.schema';
+import { Plus, Trash2 } from "lucide-react";
+import { useLanguage } from "@/components/language/LanguageProvider";
+import { MAX_CART_ITEM_QUANTITY } from "../cart.schema";
 
 interface QuantitySelectorProps {
   productName: string;
@@ -17,12 +17,14 @@ export function QuantitySelector({
   quantity,
   onChange,
   onRemove,
-  className = '',
+  className = "",
 }: QuantitySelectorProps) {
   const { t } = useLanguage();
 
   return (
-    <div className={`flex h-12 min-w-0 items-center gap-2 rounded-full bg-rose-50 p-1.5 ${className}`}>
+    <div
+      className={`flex h-12 min-w-0 items-center gap-2 rounded-full bg-rose-50 p-1.5 ${className}`}
+    >
       <button
         type="button"
         onClick={onRemove}
@@ -53,7 +55,9 @@ export function QuantitySelector({
         className="h-9 w-12 rounded-md border border-stone-200 bg-white px-1 text-center font-semibold outline-none focus:border-rose-700"
         aria-label={`${t.productCard.quantity}: ${productName}`}
       />
-      <span className="shrink-0 text-sm font-semibold text-stone-800">{t.productCard.pieces}</span>
+      <span className="shrink-0 text-sm font-semibold text-stone-800">
+        {t.productCard.pieces}
+      </span>
       <button
         type="button"
         onClick={() => onChange(quantity + 1)}

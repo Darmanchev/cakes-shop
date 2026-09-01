@@ -1,5 +1,5 @@
-import {validateProductionEnvironment} from '../lib/security/production-env.mjs';
+import { validateProductionEnvironment } from "../lib/security/production-env.mjs";
 
 validateProductionEnvironment();
 
-await import('../server.js');
+await import("../server.js");
