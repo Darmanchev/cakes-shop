@@ -37,7 +37,7 @@ docker compose down --volumes
 
 ## Implemented
 
-- catalog for cakes, cinnabons and combo sets;
+- catalog for cakes and cinnabons;
 - Bulgarian, English and Russian interface;
 - order form with Zod validation and phone-number checks;
 - PostgreSQL models and Prisma migrations;

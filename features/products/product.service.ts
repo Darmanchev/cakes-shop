@@ -5,14 +5,17 @@ import type { Category, Product } from "./product.types";
 const categoryMap: Record<Category, ProductCategory> = {
   cakes: ProductCategory.CAKES,
   cinnabons: ProductCategory.CINNABONS,
-  combos: ProductCategory.COMBOS,
 };
 
-const categoryFromDb: Record<ProductCategory, Category> = {
+const categoryFromDb = {
   [ProductCategory.CAKES]: "cakes",
   [ProductCategory.CINNABONS]: "cinnabons",
-  [ProductCategory.COMBOS]: "combos",
-};
+} as const;
+
+const activeProductCategories: ProductCategory[] = [
+  ProductCategory.CAKES,
+  ProductCategory.CINNABONS,
+];
 
 function mapProductFromDb(product: {
   id: string;
@@ -25,10 +28,18 @@ function mapProductFromDb(product: {
   filling: string | null;
   prepTime: string;
 }): Product {
+  const category = categoryFromDb[
+    product.category as keyof typeof categoryFromDb
+  ];
+
+  if (!category) {
+    throw new Error(`Unsupported product category: ${product.category}`);
+  }
+
   return {
     id: product.id,
     name: product.name,
-    category: categoryFromDb[product.category],
+    category,
     priceMinor: product.priceMinor,
     description: product.description,
     image: product.image,
@@ -40,6 +51,7 @@ function mapProductFromDb(product: {
 
 export async function getProducts() {
   const products = await prisma.product.findMany({
+    where: { category: { in: activeProductCategories } },
     orderBy: { createdAt: "asc" },
   });
 

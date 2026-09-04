@@ -15,10 +15,19 @@ const prisma = new PrismaClient({
 const categoryMap = {
   cakes: ProductCategory.CAKES,
   cinnabons: ProductCategory.CINNABONS,
-  combos: ProductCategory.COMBOS,
 } as const;
 
+const retiredProductIds = ["cin-3", "combo-1", "combo-2", "combo-3"];
+
 async function main() {
+  await prisma.product.deleteMany({
+    where: {
+      id: { in: retiredProductIds },
+      orders: { none: {} },
+      orderItems: { none: {} },
+    },
+  });
+
   for (const product of products) {
     await prisma.product.upsert({
       where: { id: product.id },

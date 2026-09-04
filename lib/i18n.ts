@@ -99,7 +99,7 @@ interface AppTranslations {
 
 export const translations: Record<Language, AppTranslations> = {
   bg: {
-    siteDescription: "Торти, синнабони и сладки сетове по поръчка.",
+    siteDescription: "Торти и синнабони по поръчка.",
     metadataTitle: "Торти и синнабони",
     navigation: [
       { href: "#catalog", label: "Каталог" },
@@ -110,7 +110,7 @@ export const translations: Record<Language, AppTranslations> = {
       badge: "Торти и синнабони по поръчка",
       title: "Домашни сладкиши за празници, срещи и уютни вечери",
       description:
-        "Изберете торта, синнабон или сет, оставете запитване, а ние ще уточним детайлите и ще потвърдим поръчката.",
+        "Изберете торта или синнабон, оставете запитване, а ние ще уточним детайлите и ще потвърдим поръчката.",
       catalogCta: "Виж каталога",
       orderCta: "Остави запитване",
       imageAlt: "Шоколадова торта с крем",
@@ -120,14 +120,12 @@ export const translations: Record<Language, AppTranslations> = {
       sections: {
         cakes: "Торти",
         cinnabons: "Синнабони",
-        combos: "Сетове",
       },
     },
     productCard: {
       categories: {
         cakes: "Торта",
         cinnabons: "Синнабон",
-        combos: "Сет",
       },
       from: "от",
       order: "Поръчай",
@@ -245,38 +243,10 @@ export const translations: Record<Language, AppTranslations> = {
         filling: "Мак, канела, сметанова глазура",
         prepTime: "В наличност или 1 ден",
       },
-      "cin-3": {
-        name: "Плодов синнабон",
-        description: "Пухкава ролка с домашно малиново сладко и крем чийз.",
-        weight: "260 г",
-        filling: "Малина, крема сирене",
-        prepTime: "В наличност или 1 ден",
-      },
-      "combo-1": {
-        name: 'Сет "Уютна вечер"',
-        description:
-          "Кутия с 6 пресни синнабона: 3 класически и 3 шоколадови. Добър избор за компания.",
-        weight: "1.5 кг",
-        prepTime: "1 ден",
-      },
-      "combo-2": {
-        name: "Празничен сет",
-        description:
-          "Асорти от 9 мини синнабона с различни вкусове. Подходящо за голяма маса.",
-        weight: "1.8 кг",
-        prepTime: "1 ден",
-      },
-      "combo-3": {
-        name: "Сет за двама",
-        description:
-          "2 синнабона по избор и 2 порции филтър кафе или авторски чай.",
-        weight: "800 г",
-        prepTime: "В наличност",
-      },
     },
   },
   en: {
-    siteDescription: "Custom cakes, cinnabons, and sweet sets.",
+    siteDescription: "Custom cakes and cinnabons.",
     metadataTitle: "Cakes and Cinnabons",
     navigation: [
       { href: "#catalog", label: "Catalog" },
@@ -287,7 +257,7 @@ export const translations: Record<Language, AppTranslations> = {
       badge: "Custom cakes and cinnabons",
       title: "Homemade bakes for celebrations, meetups, and quiet evenings",
       description:
-        "Choose a cake, cinnabon, or set, send a request, and we will confirm the details and your order.",
+        "Choose a cake or cinnabon, send a request, and we will confirm the details and your order.",
       catalogCta: "View catalog",
       orderCta: "Send request",
       imageAlt: "Chocolate cake with cream",
@@ -297,14 +267,12 @@ export const translations: Record<Language, AppTranslations> = {
       sections: {
         cakes: "Cakes",
         cinnabons: "Cinnabons",
-        combos: "Sets",
       },
     },
     productCard: {
       categories: {
         cakes: "Cake",
         cinnabons: "Cinnabon",
-        combos: "Set",
       },
       from: "from",
       order: "Order",
@@ -419,39 +387,10 @@ export const translations: Record<Language, AppTranslations> = {
         filling: "Poppy seeds, cinnamon, cream glaze",
         prepTime: "Available or 1 day",
       },
-      "cin-3": {
-        name: "Berry Cinnabon",
-        description:
-          "Soft roll with homemade raspberry confit and cream cheese topping.",
-        weight: "260 g",
-        filling: "Raspberry, cream cheese",
-        prepTime: "Available or 1 day",
-      },
-      "combo-1": {
-        name: "Cozy Evening Set",
-        description:
-          "A box of 6 fresh cinnabons: 3 classic and 3 chocolate. Great for sharing.",
-        weight: "1.5 kg",
-        prepTime: "1 day",
-      },
-      "combo-2": {
-        name: "Celebration Set",
-        description:
-          "Assortment of 9 mini cinnabons in different flavors. A good option for a big table.",
-        weight: "1.8 kg",
-        prepTime: "1 day",
-      },
-      "combo-3": {
-        name: "Set for Two",
-        description:
-          "2 cinnabons of your choice and 2 portions of filter coffee or signature tea.",
-        weight: "800 g",
-        prepTime: "Available",
-      },
     },
   },
   ru: {
-    siteDescription: "Торты, синнабоны и наборы на заказ.",
+    siteDescription: "Торты и синнабоны на заказ.",
     metadataTitle: "Торты и синнабоны",
     navigation: [
       { href: "#catalog", label: "Каталог" },
@@ -462,7 +401,7 @@ export const translations: Record<Language, AppTranslations> = {
       badge: "Торты и синнабоны на заказ",
       title: "Домашняя выпечка для праздников, встреч и уютных вечеров",
       description:
-        "Выберите торт, синнабон или набор, оставьте заявку, а мы уточним детали и подтвердим заказ.",
+        "Выберите торт или синнабон, оставьте заявку, а мы уточним детали и подтвердим заказ.",
       catalogCta: "Смотреть каталог",
       orderCta: "Оставить заявку",
       imageAlt: "Шоколадный торт с кремом",
@@ -472,14 +411,12 @@ export const translations: Record<Language, AppTranslations> = {
       sections: {
         cakes: "Торты",
         cinnabons: "Синнабоны",
-        combos: "Наборы",
       },
     },
     productCard: {
       categories: {
         cakes: "Торт",
         cinnabons: "Синнабон",
-        combos: "Набор",
       },
       from: "от",
       order: "Заказать",
@@ -595,35 +532,6 @@ export const translations: Record<Language, AppTranslations> = {
         weight: "280 г",
         filling: "Мак, корица, сливочная глазурь",
         prepTime: "В наличии (или 1 день)",
-      },
-      "cin-3": {
-        name: "Синнабон Ягодный",
-        description:
-          "Сдобная булочка с домашним малиновым конфитюром и шапкой из крем-чиза.",
-        weight: "260 г",
-        filling: "Малина, сливочный сыр",
-        prepTime: "В наличии (или 1 день)",
-      },
-      "combo-1": {
-        name: 'Сет "Уютный вечер"',
-        description:
-          "Коробочка из 6 свежих синнабонов (3 классических, 3 шоколадных). Идеально для компании.",
-        weight: "1.5 кг",
-        prepTime: "1 день",
-      },
-      "combo-2": {
-        name: 'Сет "Праздничный"',
-        description:
-          "Ассорти из 9 мини-синнабонов разных вкусов. Отличный вариант для большого стола.",
-        weight: "1.8 кг",
-        prepTime: "1 день",
-      },
-      "combo-3": {
-        name: 'Сет "Для двоих"',
-        description:
-          "2 синнабона на выбор и 2 порции фильтр-кофе или авторского чая.",
-        weight: "800 г",
-        prepTime: "В наличии",
       },
     },
   },

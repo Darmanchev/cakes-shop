@@ -30,3 +30,10 @@ test("lists the meringue roulade as a cake and provides Milk Girl copy", () => {
     /молочных коржей/,
   );
 });
+
+test("publishes only the active cakes and cinnabons", () => {
+  assert.deepEqual(
+    products.map((product) => product.id),
+    ["cake-1", "cake-2", "cake-3", "cake-4", "cake-5", "cin-1", "cin-2"],
+  );
+});
