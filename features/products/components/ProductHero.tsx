@@ -58,7 +58,7 @@ export function ProductHero() {
       </svg>
       <div className="absolute inset-0 hidden lg:block" aria-hidden="true">
         <Image
-          src="/products/hero-berry-cake-v2.png"
+          src="/images/hero/main-cake.png"
           alt=""
           fill
           priority
@@ -97,7 +97,7 @@ export function ProductHero() {
       </div>
       <div className="relative aspect-[16/10] w-full lg:hidden">
         <Image
-          src="/products/hero-berry-cake-v2.png"
+          src="/images/hero/main-cake.png"
           alt={t.hero.imageAlt}
           fill
           priority

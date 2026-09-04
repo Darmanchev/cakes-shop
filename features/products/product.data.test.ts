@@ -3,7 +3,7 @@ import test from "node:test";
 import { translations } from "@/lib/i18n";
 import { products } from "./product.data";
 
-test("publishes the requested cake lineup with the generated café images", () => {
+test("uses stable category-based paths for cake images", () => {
   const cakes = products
     .filter((product) => product.category === "cakes")
     .map(({ id, image }) => ({ id, image }));
@@ -11,12 +11,12 @@ test("publishes the requested cake lineup with the generated café images", () =
   assert.deepEqual(cakes, [
     {
       id: "cake-1",
-      image: "/products/cake_napoleon_with_fruits-cafe-bokeh.png",
+      image: "/images/products/cakes/napoleon.png",
     },
-    { id: "cake-2", image: "/products/cake_white_hyinea-cafe-bokeh.png" },
-    { id: "cake-3", image: "/products/cake_medovic-cafe-bokeh.png" },
-    { id: "cake-4", image: "/products/cake_nuts-cafe-bokeh.png" },
-    { id: "cake-5", image: "/products/rulet-cafe-bokeh.png" },
+    { id: "cake-2", image: "/images/products/cakes/milk-girl.png" },
+    { id: "cake-3", image: "/images/products/cakes/medovik.png" },
+    { id: "cake-4", image: "/images/products/cakes/waffle-cake.png" },
+    { id: "cake-5", image: "/images/products/cakes/meringue-roll.png" },
   ]);
 });
 

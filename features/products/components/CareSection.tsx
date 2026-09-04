@@ -50,7 +50,7 @@ export function CareSection() {
       <div className="mx-auto grid max-w-7xl lg:grid-cols-2">
         <div className="relative min-h-[320px] overflow-hidden rounded-xl sm:min-h-[420px]">
           <Image
-            src="/products/baker-decorating-cake-v1.png"
+            src="/images/sections/baker-decorating-cake.png"
             alt={content.imageAlt}
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
