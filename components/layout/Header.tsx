@@ -12,32 +12,43 @@ export function Header() {
   const { totalItems } = useCart();
 
   return (
-    <header className="relative z-30 shrink-0 bg-[#fbf6f0]/90 backdrop-blur-xl">
-      <div className="flex h-[60px] items-center justify-between gap-3 px-4 sm:h-[68px] sm:px-7 lg:px-9">
-        <Link
-          href="/"
-          className="font-display min-w-0 truncate text-xl font-semibold tracking-[-0.045em] text-[#443530] sm:text-2xl"
-        >
-          {SITE_NAME}
-          <span className="ml-1 text-[#b78e8c]">.</span>
-        </Link>
+    <header className="absolute top-0 left-0 right-0 z-50 flex h-16 items-center justify-between px-8 text-[#f7e9de]">
+      <Link
+        href="/"
+        className="font-display text-3xl font-semibold tracking-wide"
+      >
+        {SITE_NAME}
+      </Link>
 
-        <div className="flex min-w-0 items-center justify-self-end gap-1.5 sm:gap-2">
-          <LanguageSwitcher />
-          <Link
-            href="/order"
-            className="group relative inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[#443530] px-3 text-sm font-semibold text-white transition hover:bg-[#6b4f47] sm:px-4"
-            aria-label={`${t.cart.label}: ${totalItems}`}
-          >
-            <ShoppingBag size={17} aria-hidden="true" />
-            <span className="hidden lg:inline">{t.hero.orderCta}</span>
-            {totalItems > 0 ? (
-              <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-[#d9aaa9] px-1 text-[11px] font-bold leading-5 text-[#443530]">
-                {totalItems}
-              </span>
-            ) : null}
-          </Link>
-        </div>
+      <nav className="hidden md:flex items-center gap-10 font-semibold tracking-wide">
+        <Link href="/" className="border-b-2 border-white pb-1">{t.footerNew.home}</Link>
+        <Link href="#cakes" className="hover:opacity-80 transition-opacity">{t.footerNew.cakes}</Link>
+        <Link href="#collections" className="hover:opacity-80 transition-opacity">{t.footerNew.collections}</Link>
+        <Link href="#about" className="hover:opacity-80 transition-opacity">{t.footerNew.about}</Link>
+      </nav>
+
+      <div className="flex items-center gap-6">
+        <button aria-label="Search" className="hover:opacity-80 transition-opacity">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+        
+        <Link href="/cart" className="relative hover:opacity-80 transition-opacity" aria-label="Cart">
+          <ShoppingBag size={24} />
+          {totalItems > 0 && (
+            <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#d9aaa9] text-[10px] font-bold text-[#443530]">
+              {totalItems}
+            </span>
+          )}
+        </Link>
+        
+        <LanguageSwitcher />
+
+        <Link
+          href="/order"
+          className="hidden lg:inline-flex h-10 items-center justify-center rounded-full bg-white/20 px-6 font-semibold text-white backdrop-blur-sm transition hover:bg-white/30 border border-white/30"
+        >
+          {t.hero.orderNow}
+        </Link>
       </div>
     </header>
   );

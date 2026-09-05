@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from "react";
 import {
   CakeSlice,
   ChevronLeft,
@@ -35,6 +35,10 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
   const [activeCategory, setActiveCategory] = useState<Category>("cakes");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const railRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const lastFocusedTriggerRef = useRef<HTMLButtonElement>(null);
+  const categoryTabRefs = useRef<Partial<Record<Category, HTMLButtonElement | null>>>({});
+  const categories = Object.keys(productsByCategory) as Category[];
   const visibleProducts = productsByCategory[activeCategory];
   const selectedCartItem = selectedProduct
     ? items.find((item) => item.productId === selectedProduct.id)
@@ -46,6 +50,61 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
       behavior: "smooth",
     });
   }
+
+  function selectCategory(category: Category) {
+    setActiveCategory(category);
+    railRef.current?.scrollTo({ left: 0, behavior: "smooth" });
+  }
+
+  function handleCategoryKeyDown(
+    event: ReactKeyboardEvent<HTMLButtonElement>,
+    category: Category,
+  ) {
+    const currentIndex = categories.indexOf(category);
+    const previousIndex = (currentIndex - 1 + categories.length) % categories.length;
+    const nextIndex = (currentIndex + 1) % categories.length;
+    const nextCategory =
+      event.key === "ArrowRight" || event.key === "ArrowDown"
+        ? categories[nextIndex]
+        : event.key === "ArrowLeft" || event.key === "ArrowUp"
+          ? categories[previousIndex]
+          : event.key === "Home"
+            ? categories[0]
+            : event.key === "End"
+              ? categories[categories.length - 1]
+              : null;
+
+    if (!nextCategory) return;
+
+    event.preventDefault();
+    selectCategory(nextCategory);
+    categoryTabRefs.current[nextCategory]?.focus();
+  }
+
+  function closeProductDialog() {
+    setSelectedProduct(null);
+    lastFocusedTriggerRef.current?.focus();
+  }
+
+  function openProductDetails(product: Product, trigger: HTMLButtonElement) {
+    lastFocusedTriggerRef.current = trigger;
+    setSelectedProduct(product);
+  }
+
+  useEffect(() => {
+    if (!selectedProduct) return;
+
+    closeButtonRef.current?.focus();
+
+    function handleDialogKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        closeProductDialog();
+      }
+    }
+
+    window.addEventListener("keydown", handleDialogKeyDown);
+    return () => window.removeEventListener("keydown", handleDialogKeyDown);
+  }, [selectedProduct]);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2.5 pb-2.5 sm:gap-3 sm:pb-3 lg:pb-4">
@@ -90,7 +149,7 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
       <section id="catalog" className="flex min-h-0 flex-1 flex-col px-3 sm:px-5 lg:px-6">
         <div className="mb-2.5 flex shrink-0 justify-center sm:mb-3">
           <div className="flex items-center gap-1.5" role="tablist" aria-label={t.catalog.title}>
-            {(Object.keys(productsByCategory) as Category[]).map((category) => {
+            {categories.map((category) => {
               const Icon = categoryIcons[category] ?? Sparkles;
               const active = category === activeCategory;
 
@@ -99,11 +158,15 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
                   key={category}
                   type="button"
                   role="tab"
+                  id={`catalog-tab-${category}`}
                   aria-selected={active}
-                  onClick={() => {
-                    setActiveCategory(category);
-                    railRef.current?.scrollTo({ left: 0, behavior: "smooth" });
+                  aria-controls={`catalog-panel-${category}`}
+                  tabIndex={active ? 0 : -1}
+                  ref={(element) => {
+                    categoryTabRefs.current[category] = element;
                   }}
+                  onClick={() => selectCategory(category)}
+                  onKeyDown={(event) => handleCategoryKeyDown(event, category)}
                   className={`inline-flex h-10 items-center gap-2 rounded-full border px-3 text-xs font-bold transition sm:h-11 sm:px-4 sm:text-sm ${
                     active
                       ? "border-[#b78e8c] bg-[#e3c5cb] text-[#443530] shadow-sm"
@@ -123,6 +186,10 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
         <div className="group/rail relative min-h-0 flex-1">
           <div
             ref={railRef}
+            id={`catalog-panel-${activeCategory}`}
+            role="tabpanel"
+            aria-labelledby={`catalog-tab-${activeCategory}`}
+            tabIndex={0}
             className="no-scrollbar grid h-full snap-x snap-mandatory auto-cols-[84%] grid-flow-col gap-3 overflow-x-auto overscroll-x-contain pb-0.5 sm:auto-cols-[44%] lg:auto-cols-[31.5%]"
             aria-live="polite"
           >
@@ -130,7 +197,7 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
               <ProductCard
                 key={product.id}
                 product={product}
-                onViewDetails={() => setSelectedProduct(product)}
+                onViewDetails={(trigger) => openProductDetails(product, trigger)}
               />
             ))}
           </div>
@@ -164,7 +231,7 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
           role="presentation"
           onMouseDown={(event) => {
             if (event.currentTarget === event.target) {
-              setSelectedProduct(null);
+              closeProductDialog();
             }
           }}
         >
@@ -176,7 +243,8 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
           >
             <button
               type="button"
-              onClick={() => setSelectedProduct(null)}
+              ref={closeButtonRef}
+              onClick={closeProductDialog}
               className="absolute right-5 top-5 z-10 inline-flex size-9 items-center justify-center rounded-full bg-white/90 text-[#443530] shadow-md"
               aria-label="Close"
             >

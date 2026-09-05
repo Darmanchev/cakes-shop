@@ -37,6 +37,10 @@ interface AppTranslations {
   hero: {
     badge: string;
     title: string;
+    heroTitle: string;
+    heroDesc: string;
+    exploreCakes: string;
+    orderNow: string;
     description: string;
     catalogCta: string;
     orderCta: string;
@@ -103,6 +107,42 @@ interface AppTranslations {
     chooseProducts: string;
   };
   products: Record<string, ProductCopy>;
+
+  features: {
+    freshTitle: string;
+    freshDesc: string;
+    premiumTitle: string;
+    premiumDesc: string;
+  };
+  categoryCards: {
+    cakesTitle: string;
+    cakesSubtitle: string;
+    cinnabonsTitle: string;
+    cinnabonsSubtitle: string;
+    muffinsTitle: string;
+    muffinsSubtitle: string;
+  };
+  story: {
+    title: string;
+    desc: string;
+    cta: string;
+  };
+  footerNew: {
+    desc: string;
+    quickLinks: string;
+    customerCare: string;
+    visitUs: string;
+    home: string;
+    cakes: string;
+    collections: string;
+    about: string;
+    contact: string;
+    faqs: string;
+    shipping: string;
+    returns: string;
+    terms: string;
+    privacy: string;
+  };
 }
 
 export const translations: Record<Language, AppTranslations> = {
@@ -117,6 +157,10 @@ export const translations: Record<Language, AppTranslations> = {
     hero: {
       badge: "Торти, синнабони и мъфини по поръчка",
       title: "Животът е по-сладък с нещо домашно",
+      heroTitle: "Животът е по-сладък с нещо домашно.",
+      heroDesc: "Вкусни ръчно изработени торти и десерти, приготвени с най-добрите съставки и много любов.",
+      exploreCakes: "Разгледай тортите",
+      orderNow: "Поръчай",
       description:
         "Изберете торта, синнабон или мъфин, оставете запитване, а ние ще уточним детайлите и ще потвърдим поръчката.",
       catalogCta: "Виж каталога",
@@ -278,6 +322,43 @@ export const translations: Record<Language, AppTranslations> = {
         prepTime: "1 ден",
       },
     },
+
+    features: {
+      freshTitle: "Прясно изпечени",
+      freshDesc: "Печем ги всеки ден с любов.",
+      premiumTitle: "Качествени съставки",
+      premiumDesc: "Използваме само най-добрите съставки.",
+    },
+    categoryCards: {
+      cakesTitle: "Авторски\nТорти",
+      cakesSubtitle: "Неповторим вкус\nСпециално за теб",
+      cinnabonsTitle: "Сладки\nСиннабони",
+      cinnabonsSubtitle: "Богати, неустоими\nизкушения",
+      muffinsTitle: "Пресни\nМъфини",
+      muffinsSubtitle: "Изпечени днес,\nсамо за теб",
+    },
+    story: {
+      title: "Ръчно изработени\nс любов",
+      desc: "Всеки десерт се приготвя от нулата с най-добрите съставки и се декорира със страст.",
+      cta: "Нашата история",
+    },
+    footerNew: {
+      desc: "Подсладете специалните си моменти с нашите ръчно изработени торти и десерти.",
+      quickLinks: "Бързи връзки",
+      customerCare: "Обслужване",
+      visitUs: "Посетете ни",
+      home: "Начало",
+      cakes: "Торти",
+      collections: "Колекции",
+      about: "За нас",
+      contact: "Контакти",
+      faqs: "Често задавани въпроси",
+      shipping: "Политика за доставка",
+      returns: "Връщане и замени",
+      terms: "Общи условия",
+      privacy: "Поверителност",
+    },
+
   },
   en: {
     siteDescription: "Custom cakes, cinnabons, and muffins.",
@@ -290,6 +371,10 @@ export const translations: Record<Language, AppTranslations> = {
     hero: {
       badge: "Custom cakes, cinnabons, and muffins",
       title: "Life is sweeter with something homemade",
+      heroTitle: "Life is Better with Something Sweet.",
+      heroDesc: "Deliciously handcrafted cakes and treats made with the finest ingredients and a whole lot of love.",
+      exploreCakes: "Explore Our Cakes",
+      orderNow: "Order Now",
       description:
         "Choose a cake, cinnabon, or muffin, send a request, and we will confirm the details and your order.",
       catalogCta: "View catalog",
@@ -448,6 +533,43 @@ export const translations: Record<Language, AppTranslations> = {
         prepTime: "1 day",
       },
     },
+
+    features: {
+      freshTitle: "Freshly Baked",
+      freshDesc: "Baked fresh daily with love.",
+      premiumTitle: "Premium Ingredients",
+      premiumDesc: "We use only the finest quality ingredients.",
+    },
+    categoryCards: {
+      cakesTitle: "Signature\nCakes",
+      cakesSubtitle: "Timeless Flavors\nMade for You",
+      cinnabonsTitle: "Sweet\nCinnabons",
+      cinnabonsSubtitle: "Rich, Indulgent &\nIrresistible",
+      muffinsTitle: "Fresh\nMuffins",
+      muffinsSubtitle: "Baked Fresh,\nJust for You",
+    },
+    story: {
+      title: "Handcrafted\nwith Love",
+      desc: "Every dessert is baked from scratch with the finest ingredients and decorated with passion.",
+      cta: "Our Story",
+    },
+    footerNew: {
+      desc: "Sweeten your special moments with our handcrafted cakes and delightful treats.",
+      quickLinks: "Quick Links",
+      customerCare: "Customer Care",
+      visitUs: "Visit Us",
+      home: "Home",
+      cakes: "Cakes",
+      collections: "Collections",
+      about: "About Us",
+      contact: "Contact",
+      faqs: "FAQs",
+      shipping: "Shipping Policy",
+      returns: "Returns & Refunds",
+      terms: "Terms & Conditions",
+      privacy: "Privacy Policy",
+    },
+
   },
   ru: {
     siteDescription: "Торты, синнабоны и маффины на заказ.",
@@ -460,6 +582,10 @@ export const translations: Record<Language, AppTranslations> = {
     hero: {
       badge: "Торты, синнабоны и маффины на заказ",
       title: "Жизнь с домашней выпечкой слаще",
+      heroTitle: "Жизнь лучше с чем-то сладким.",
+      heroDesc: "Невероятно вкусные торты и десерты ручной работы, приготовленные из лучших ингредиентов с большой любовью.",
+      exploreCakes: "Выбрать торт",
+      orderNow: "Заказать",
       description:
         "Выберите торт, синнабон или маффин, оставьте заявку, а мы уточним детали и подтвердим заказ.",
       catalogCta: "Смотреть каталог",
@@ -620,5 +746,42 @@ export const translations: Record<Language, AppTranslations> = {
         prepTime: "1 день",
       },
     },
+
+    features: {
+      freshTitle: "Freshly Baked",
+      freshDesc: "Baked fresh daily with love.",
+      premiumTitle: "Premium Ingredients",
+      premiumDesc: "We use only the finest quality ingredients.",
+    },
+    categoryCards: {
+      cakesTitle: "Signature\nCakes",
+      cakesSubtitle: "Timeless Flavors\nMade for You",
+      cinnabonsTitle: "Sweet\nCinnabons",
+      cinnabonsSubtitle: "Rich, Indulgent &\nIrresistible",
+      muffinsTitle: "Fresh\nMuffins",
+      muffinsSubtitle: "Baked Fresh,\nJust for You",
+    },
+    story: {
+      title: "Handcrafted\nwith Love",
+      desc: "Every dessert is baked from scratch with the finest ingredients and decorated with passion.",
+      cta: "Our Story",
+    },
+    footerNew: {
+      desc: "Sweeten your special moments with our handcrafted cakes and delightful treats.",
+      quickLinks: "Quick Links",
+      customerCare: "Customer Care",
+      visitUs: "Visit Us",
+      home: "Home",
+      cakes: "Cakes",
+      collections: "Collections",
+      about: "About Us",
+      contact: "Contact",
+      faqs: "FAQs",
+      shipping: "Shipping Policy",
+      returns: "Returns & Refunds",
+      terms: "Terms & Conditions",
+      privacy: "Privacy Policy",
+    },
+
   },
 };

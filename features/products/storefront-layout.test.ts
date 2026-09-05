@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import test from "node:test";
 
-test("keeps the hero cake fully visible and uses fluid layout sizing", async () => {
+test("keeps the catalog hero cake fully visible and lets the homepage grow vertically", async () => {
   const catalogSource = await readFile(
     resolve(process.cwd(), "features/products/components/CatalogContent.tsx"),
     "utf8",
@@ -12,7 +12,9 @@ test("keeps the hero cake fully visible and uses fluid layout sizing", async () 
 
   assert.match(catalogSource, /object-contain object-center/);
   assert.match(catalogSource, /top-0/);
-  assert.match(homeSource, /max-w-\[min\(96vw,1800px\)\]/);
+  assert.match(homeSource, /min-h-dvh/);
+  assert.doesNotMatch(homeSource, /h-\[calc\(100dvh/);
+  assert.doesNotMatch(homeSource, /overflow-hidden/);
 });
 
 test("places product titles over the image and enlarges it on hover", async () => {

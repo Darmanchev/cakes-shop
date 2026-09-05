@@ -11,7 +11,7 @@ import type { Product } from "../product.types";
 
 interface ProductCardProps {
   product: Product;
-  onViewDetails: () => void;
+  onViewDetails: (trigger: HTMLButtonElement) => void;
 }
 
 const productBackgrounds: Record<string, string> = {
@@ -42,7 +42,7 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
     >
       <button
         type="button"
-        onClick={onViewDetails}
+        onClick={(event) => onViewDetails(event.currentTarget)}
         className="relative min-h-0 flex-1 overflow-hidden text-left"
         style={{ backgroundColor: productBackgrounds[product.id] ?? "#edc7cd" }}
         aria-label={productCopy.name}
