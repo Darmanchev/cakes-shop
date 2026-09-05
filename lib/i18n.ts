@@ -41,6 +41,7 @@ interface AppTranslations {
     catalogCta: string;
     orderCta: string;
     imageAlt: string;
+    highlights: [string, string];
   };
   catalog: {
     title: string;
@@ -53,6 +54,7 @@ interface AppTranslations {
     add: string;
     pieces: string;
     quantity: string;
+    decrease: string;
     increase: string;
     remove: string;
     limitReached: string;
@@ -108,12 +110,13 @@ export const translations: Record<Language, AppTranslations> = {
     ],
     hero: {
       badge: "Торти и синнабони по поръчка",
-      title: "Домашни сладкиши за празници, срещи и уютни вечери",
+      title: "Животът е по-сладък с нещо домашно",
       description:
         "Изберете торта или синнабон, оставете запитване, а ние ще уточним детайлите и ще потвърдим поръчката.",
       catalogCta: "Виж каталога",
       orderCta: "Остави запитване",
       imageAlt: "Шоколадова торта с крем",
+      highlights: ["Прясно приготвено", "Качествени съставки"],
     },
     catalog: {
       title: "Каталог",
@@ -132,6 +135,7 @@ export const translations: Record<Language, AppTranslations> = {
       add: "Добави",
       pieces: "бр.",
       quantity: "Количество",
+      decrease: "Намали количеството за",
       increase: "Увеличи количеството за",
       remove: "Премахни",
       limitReached: "Можете да добавите най-много 10 различни продукта",
@@ -255,12 +259,13 @@ export const translations: Record<Language, AppTranslations> = {
     ],
     hero: {
       badge: "Custom cakes and cinnabons",
-      title: "Homemade bakes for celebrations, meetups, and quiet evenings",
+      title: "Life is sweeter with something homemade",
       description:
         "Choose a cake or cinnabon, send a request, and we will confirm the details and your order.",
       catalogCta: "View catalog",
       orderCta: "Send request",
       imageAlt: "Chocolate cake with cream",
+      highlights: ["Freshly baked", "Quality ingredients"],
     },
     catalog: {
       title: "Catalog",
@@ -279,6 +284,7 @@ export const translations: Record<Language, AppTranslations> = {
       add: "Add",
       pieces: "pcs.",
       quantity: "Quantity",
+      decrease: "Decrease quantity for",
       increase: "Increase quantity for",
       remove: "Remove",
       limitReached: "You can add up to 10 different products",
@@ -399,12 +405,13 @@ export const translations: Record<Language, AppTranslations> = {
     ],
     hero: {
       badge: "Торты и синнабоны на заказ",
-      title: "Домашняя выпечка для праздников, встреч и уютных вечеров",
+      title: "Жизнь с домашней выпечкой слаще",
       description:
         "Выберите торт или синнабон, оставьте заявку, а мы уточним детали и подтвердим заказ.",
       catalogCta: "Смотреть каталог",
       orderCta: "Оставить заявку",
       imageAlt: "Шоколадный торт с кремом",
+      highlights: ["Свежая выпечка", "Качественные ингредиенты"],
     },
     catalog: {
       title: "Каталог",
@@ -423,6 +430,7 @@ export const translations: Record<Language, AppTranslations> = {
       add: "Добавить",
       pieces: "шт.",
       quantity: "Количество",
+      decrease: "Уменьшить количество для",
       increase: "Увеличить количество для",
       remove: "Удалить",
       limitReached: "Можно добавить не более 10 разных товаров",

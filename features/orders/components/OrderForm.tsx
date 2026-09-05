@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 import { CalendarDays, Send } from "lucide-react";
 import { useLanguage } from "@/components/language/LanguageProvider";
@@ -69,7 +70,7 @@ export function OrderForm({ products }: { products: Product[] }) {
     "DELIVERY",
   );
   const [date, setDate] = useState("");
-  const { items, setQuantity, removeItem, updateComment, clearCart } =
+  const { items, setQuantity, decrementItem, updateComment, clearCart } =
     useCart();
   const { language, t } = useLanguage();
   const productsById = useMemo(
@@ -131,7 +132,7 @@ export function OrderForm({ products }: { products: Product[] }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid min-w-0 gap-4 rounded-xl border border-[#e1d2c8] bg-[#fffdfa] p-5 shadow-sm sm:p-6"
+      className="grid min-w-0 gap-4 rounded-[24px] border border-[#dfcec7] bg-[#fffaf5] p-5 shadow-[0_16px_45px_rgba(68,53,48,0.08)] sm:p-6"
     >
       <div className="grid gap-2">
         <label htmlFor="name" className="text-sm font-medium text-stone-800">
@@ -142,7 +143,7 @@ export function OrderForm({ products }: { products: Product[] }) {
           name="name"
           maxLength={100}
           required
-          className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+          className="h-11 rounded-[14px] border border-[#d8c5bd] bg-white px-3 outline-none focus:border-[#b78e8c]"
         />
         <FieldError messages={fieldErrors.name} />
       </div>
@@ -158,7 +159,7 @@ export function OrderForm({ products }: { products: Product[] }) {
           maxLength={32}
           required
           placeholder="+359..."
-          className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+          className="h-11 rounded-[14px] border border-[#d8c5bd] bg-white px-3 outline-none focus:border-[#b78e8c]"
         />
         <FieldError messages={fieldErrors.phone} />
       </div>
@@ -175,7 +176,7 @@ export function OrderForm({ products }: { products: Product[] }) {
           autoComplete="email"
           maxLength={254}
           required
-          className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+          className="h-11 rounded-[14px] border border-[#d8c5bd] bg-white px-3 outline-none focus:border-[#b78e8c]"
         />
         <FieldError messages={fieldErrors.email} />
       </div>
@@ -185,14 +186,14 @@ export function OrderForm({ products }: { products: Product[] }) {
           {t.form.orderItems}
         </legend>
         {items.length === 0 ? (
-          <div className="rounded-md border border-dashed border-stone-300 bg-stone-50 p-4 text-sm text-stone-700">
+          <div className="rounded-[16px] border border-dashed border-[#cfb7b1] bg-[#f8f0e7] p-4 text-sm text-[#6f5b54]">
             <p>{t.form.emptyCart}</p>
-            <a
-              href="#catalog"
-              className="mt-2 inline-flex font-medium text-rose-700 hover:text-rose-800"
+            <Link
+              href="/"
+              className="mt-2 inline-flex font-semibold text-[#956a6b] hover:text-[#755052]"
             >
               {t.form.chooseProducts}
-            </a>
+            </Link>
           </div>
         ) : (
           items.map((item) => {
@@ -205,7 +206,7 @@ export function OrderForm({ products }: { products: Product[] }) {
             return (
               <div
                 key={item.productId}
-                className="grid gap-3 rounded-md border border-stone-200 bg-stone-50 p-3"
+                className="grid gap-3 rounded-[16px] border border-[#e3d5cf] bg-[#f8f0e7] p-3"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
@@ -228,7 +229,7 @@ export function OrderForm({ products }: { products: Product[] }) {
                     onChange={(quantity) =>
                       setQuantity(item.productId, quantity)
                     }
-                    onRemove={() => removeItem(item.productId)}
+                    onDecrement={() => decrementItem(item.productId)}
                     className="w-full sm:w-auto"
                   />
                 </div>
@@ -248,7 +249,7 @@ export function OrderForm({ products }: { products: Product[] }) {
                     onChange={(event) =>
                       updateComment(item.productId, event.target.value)
                     }
-                    className="min-w-0 resize-none rounded-md border border-stone-300 bg-white px-3 py-2 outline-none focus:border-rose-700"
+                    className="min-w-0 resize-none rounded-[14px] border border-[#d8c5bd] bg-white px-3 py-2 outline-none focus:border-[#b78e8c]"
                   />
                 </div>
               </div>
@@ -272,9 +273,9 @@ export function OrderForm({ products }: { products: Product[] }) {
             value={date}
             onChange={(event) => setDate(event.target.value)}
             required
-            className="h-11 min-w-0 flex-1 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+            className="h-11 min-w-0 flex-1 rounded-[14px] border border-[#d8c5bd] bg-white px-3 outline-none focus:border-[#b78e8c]"
           />
-          <div className="relative h-11 w-12 shrink-0 rounded-md border border-stone-300 bg-white focus-within:border-rose-700">
+          <div className="relative h-11 w-12 shrink-0 rounded-[14px] border border-[#d8c5bd] bg-white focus-within:border-[#b78e8c]">
             <CalendarDays
               size={20}
               className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-stone-700"
@@ -341,7 +342,7 @@ export function OrderForm({ products }: { products: Product[] }) {
             required
             maxLength={300}
             autoComplete="street-address"
-            className="resize-none rounded-md border border-stone-300 px-3 py-2 outline-none focus:border-rose-700"
+            className="resize-none rounded-[14px] border border-[#d8c5bd] bg-white px-3 py-2 outline-none focus:border-[#b78e8c]"
           />
           <FieldError messages={fieldErrors.deliveryAddress} />
         </div>
@@ -358,7 +359,7 @@ export function OrderForm({ products }: { products: Product[] }) {
           name="comment"
           rows={4}
           maxLength={500}
-          className="resize-none rounded-md border border-stone-300 px-3 py-2 outline-none focus:border-rose-700"
+          className="resize-none rounded-[14px] border border-[#d8c5bd] bg-white px-3 py-2 outline-none focus:border-[#b78e8c]"
         />
         <FieldError messages={fieldErrors.comment} />
       </div>
@@ -366,7 +367,7 @@ export function OrderForm({ products }: { products: Product[] }) {
       <button
         type="submit"
         disabled={status === "sending" || items.length === 0}
-        className="inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-[#7c1028] px-5 text-sm font-medium text-white transition hover:bg-[#5d0a1d] disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#443530] px-5 text-sm font-semibold text-white transition hover:bg-[#60483f] disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Send size={17} aria-hidden="true" />
         {status === "sending" ? t.form.sending : t.form.submit}

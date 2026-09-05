@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   addCartItem,
+  decrementCartItem,
   getCartItemsCount,
   removeCartItem,
   setCartItemQuantity,
@@ -18,6 +19,7 @@ interface CartContextValue {
   totalItems: number;
   canAddProduct: boolean;
   addItem: (productId: string) => void;
+  decrementItem: (productId: string) => void;
   setQuantity: (productId: string, quantity: number) => void;
   removeItem: (productId: string) => void;
   updateComment: (productId: string, comment: string) => void;
@@ -74,6 +76,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       canAddProduct: cart.items.length < MAX_CART_ITEMS,
       addItem: (productId) =>
         setCart((current) => addCartItem(current, productId)),
+      decrementItem: (productId) =>
+        setCart((current) => decrementCartItem(current, productId)),
       setQuantity: (productId, quantity) =>
         setCart((current) => setCartItemQuantity(current, productId, quantity)),
       removeItem: (productId) =>

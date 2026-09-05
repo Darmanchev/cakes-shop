@@ -39,6 +39,20 @@ export function setCartItemQuantity(
   };
 }
 
+export function decrementCartItem(cart: Cart, productId: string): Cart {
+  const existingItem = cart.items.find((item) => item.productId === productId);
+
+  if (!existingItem) {
+    return cart;
+  }
+
+  if (existingItem.quantity === 1) {
+    return removeCartItem(cart, productId);
+  }
+
+  return setCartItemQuantity(cart, productId, existingItem.quantity - 1);
+}
+
 export function removeCartItem(cart: Cart, productId: string): Cart {
   return {
     items: cart.items.filter((item) => item.productId !== productId),

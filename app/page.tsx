@@ -1,22 +1,13 @@
 import { Header } from "@/components/layout/Header";
-import { CartProvider } from "@/features/cart/CartProvider";
-import { OrderSection } from "@/features/orders/components/OrderSection";
-import { OrderStepsSection } from "@/features/orders/components/OrderStepsSection";
 import { CatalogSection } from "@/features/products/components/CatalogSection";
-import { CareSection } from "@/features/products/components/CareSection";
-import { ProductHero } from "@/features/products/components/ProductHero";
 
 export default function Home() {
   return (
-    <CartProvider>
-      <main className="min-h-screen bg-[#f9f3eb] text-stone-950">
+    <main className="storefront-shell h-dvh overflow-hidden bg-[#efe3dd] p-2 text-[#443530] sm:p-4">
+      <div className="mx-auto flex h-full w-full max-w-[1440px] flex-col overflow-hidden rounded-[24px] border border-white/50 bg-[#f8f0e7] shadow-[0_24px_80px_rgba(68,53,48,0.14)] sm:rounded-[32px]">
         <Header />
-        <ProductHero />
         <CatalogSection />
-        <CareSection />
-        <OrderStepsSection />
-        <OrderSection />
-      </main>
-    </CartProvider>
+      </div>
+    </main>
   );
 }

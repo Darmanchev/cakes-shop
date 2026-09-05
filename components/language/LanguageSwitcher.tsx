@@ -8,7 +8,7 @@ export function LanguageSwitcher() {
 
   return (
     <div
-      className="inline-flex shrink-0 items-center gap-0.5"
+      className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-[#efe3dd] p-0.5"
       aria-label="Language switcher"
     >
       {languageOptions.map((option) => (
@@ -18,10 +18,10 @@ export function LanguageSwitcher() {
           aria-label={option.ariaLabel}
           aria-pressed={language === option.code}
           onClick={() => setLanguage(option.code)}
-          className={`h-7 rounded-sm px-2 text-[11px] font-semibold transition sm:px-2.5 ${
+          className={`h-7 rounded-full px-2 text-[10px] font-bold transition sm:px-2.5 ${
             language === option.code
-              ? "bg-[#7c1028] text-white"
-              : "text-stone-700 hover:bg-[#f0e5da] hover:text-stone-950"
+              ? "bg-[#b78e8c] text-white shadow-sm"
+              : "text-[#765f58] hover:bg-white/70 hover:text-[#443530]"
           }`}
         >
           {option.label}

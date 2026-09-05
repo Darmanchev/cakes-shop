@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import { useLanguage } from "@/components/language/LanguageProvider";
 import { MAX_CART_ITEM_QUANTITY } from "../cart.schema";
 
@@ -8,7 +8,7 @@ interface QuantitySelectorProps {
   productName: string;
   quantity: number;
   onChange: (quantity: number) => void;
-  onRemove: () => void;
+  onDecrement: () => void;
   className?: string;
 }
 
@@ -16,23 +16,23 @@ export function QuantitySelector({
   productName,
   quantity,
   onChange,
-  onRemove,
+  onDecrement,
   className = "",
 }: QuantitySelectorProps) {
   const { t } = useLanguage();
 
   return (
     <div
-      className={`flex h-12 min-w-0 items-center gap-2 rounded-full bg-rose-50 p-1.5 ${className}`}
+      className={`flex h-12 min-w-0 items-center gap-2 rounded-full bg-[#f2e1e2] p-1.5 ${className}`}
     >
       <button
         type="button"
-        onClick={onRemove}
-        className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-stone-300 bg-white text-stone-900 transition hover:border-rose-700 hover:text-rose-700"
-        aria-label={`${t.productCard.remove} ${productName}`}
-        title={t.productCard.remove}
+        onClick={onDecrement}
+        className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-[#cfb7b1] bg-white text-[#443530] transition hover:border-[#b78e8c] hover:text-[#956a6b]"
+        aria-label={`${t.productCard.decrease} ${productName}`}
+        title={t.productCard.decrease}
       >
-        <Trash2 size={18} aria-hidden="true" />
+        <Minus size={19} aria-hidden="true" />
       </button>
 
       <input
@@ -52,7 +52,8 @@ export function QuantitySelector({
             event.currentTarget.value = String(quantity);
           }
         }}
-        className="h-9 w-12 rounded-md border border-stone-200 bg-white px-1 text-center font-semibold outline-none focus:border-rose-700"
+        inputMode="numeric"
+        className="h-9 w-12 appearance-none rounded-md border border-stone-200 bg-white px-1 text-center font-semibold outline-none focus:border-rose-700 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         aria-label={`${t.productCard.quantity}: ${productName}`}
       />
       <span className="shrink-0 text-sm font-semibold text-stone-800">
@@ -62,7 +63,7 @@ export function QuantitySelector({
         type="button"
         onClick={() => onChange(quantity + 1)}
         disabled={quantity >= MAX_CART_ITEM_QUANTITY}
-        className="ml-auto inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-rose-700 text-white transition hover:bg-rose-800 disabled:cursor-not-allowed disabled:opacity-50"
+        className="ml-auto inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-[#443530] text-white transition hover:bg-[#60483f] disabled:cursor-not-allowed disabled:opacity-50"
         aria-label={`${t.productCard.increase} ${productName}`}
         title={t.productCard.increase}
       >

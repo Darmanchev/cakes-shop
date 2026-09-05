@@ -9,14 +9,14 @@ export function OrderContent({ products }: { products: Product[] }) {
   const { t } = useLanguage();
 
   return (
-    <section id="order" className="bg-[#fcf9f5] px-4 py-12 sm:px-6 sm:py-16">
-      <div className="mx-auto grid max-w-7xl gap-8 rounded-xl border border-[#e2cfc3] bg-[#f2dfd9] px-5 py-8 sm:px-9 sm:py-10 lg:grid-cols-[0.8fr_1fr] lg:gap-12 lg:px-14">
+    <section id="order" className="px-4 pb-10 pt-5 sm:px-8 sm:pb-12 lg:px-10">
+      <div className="mx-auto grid max-w-[1080px] gap-7 rounded-[28px] border border-[#dfcec7] bg-[#e7d1d3] px-5 py-7 shadow-[0_18px_50px_rgba(68,53,48,0.08)] sm:px-8 sm:py-9 lg:grid-cols-[0.75fr_1.25fr] lg:gap-10 lg:px-10">
         <div className="lg:py-4">
           <h2 className="font-display text-4xl font-medium leading-tight tracking-[-0.04em] sm:text-5xl">
             {t.order.title}
           </h2>
-          <p className="mt-3 leading-7 text-stone-700">{t.order.description}</p>
-          <p className="mt-6 flex items-center gap-2 text-sm text-stone-700">
+          <p className="mt-3 leading-7 text-[#6f5b54]">{t.order.description}</p>
+          <p className="mt-6 flex items-center gap-2 rounded-full bg-white/45 px-4 py-3 text-sm text-[#6f5b54]">
             <MapPin size={17} aria-hidden="true" />
             {t.order.deliveryNote}
           </p>
