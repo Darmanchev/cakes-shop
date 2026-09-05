@@ -70,7 +70,7 @@ export function OrderForm({ products }: { products: Product[] }) {
     "DELIVERY",
   );
   const [date, setDate] = useState("");
-  const { items, setQuantity, decrementItem, updateComment, clearCart } =
+  const { items, setQuantity, decrementItem, removeItem, updateComment, clearCart } =
     useCart();
   const { language, t } = useLanguage();
   const productsById = useMemo(
@@ -230,6 +230,7 @@ export function OrderForm({ products }: { products: Product[] }) {
                       setQuantity(item.productId, quantity)
                     }
                     onDecrement={() => decrementItem(item.productId)}
+                    onRemove={() => removeItem(item.productId)}
                     className="w-full sm:w-auto"
                   />
                 </div>

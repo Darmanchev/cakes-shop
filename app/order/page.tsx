@@ -1,5 +1,6 @@
 import { BackToCatalogLink } from "@/components/layout/BackToCatalogLink";
 import { Header } from "@/components/layout/Header";
+import { StorefrontFooter } from "@/components/layout/StorefrontFooter";
 import { OrderSection } from "@/features/orders/components/OrderSection";
 
 export default function OrderPage() {
@@ -11,6 +12,7 @@ export default function OrderPage() {
           <BackToCatalogLink />
         </div>
         <OrderSection />
+        <StorefrontFooter />
       </div>
     </main>
   );

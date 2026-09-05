@@ -4,6 +4,8 @@ import Image from "next/image";
 import { Clock, ShoppingBag } from "lucide-react";
 import { useLanguage } from "@/components/language/LanguageProvider";
 import { useCart } from "@/features/cart/CartProvider";
+import { MAX_CART_ITEM_QUANTITY } from "@/features/cart/cart.schema";
+import { QuantityStepper } from "@/features/cart/components/QuantityStepper";
 import { formatPrice } from "@/lib/utils/format-price";
 import type { Product } from "../product.types";
 
@@ -20,14 +22,15 @@ const productBackgrounds: Record<string, string> = {
   "cake-5": "#edc7cd",
   "cin-1": "#d8c8d8",
   "cin-2": "#efdcd0",
+  "muffin-1": "#edc7cd",
+  "muffin-2": "#d8c8d8",
 };
 
 export function ProductCard({ product, onViewDetails }: ProductCardProps) {
   const { language, t } = useLanguage();
-  const { items, canAddProduct, addItem } = useCart();
+  const { items, canAddProduct, addItem, decrementItem } = useCart();
   const productCopy = t.products[product.id] ?? product;
   const cartItem = items.find((item) => item.productId === product.id);
-  const canAdd = Boolean(cartItem) || canAddProduct;
 
   return (
     <article
@@ -50,20 +53,14 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
           fill
           loading="eager"
           sizes="(max-width: 640px) 84vw, (max-width: 1024px) 44vw, 390px"
-          className="object-contain p-4 drop-shadow-[0_12px_12px_rgba(73,49,43,0.2)] transition duration-500 group-hover:scale-[1.035] sm:p-5"
+          className="object-contain p-5 drop-shadow-[0_12px_12px_rgba(73,49,43,0.2)] transition duration-500 ease-out group-hover:scale-[1.06] sm:p-6"
         />
-        <span className="absolute left-3 top-3 rounded-full bg-[#fffaf5]/90 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[#765b58] shadow-sm backdrop-blur sm:left-4 sm:top-4">
-          {t.productCard.categories[product.category]}
-        </span>
+        <h3 className="font-display absolute left-4 top-4 max-w-[72%] text-[clamp(1.05rem,1.6vw,1.45rem)] font-semibold leading-[0.95] tracking-[-0.035em] text-[#443530] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:left-5 sm:top-5">
+          {productCopy.name}
+        </h3>
       </button>
 
-      <div className="grid min-h-[92px] shrink-0 grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1.5 p-3.5 sm:min-h-[98px] sm:p-4">
-        <button type="button" onClick={onViewDetails} className="min-w-0 text-left">
-          <h3 className="font-display line-clamp-1 text-lg font-semibold leading-tight tracking-[-0.025em] text-[#443530] sm:text-xl">
-            {productCopy.name}
-          </h3>
-        </button>
-
+      <div className="grid min-h-[70px] shrink-0 grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 p-3 sm:min-h-[76px] sm:p-3.5">
         <p className="font-display text-lg font-semibold text-[#8d6264] sm:text-xl">
           {formatPrice(product.priceMinor, language)}
         </p>
@@ -73,20 +70,33 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
           {productCopy.prepTime}
         </p>
 
-        <button
-          type="button"
-          onClick={() => addItem(product.id)}
-          disabled={!canAdd}
-          className={`relative inline-flex h-8 items-center justify-center gap-1.5 rounded-full border px-3 text-[11px] font-bold transition hover:bg-[#443530] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:h-9 sm:text-xs ${
-            cartItem
-              ? "border-[#443530] bg-[#443530] text-white"
-              : "border-[#bfa6a0] bg-[#fffaf5] text-[#443530]"
-          }`}
-          title={!canAdd ? t.productCard.limitReached : t.productCard.add}
-        >
-          <ShoppingBag size={14} aria-hidden="true" />
-          {cartItem ? cartItem.quantity : t.productCard.add}
-        </button>
+        {cartItem ? (
+          <div className="inline-flex items-center gap-1 rounded-full bg-[#f2e1e2] p-0.5 pl-2.5">
+            <span className="min-w-4 text-center text-xs font-bold text-[#443530]">
+              {cartItem.quantity}
+            </span>
+            <QuantityStepper
+              productName={productCopy.name}
+              decreaseLabel={t.productCard.decrease}
+              increaseLabel={t.productCard.increase}
+              onDecrement={() => decrementItem(product.id)}
+              onIncrement={() => addItem(product.id)}
+              disableIncrement={cartItem.quantity >= MAX_CART_ITEM_QUANTITY}
+              className="border-0"
+            />
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => addItem(product.id)}
+            disabled={!canAddProduct}
+            className="relative inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-[#bfa6a0] bg-[#fffaf5] px-3 text-[11px] font-bold text-[#443530] transition hover:bg-[#443530] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:h-9 sm:text-xs"
+            title={!canAddProduct ? t.productCard.limitReached : t.productCard.add}
+          >
+            <ShoppingBag size={14} aria-hidden="true" />
+            {t.productCard.add}
+          </button>
+        )}
       </div>
     </article>
   );

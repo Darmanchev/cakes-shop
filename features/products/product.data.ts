@@ -84,6 +84,30 @@ export const products: Product[] = [
     filling: "Мак, канела, сметанова глазура",
     prepTime: "В наличност или 1 ден",
   },
+  {
+    id: "muffin-1",
+    name: "Мъфин Baba Neagra",
+    category: "muffins",
+    priceMinor: 200,
+    description:
+      "Сочен тъмен мъфин Baba Neagra с нежен ванилов крем и вишнев топинг.",
+    image: "/images/products/muffins/baba-neagra-cutout.png",
+    weight: "1 бр.",
+    filling: "Baba Neagra, ванилов крем, вишни",
+    prepTime: "1 ден",
+  },
+  {
+    id: "muffin-2",
+    name: "Мъфин с боровинки",
+    category: "muffins",
+    priceMinor: 200,
+    description:
+      "Пухкав ванилов мъфин с цели боровинки и хрупкави филирани бадеми.",
+    image: "/images/products/muffins/blueberry-muffins-cutout.png",
+    weight: "1 бр.",
+    filling: "Боровинки, ванилия, филирани бадеми",
+    prepTime: "1 ден",
+  },
 ];
 
 export function filterProductsByCategory(

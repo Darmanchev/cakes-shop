@@ -12,7 +12,7 @@ export function Header() {
   const { totalItems } = useCart();
 
   return (
-    <header className="relative z-30 shrink-0 border-b border-[#dfcec7]/80 bg-[#fbf6f0]/90 backdrop-blur-xl">
+    <header className="relative z-30 shrink-0 bg-[#fbf6f0]/90 backdrop-blur-xl">
       <div className="flex h-[60px] items-center justify-between gap-3 px-4 sm:h-[68px] sm:px-7 lg:px-9">
         <Link
           href="/"

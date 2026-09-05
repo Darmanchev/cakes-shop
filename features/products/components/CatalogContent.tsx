@@ -4,14 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import {
-  ArrowRight,
   CakeSlice,
-  ChefHat,
   ChevronLeft,
   ChevronRight,
   Croissant,
+  Dessert,
   Sparkles,
-  Wheat,
   X,
 } from "lucide-react";
 import { useLanguage } from "@/components/language/LanguageProvider";
@@ -22,17 +20,18 @@ import { ProductCard } from "./ProductCard";
 import type { Category, Product } from "../product.types";
 
 interface CatalogContentProps {
-  productsByCategory: Pick<Record<Category, Product[]>, "cakes" | "cinnabons">;
+  productsByCategory: Record<Category, Product[]>;
 }
 
 const categoryIcons = {
   cakes: CakeSlice,
   cinnabons: Croissant,
+  muffins: Dessert,
 } satisfies Record<Category, typeof CakeSlice>;
 
 export function CatalogContent({ productsByCategory }: CatalogContentProps) {
   const { language, t } = useLanguage();
-  const { items, canAddProduct, addItem, setQuantity, decrementItem } = useCart();
+  const { items, canAddProduct, addItem, setQuantity, decrementItem, removeItem } = useCart();
   const [activeCategory, setActiveCategory] = useState<Category>("cakes");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const railRef = useRef<HTMLDivElement>(null);
@@ -50,31 +49,31 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2.5 pb-2.5 sm:gap-3 sm:pb-3 lg:pb-4">
-      <section className="relative z-10 mb-7 h-[clamp(175px,28vh,270px)] shrink-0 sm:mb-8">
-        <div className="pointer-events-none absolute inset-x-0 -bottom-3 top-0 overflow-hidden" aria-hidden="true">
+      <section className="relative z-10 mb-[clamp(1.25rem,3vh,2.25rem)] h-[clamp(190px,30vh,340px)] shrink-0">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[clamp(0.25rem,1vh,0.75rem)] overflow-hidden" aria-hidden="true">
           <Image
-            src="/images/hero/pink-brush-texture.png"
+            src="/images/hero/pink-brush-stroke.png"
             alt=""
             fill
             priority
             sizes="(max-width: 1440px) 100vw, 1440px"
-            className="object-fill brightness-[0.82] saturate-[0.82]"
+            className="scale-x-[1.04] object-fill brightness-[0.78] saturate-[0.88]"
           />
           <div className="painted-hero__texture absolute inset-0 opacity-45" />
         </div>
 
-        <div className="pointer-events-none absolute -bottom-9 -right-[14%] z-20 h-[calc(100%+3.5rem)] w-[78%] min-[480px]:-right-[7%] min-[480px]:w-[68%] sm:-bottom-11 sm:right-[1%] sm:w-[58%] lg:right-[3%] lg:w-[56%]">
+        <div className="pointer-events-none absolute bottom-0 top-0 -right-[12%] z-20 w-[76%] min-[480px]:-right-[5%] min-[480px]:w-[66%] sm:right-[1%] sm:w-[57%] lg:right-[3%] lg:w-[54%]">
           <Image
             src="/images/hero/berry-cake-cutout.png"
             alt={t.hero.imageAlt}
             fill
             priority
             sizes="(max-width: 640px) 78vw, 58vw"
-            className="object-contain object-bottom drop-shadow-[0_22px_22px_rgba(68,53,48,0.24)]"
+            className="object-contain object-center drop-shadow-[0_22px_22px_rgba(68,53,48,0.24)]"
           />
         </div>
 
-        <div className="relative z-30 flex h-full max-w-[64%] flex-col justify-center px-5 pb-5 pt-3 text-[#fffaf5] sm:max-w-[53%] sm:px-8 lg:px-11">
+        <div className="relative z-30 flex h-full max-w-[64%] flex-col justify-center px-[clamp(1.25rem,4vw,2.75rem)] pb-5 pt-3 text-[#fffaf5] sm:max-w-[53%]">
           <p className="mb-2 hidden items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#f7e5df] min-[440px]:flex">
             <Sparkles size={13} aria-hidden="true" />
             {t.hero.badge}
@@ -85,21 +84,6 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
           <p className="mt-3 hidden max-w-[430px] text-xs leading-5 text-[#fff5ef]/90 md:block lg:text-sm">
             {t.hero.description}
           </p>
-          <a
-            href="#catalog"
-            className="mt-4 inline-flex h-9 w-fit items-center justify-center gap-2 rounded-full bg-[#443530] px-4 text-xs font-semibold text-white transition hover:bg-[#60483f] sm:h-10 sm:px-5 sm:text-sm"
-          >
-            {t.hero.catalogCta}
-            <ArrowRight size={15} aria-hidden="true" />
-          </a>
-        </div>
-
-        <div className="absolute bottom-1 right-3 z-30 hidden items-center gap-2 rounded-full bg-[#fffaf5]/90 px-3 py-2 text-[11px] font-semibold text-[#59443d] shadow-sm backdrop-blur md:flex lg:right-6">
-          <ChefHat size={15} aria-hidden="true" />
-          <span>{t.hero.highlights[0]}</span>
-          <span className="text-[#b78e8c]">•</span>
-          <Wheat size={14} aria-hidden="true" />
-          <span>{t.hero.highlights[1]}</span>
         </div>
       </section>
 
@@ -236,6 +220,7 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
                     quantity={selectedCartItem.quantity}
                     onChange={(quantity) => setQuantity(selectedProduct.id, quantity)}
                     onDecrement={() => decrementItem(selectedProduct.id)}
+                    onRemove={() => removeItem(selectedProduct.id)}
                   />
                 ) : (
                   <button

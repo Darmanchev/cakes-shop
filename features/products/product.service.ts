@@ -5,16 +5,19 @@ import type { Category, Product } from "./product.types";
 const categoryMap: Record<Category, ProductCategory> = {
   cakes: ProductCategory.CAKES,
   cinnabons: ProductCategory.CINNABONS,
+  muffins: ProductCategory.MUFFINS,
 };
 
 const categoryFromDb = {
   [ProductCategory.CAKES]: "cakes",
   [ProductCategory.CINNABONS]: "cinnabons",
+  [ProductCategory.MUFFINS]: "muffins",
 } as const;
 
 const activeProductCategories: ProductCategory[] = [
   ProductCategory.CAKES,
   ProductCategory.CINNABONS,
+  ProductCategory.MUFFINS,
 ];
 
 function mapProductFromDb(product: {

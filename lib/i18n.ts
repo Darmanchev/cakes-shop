@@ -62,6 +62,12 @@ interface AppTranslations {
   cart: {
     label: string;
   };
+  footer: {
+    phone: string;
+    instagram: string;
+    location: string;
+    copyright: string;
+  };
   orderSteps: {
     title: string;
     steps: Array<{ title: string; text: string }>;
@@ -101,18 +107,18 @@ interface AppTranslations {
 
 export const translations: Record<Language, AppTranslations> = {
   bg: {
-    siteDescription: "Торти и синнабони по поръчка.",
-    metadataTitle: "Торти и синнабони",
+    siteDescription: "Торти, синнабони и мъфини по поръчка.",
+    metadataTitle: "Торти, синнабони и мъфини",
     navigation: [
       { href: "#catalog", label: "Каталог" },
       { href: "#how", label: "Как се поръчва" },
       { href: "#order", label: "Запитване" },
     ],
     hero: {
-      badge: "Торти и синнабони по поръчка",
+      badge: "Торти, синнабони и мъфини по поръчка",
       title: "Животът е по-сладък с нещо домашно",
       description:
-        "Изберете торта или синнабон, оставете запитване, а ние ще уточним детайлите и ще потвърдим поръчката.",
+        "Изберете торта, синнабон или мъфин, оставете запитване, а ние ще уточним детайлите и ще потвърдим поръчката.",
       catalogCta: "Виж каталога",
       orderCta: "Остави запитване",
       imageAlt: "Шоколадова торта с крем",
@@ -123,12 +129,14 @@ export const translations: Record<Language, AppTranslations> = {
       sections: {
         cakes: "Торти",
         cinnabons: "Синнабони",
+        muffins: "Мъфини",
       },
     },
     productCard: {
       categories: {
         cakes: "Торта",
         cinnabons: "Синнабон",
+        muffins: "Мъфин",
       },
       from: "от",
       order: "Поръчай",
@@ -142,6 +150,12 @@ export const translations: Record<Language, AppTranslations> = {
     },
     cart: {
       label: "Кошница",
+    },
+    footer: {
+      phone: "Телефон",
+      instagram: "Instagram",
+      location: "Местоположение",
+      copyright: "© 2026 Stas Cakes",
     },
     orderSteps: {
       title: "",
@@ -247,21 +261,37 @@ export const translations: Record<Language, AppTranslations> = {
         filling: "Мак, канела, сметанова глазура",
         prepTime: "В наличност или 1 ден",
       },
+      "muffin-1": {
+        name: "Мъфин Baba Neagra",
+        description:
+          "Сочен тъмен мъфин Baba Neagra с нежен ванилов крем и вишнев топинг.",
+        weight: "1 бр.",
+        filling: "Baba Neagra, ванилов крем, вишни",
+        prepTime: "1 ден",
+      },
+      "muffin-2": {
+        name: "Мъфин с боровинки",
+        description:
+          "Пухкав ванилов мъфин с цели боровинки и хрупкави филирани бадеми.",
+        weight: "1 бр.",
+        filling: "Боровинки, ванилия, филирани бадеми",
+        prepTime: "1 ден",
+      },
     },
   },
   en: {
-    siteDescription: "Custom cakes and cinnabons.",
-    metadataTitle: "Cakes and Cinnabons",
+    siteDescription: "Custom cakes, cinnabons, and muffins.",
+    metadataTitle: "Cakes, Cinnabons, and Muffins",
     navigation: [
       { href: "#catalog", label: "Catalog" },
       { href: "#how", label: "How to order" },
       { href: "#order", label: "Request" },
     ],
     hero: {
-      badge: "Custom cakes and cinnabons",
+      badge: "Custom cakes, cinnabons, and muffins",
       title: "Life is sweeter with something homemade",
       description:
-        "Choose a cake or cinnabon, send a request, and we will confirm the details and your order.",
+        "Choose a cake, cinnabon, or muffin, send a request, and we will confirm the details and your order.",
       catalogCta: "View catalog",
       orderCta: "Send request",
       imageAlt: "Chocolate cake with cream",
@@ -272,12 +302,14 @@ export const translations: Record<Language, AppTranslations> = {
       sections: {
         cakes: "Cakes",
         cinnabons: "Cinnabons",
+        muffins: "Muffins",
       },
     },
     productCard: {
       categories: {
         cakes: "Cake",
         cinnabons: "Cinnabon",
+        muffins: "Muffin",
       },
       from: "from",
       order: "Order",
@@ -291,6 +323,12 @@ export const translations: Record<Language, AppTranslations> = {
     },
     cart: {
       label: "Cart",
+    },
+    footer: {
+      phone: "Phone",
+      instagram: "Instagram",
+      location: "Location",
+      copyright: "© 2026 Stas Cakes",
     },
     orderSteps: {
       title: "How ordering works",
@@ -393,21 +431,37 @@ export const translations: Record<Language, AppTranslations> = {
         filling: "Poppy seeds, cinnamon, cream glaze",
         prepTime: "Available or 1 day",
       },
+      "muffin-1": {
+        name: "Baba Neagra Muffin",
+        description:
+          "A moist dark Baba Neagra muffin with delicate vanilla cream and sour cherry topping.",
+        weight: "1 piece",
+        filling: "Baba Neagra, vanilla cream, sour cherries",
+        prepTime: "1 day",
+      },
+      "muffin-2": {
+        name: "Blueberry Muffin",
+        description:
+          "A soft vanilla muffin with whole blueberries and crisp sliced almonds.",
+        weight: "1 piece",
+        filling: "Blueberries, vanilla, sliced almonds",
+        prepTime: "1 day",
+      },
     },
   },
   ru: {
-    siteDescription: "Торты и синнабоны на заказ.",
-    metadataTitle: "Торты и синнабоны",
+    siteDescription: "Торты, синнабоны и маффины на заказ.",
+    metadataTitle: "Торты, синнабоны и маффины",
     navigation: [
       { href: "#catalog", label: "Каталог" },
       { href: "#how", label: "Как заказать" },
       { href: "#order", label: "Заявка" },
     ],
     hero: {
-      badge: "Торты и синнабоны на заказ",
+      badge: "Торты, синнабоны и маффины на заказ",
       title: "Жизнь с домашней выпечкой слаще",
       description:
-        "Выберите торт или синнабон, оставьте заявку, а мы уточним детали и подтвердим заказ.",
+        "Выберите торт, синнабон или маффин, оставьте заявку, а мы уточним детали и подтвердим заказ.",
       catalogCta: "Смотреть каталог",
       orderCta: "Оставить заявку",
       imageAlt: "Шоколадный торт с кремом",
@@ -418,12 +472,14 @@ export const translations: Record<Language, AppTranslations> = {
       sections: {
         cakes: "Торты",
         cinnabons: "Синнабоны",
+        muffins: "Маффины",
       },
     },
     productCard: {
       categories: {
         cakes: "Торт",
         cinnabons: "Синнабон",
+        muffins: "Маффин",
       },
       from: "от",
       order: "Заказать",
@@ -437,6 +493,12 @@ export const translations: Record<Language, AppTranslations> = {
     },
     cart: {
       label: "Корзина",
+    },
+    footer: {
+      phone: "Телефон",
+      instagram: "Instagram",
+      location: "Местоположение",
+      copyright: "© 2026 Stas Cakes",
     },
     orderSteps: {
       title: "Как работает заказ",
@@ -540,6 +602,22 @@ export const translations: Record<Language, AppTranslations> = {
         weight: "280 г",
         filling: "Мак, корица, сливочная глазурь",
         prepTime: "В наличии (или 1 день)",
+      },
+      "muffin-1": {
+        name: "Маффин Baba Neagra",
+        description:
+          "Сочный тёмный маффин Baba Neagra с нежным ванильным кремом и вишнёвым топпингом.",
+        weight: "1 шт.",
+        filling: "Baba Neagra, ванильный крем, вишня",
+        prepTime: "1 день",
+      },
+      "muffin-2": {
+        name: "Маффин с черникой",
+        description:
+          "Мягкий ванильный маффин с цельной черникой и хрустящими миндальными лепестками.",
+        weight: "1 шт.",
+        filling: "Черника, ваниль, миндальные лепестки",
+        prepTime: "1 день",
       },
     },
   },

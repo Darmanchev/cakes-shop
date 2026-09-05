@@ -1,14 +1,16 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useLanguage } from "@/components/language/LanguageProvider";
 import { MAX_CART_ITEM_QUANTITY } from "../cart.schema";
+import { QuantityStepper } from "./QuantityStepper";
 
 interface QuantitySelectorProps {
   productName: string;
   quantity: number;
   onChange: (quantity: number) => void;
   onDecrement: () => void;
+  onRemove: () => void;
   className?: string;
 }
 
@@ -17,6 +19,7 @@ export function QuantitySelector({
   quantity,
   onChange,
   onDecrement,
+  onRemove,
   className = "",
 }: QuantitySelectorProps) {
   const { t } = useLanguage();
@@ -27,12 +30,12 @@ export function QuantitySelector({
     >
       <button
         type="button"
-        onClick={onDecrement}
+        onClick={onRemove}
         className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-[#cfb7b1] bg-white text-[#443530] transition hover:border-[#b78e8c] hover:text-[#956a6b]"
-        aria-label={`${t.productCard.decrease} ${productName}`}
-        title={t.productCard.decrease}
+        aria-label={`${t.productCard.remove} ${productName}`}
+        title={t.productCard.remove}
       >
-        <Minus size={19} aria-hidden="true" />
+        <Trash2 size={17} aria-hidden="true" />
       </button>
 
       <input
@@ -59,16 +62,15 @@ export function QuantitySelector({
       <span className="shrink-0 text-sm font-semibold text-stone-800">
         {t.productCard.pieces}
       </span>
-      <button
-        type="button"
-        onClick={() => onChange(quantity + 1)}
-        disabled={quantity >= MAX_CART_ITEM_QUANTITY}
-        className="ml-auto inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-[#443530] text-white transition hover:bg-[#60483f] disabled:cursor-not-allowed disabled:opacity-50"
-        aria-label={`${t.productCard.increase} ${productName}`}
-        title={t.productCard.increase}
-      >
-        <Plus size={21} aria-hidden="true" />
-      </button>
+      <QuantityStepper
+        productName={productName}
+        decreaseLabel={t.productCard.decrease}
+        increaseLabel={t.productCard.increase}
+        onDecrement={onDecrement}
+        onIncrement={() => onChange(quantity + 1)}
+        disableIncrement={quantity >= MAX_CART_ITEM_QUANTITY}
+        className="ml-auto"
+      />
     </div>
   );
 }

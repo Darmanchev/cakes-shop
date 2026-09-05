@@ -1,5 +1,5 @@
 export const SITE_NAME = "Stas Cakes";
-export const SITE_DESCRIPTION = "Торти и синнабони по поръчка.";
+export const SITE_DESCRIPTION = "Торти, синнабони и мъфини по поръчка.";
 
 export const NAVIGATION_LINKS = [
   { href: "#catalog", label: "Каталог" },

@@ -15,6 +15,7 @@ const prisma = new PrismaClient({
 const categoryMap = {
   cakes: ProductCategory.CAKES,
   cinnabons: ProductCategory.CINNABONS,
+  muffins: ProductCategory.MUFFINS,
 } as const;
 
 const retiredProductIds = ["cin-3", "combo-1", "combo-2", "combo-3"];
