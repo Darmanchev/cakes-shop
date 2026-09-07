@@ -9,7 +9,19 @@ export function StorefrontFooter() {
   const { t } = useLanguage();
 
   return (
-    <footer className="relative w-full bg-[#9c7371] text-[#f7e9de] pt-16 pb-8 px-8">
+    <footer className="relative w-full bg-[#9c7371] text-[#f7e9de] pt-20 pb-8 px-8">
+      {/* Top Torn Edge (Burgundy brush stroke bleeding UP into the beige section) */}
+      <div 
+        className="absolute -top-10 md:-top-16 left-0 right-0 h-16 md:h-24 z-10 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/hero/edge.svg)',
+          backgroundSize: '100% 100%',
+          backgroundPosition: 'bottom',
+          backgroundRepeat: 'no-repeat',
+        }}
+        aria-hidden="true"
+      />
+
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="painted-hero__texture absolute inset-0 opacity-20" aria-hidden="true" />
       </div>
@@ -32,9 +44,9 @@ export function StorefrontFooter() {
           <h4 className="font-bold mb-6 text-lg">{t.footerNew.quickLinks}</h4>
           <ul className="space-y-3 text-sm text-[#f7e9de]/80">
             <li><Link href="/" className="hover:text-white transition-colors">{t.footerNew.home}</Link></li>
-            <li><Link href="#cakes" className="hover:text-white transition-colors">{t.footerNew.cakes}</Link></li>
-            <li><Link href="#collections" className="hover:text-white transition-colors">{t.footerNew.collections}</Link></li>
-            <li><Link href="#about" className="hover:text-white transition-colors">{t.footerNew.about}</Link></li>
+            <li><Link href="/products" className="hover:text-white transition-colors">{t.footerNew.cakes}</Link></li>
+            <li><Link href="/#collections" className="hover:text-white transition-colors">{t.footerNew.collections}</Link></li>
+            <li><Link href="/#about" className="hover:text-white transition-colors">{t.footerNew.about}</Link></li>
           </ul>
         </div>
 

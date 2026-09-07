@@ -12,7 +12,7 @@ export function Header() {
   const { totalItems } = useCart();
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-50 flex h-16 items-center justify-between px-8 text-[#f7e9de]">
+    <header className="relative z-50 flex w-full h-24 items-center justify-between px-8 bg-[#f7e9de] text-[#4a3a35]">
       <Link
         href="/"
         className="font-display text-3xl font-semibold tracking-wide"
@@ -20,22 +20,22 @@ export function Header() {
         {SITE_NAME}
       </Link>
 
-      <nav className="hidden md:flex items-center gap-10 font-semibold tracking-wide">
-        <Link href="/" className="border-b-2 border-white pb-1">{t.footerNew.home}</Link>
-        <Link href="#cakes" className="hover:opacity-80 transition-opacity">{t.footerNew.cakes}</Link>
-        <Link href="#collections" className="hover:opacity-80 transition-opacity">{t.footerNew.collections}</Link>
-        <Link href="#about" className="hover:opacity-80 transition-opacity">{t.footerNew.about}</Link>
+      <nav className="hidden md:flex items-center gap-10 font-semibold tracking-wide text-sm">
+        <Link href="/" className="hover:opacity-70 transition-opacity">{t.footerNew.home}</Link>
+        <Link href="/products" className="hover:opacity-70 transition-opacity">{t.footerNew.cakes}</Link>
+        <Link href="/#collections" className="hover:opacity-70 transition-opacity">{t.footerNew.collections}</Link>
+        <Link href="/#about" className="hover:opacity-70 transition-opacity">{t.footerNew.about}</Link>
       </nav>
 
       <div className="flex items-center gap-6">
-        <button aria-label="Search" className="hover:opacity-80 transition-opacity">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <button aria-label="Search" className="hover:opacity-70 transition-opacity">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         </button>
         
-        <Link href="/cart" className="relative hover:opacity-80 transition-opacity" aria-label="Cart">
-          <ShoppingBag size={24} />
+        <Link href="/cart" className="relative hover:opacity-70 transition-opacity" aria-label="Cart">
+          <ShoppingBag size={22} />
           {totalItems > 0 && (
-            <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#d9aaa9] text-[10px] font-bold text-[#443530]">
+            <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#9c7371] text-[10px] font-bold text-white">
               {totalItems}
             </span>
           )}
@@ -45,7 +45,7 @@ export function Header() {
 
         <Link
           href="/order"
-          className="hidden lg:inline-flex h-10 items-center justify-center rounded-full bg-white/20 px-6 font-semibold text-white backdrop-blur-sm transition hover:bg-white/30 border border-white/30"
+          className="hidden lg:inline-flex h-10 items-center justify-center rounded-full bg-[#9c7371] px-6 text-sm font-semibold text-white transition hover:bg-[#7a5957]"
         >
           {t.hero.orderNow}
         </Link>
