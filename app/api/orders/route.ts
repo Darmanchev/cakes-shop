@@ -9,6 +9,7 @@ import {
   sendTelegramMessage,
 } from "@/features/orders/order.notifications";
 import { RequestBodyError, readJsonBody } from "@/lib/http/read-json-body";
+import { resolveSupportedLanguage, translations } from "@/lib/i18n";
 import {
   consumeRateLimit,
   getClientIdentifier,
@@ -20,6 +21,8 @@ const ORDER_REQUEST_RATE_LIMIT = 30;
 const ORDER_RATE_WINDOW_MS = 10 * 60 * 1000;
 
 export async function POST(request: Request) {
+  const language = resolveSupportedLanguage(request.headers.get("accept-language"));
+
   try {
     const clientIdentifier = getClientIdentifier(request.headers);
 
@@ -61,7 +64,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const validation = parseCreateOrderInput(payload);
+    const validation = parseCreateOrderInput(payload, language);
 
     if (!validation.success) {
       return NextResponse.json(
@@ -107,7 +110,7 @@ export async function POST(request: Request) {
         {
           error: "Product not found",
           fieldErrors: {
-            items: ["Един от избраните продукти не съществува"],
+            items: [translations[language].form.unavailableProduct],
           },
         },
         { status: 404 },

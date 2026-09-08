@@ -211,7 +211,7 @@ export function CatalogContent({ productsByCategory, initialCategory = "cakes" }
                 type="button"
                 onClick={() => scrollProducts(-1)}
                 className="absolute left-2 top-1/2 z-20 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-[#fffaf5]/95 text-[#443530] shadow-[0_10px_24px_rgba(68,53,48,0.2)] backdrop-blur transition hover:scale-105 hover:bg-white sm:flex lg:left-3 lg:size-12"
-                aria-label="Previous products"
+                aria-label={t.catalog.previousProducts}
               >
                 <ChevronLeft size={21} aria-hidden="true" />
               </button>
@@ -219,7 +219,7 @@ export function CatalogContent({ productsByCategory, initialCategory = "cakes" }
                 type="button"
                 onClick={() => scrollProducts(1)}
                 className="absolute right-2 top-1/2 z-20 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#443530] bg-[#443530] text-white shadow-[0_10px_24px_rgba(68,53,48,0.28)] transition hover:scale-105 hover:bg-[#5a4540] sm:flex lg:right-3 lg:size-12"
-                aria-label="Next products"
+                aria-label={t.catalog.nextProducts}
               >
                 <ChevronRight size={21} aria-hidden="true" />
               </button>
@@ -251,7 +251,7 @@ export function CatalogContent({ productsByCategory, initialCategory = "cakes" }
               ref={closeButtonRef}
               onClick={closeProductDialog}
               className="absolute right-5 top-5 z-10 inline-flex size-9 items-center justify-center rounded-full bg-white/90 text-[#443530] shadow-md"
-              aria-label="Close"
+              aria-label={t.catalog.close}
             >
               <X size={18} aria-hidden="true" />
             </button>

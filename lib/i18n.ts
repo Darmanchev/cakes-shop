@@ -6,6 +6,12 @@ export type Language = (typeof LANGUAGES)[number];
 
 export const defaultLanguage: Language = "bg";
 
+export function resolveSupportedLanguage(value: string | null): Language {
+  return LANGUAGES.includes(value as Language)
+    ? (value as Language)
+    : defaultLanguage;
+}
+
 export const languageOptions: Array<{
   code: Language;
   label: string;
@@ -50,6 +56,9 @@ interface AppTranslations {
   catalog: {
     title: string;
     sections: Record<Category, string>;
+    previousProducts: string;
+    nextProducts: string;
+    close: string;
   };
   productCard: {
     categories: Record<Category, string>;
@@ -106,6 +115,7 @@ interface AppTranslations {
     emptyCart: string;
     chooseProducts: string;
     unavailableProductsRemoved: string;
+    unavailableProduct: string;
   };
   products: Record<string, ProductCopy>;
 
@@ -176,6 +186,9 @@ export const translations: Record<Language, AppTranslations> = {
         cinnabons: "Синнабони",
         muffins: "Мъфини",
       },
+      previousProducts: "Предишни продукти",
+      nextProducts: "Следващи продукти",
+      close: "Затвори",
     },
     productCard: {
       categories: {
@@ -252,6 +265,7 @@ export const translations: Record<Language, AppTranslations> = {
       chooseProducts: "Изберете продукти от каталога",
       unavailableProductsRemoved:
         "Недостъпните продукти бяха премахнати от кошницата.",
+      unavailableProduct: "Един от избраните продукти вече не е наличен",
     },
     products: {
       "cake-1": {
@@ -392,6 +406,9 @@ export const translations: Record<Language, AppTranslations> = {
         cinnabons: "Cinnabons",
         muffins: "Muffins",
       },
+      previousProducts: "Previous products",
+      nextProducts: "Next products",
+      close: "Close",
     },
     productCard: {
       categories: {
@@ -458,12 +475,13 @@ export const translations: Record<Language, AppTranslations> = {
       comment: "Comment",
       sending: "Sending...",
       submit: "Send request",
-      success: "Request sent. Next step: connect Telegram.",
+      success: "Request sent.",
       error: "Could not send the request. Check the server and try again.",
       emptyCart: "No products selected yet.",
       chooseProducts: "Choose products from the catalog",
       unavailableProductsRemoved:
         "Unavailable products were removed from your cart.",
+      unavailableProduct: "One of the selected products is no longer available",
     },
     products: {
       "cake-1": {
@@ -605,6 +623,9 @@ export const translations: Record<Language, AppTranslations> = {
         cinnabons: "Синнабоны",
         muffins: "Маффины",
       },
+      previousProducts: "Предыдущие товары",
+      nextProducts: "Следующие товары",
+      close: "Закрыть",
     },
     productCard: {
       categories: {
@@ -671,13 +692,14 @@ export const translations: Record<Language, AppTranslations> = {
       comment: "Комментарий",
       sending: "Отправляем...",
       submit: "Отправить заявку",
-      success: "Заявка отправлена. Следующий шаг: подключить Telegram.",
+      success: "Заявка отправлена.",
       error:
         "Не получилось отправить заявку. Проверьте сервер и попробуйте еще раз.",
       emptyCart: "Товары пока не выбраны.",
       chooseProducts: "Выбрать товары в каталоге",
       unavailableProductsRemoved:
         "Недоступные товары были удалены из корзины.",
+      unavailableProduct: "Один из выбранных товаров больше недоступен",
     },
     products: {
       "cake-1": {

@@ -111,4 +111,19 @@ describe("create order validation", () => {
     });
     assert.equal(result.success, false);
   });
+
+  it("returns validation messages in the requested supported language", () => {
+    const input = { ...validOrder(), name: "" };
+    const english = parseCreateOrderInput(input, "en");
+    const russian = parseCreateOrderInput(input, "ru");
+
+    assert.equal(english.success, false);
+    assert.equal(russian.success, false);
+    if (!english.success) {
+      assert.equal(english.fieldErrors.name?.[0], "Enter your name");
+    }
+    if (!russian.success) {
+      assert.equal(russian.fieldErrors.name?.[0], "Введите имя");
+    }
+  });
 });

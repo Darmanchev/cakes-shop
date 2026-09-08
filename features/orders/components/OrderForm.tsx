@@ -8,9 +8,11 @@ import { useCart } from "@/features/cart/CartProvider";
 import { QuantitySelector } from "@/features/cart/components/QuantitySelector";
 import type { Product } from "@/features/products/product.types";
 import { formatPrice } from "@/lib/utils/format-price";
+import { getOrderFieldAccessibility } from "../order-form-accessibility";
 import type {
   OrderApiErrorResponse,
   OrderFieldErrors,
+  OrderFormField,
   OrderFormStatus,
 } from "../order.types";
 
@@ -49,7 +51,13 @@ function getIsoDate(value: string) {
   return match ? `${match[3]}-${match[2]}-${match[1]}` : "";
 }
 
-function FieldError({ messages }: { messages?: string[] }) {
+function FieldError({
+  field,
+  messages,
+}: {
+  field: OrderFormField;
+  messages?: string[];
+}) {
   const message = messages?.[0];
 
   if (!message) {
@@ -57,7 +65,7 @@ function FieldError({ messages }: { messages?: string[] }) {
   }
 
   return (
-    <p className="text-sm text-red-700" role="alert">
+    <p id={`${field}-error`} className="text-sm text-red-700" role="alert">
       {message}
     </p>
   );
@@ -122,7 +130,10 @@ export function OrderForm({ products }: { products: Product[] }) {
     try {
       const response = await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept-Language": language,
+        },
         body: JSON.stringify(payload),
       });
 
@@ -172,9 +183,10 @@ export function OrderForm({ products }: { products: Product[] }) {
           name="name"
           maxLength={100}
           required
+          {...getOrderFieldAccessibility(fieldErrors, "name")}
           className="h-11 rounded-[14px] border border-[#d8c5bd] bg-white px-3 outline-none focus:border-[#b78e8c]"
         />
-        <FieldError messages={fieldErrors.name} />
+        <FieldError field="name" messages={fieldErrors.name} />
       </div>
 
       <div className="grid gap-2">
@@ -188,9 +200,10 @@ export function OrderForm({ products }: { products: Product[] }) {
           maxLength={32}
           required
           placeholder="+359..."
+          {...getOrderFieldAccessibility(fieldErrors, "phone")}
           className="h-11 rounded-[14px] border border-[#d8c5bd] bg-white px-3 outline-none focus:border-[#b78e8c]"
         />
-        <FieldError messages={fieldErrors.phone} />
+        <FieldError field="phone" messages={fieldErrors.phone} />
       </div>
 
       <div className="grid gap-2">
@@ -205,12 +218,16 @@ export function OrderForm({ products }: { products: Product[] }) {
           autoComplete="email"
           maxLength={254}
           required
+          {...getOrderFieldAccessibility(fieldErrors, "email")}
           className="h-11 rounded-[14px] border border-[#d8c5bd] bg-white px-3 outline-none focus:border-[#b78e8c]"
         />
-        <FieldError messages={fieldErrors.email} />
+        <FieldError field="email" messages={fieldErrors.email} />
       </div>
 
-      <fieldset className="mb-2 grid gap-3">
+      <fieldset
+        {...getOrderFieldAccessibility(fieldErrors, "items")}
+        className="mb-2 grid gap-3"
+      >
         <legend className="mb-2 text-sm font-medium text-stone-800">
           {t.form.orderItems}
         </legend>
@@ -294,7 +311,7 @@ export function OrderForm({ products }: { products: Product[] }) {
             );
           })
         )}
-        <FieldError messages={fieldErrors.items} />
+        <FieldError field="items" messages={fieldErrors.items} />
       </fieldset>
 
       <div className="grid gap-2">
@@ -311,6 +328,7 @@ export function OrderForm({ products }: { products: Product[] }) {
             value={date}
             onChange={(event) => setDate(event.target.value)}
             required
+            {...getOrderFieldAccessibility(fieldErrors, "date")}
             className="h-11 min-w-0 flex-1 rounded-[14px] border border-[#d8c5bd] bg-white px-3 outline-none focus:border-[#b78e8c]"
           />
           <div className="relative h-11 w-12 shrink-0 rounded-[14px] border border-[#d8c5bd] bg-white focus-within:border-[#b78e8c]">
@@ -333,10 +351,13 @@ export function OrderForm({ products }: { products: Product[] }) {
             />
           </div>
         </div>
-        <FieldError messages={fieldErrors.date} />
+        <FieldError field="date" messages={fieldErrors.date} />
       </div>
 
-      <fieldset className="grid gap-2">
+      <fieldset
+        {...getOrderFieldAccessibility(fieldErrors, "deliveryType")}
+        className="grid gap-2"
+      >
         <legend className="text-sm font-medium text-stone-800">
           {t.form.deliveryType}
         </legend>
@@ -362,7 +383,7 @@ export function OrderForm({ products }: { products: Product[] }) {
             {t.form.pickup}
           </label>
         </div>
-        <FieldError messages={fieldErrors.deliveryType} />
+        <FieldError field="deliveryType" messages={fieldErrors.deliveryType} />
       </fieldset>
 
       {deliveryType === "DELIVERY" ? (
@@ -380,9 +401,13 @@ export function OrderForm({ products }: { products: Product[] }) {
             required
             maxLength={300}
             autoComplete="street-address"
+            {...getOrderFieldAccessibility(fieldErrors, "deliveryAddress")}
             className="resize-none rounded-[14px] border border-[#d8c5bd] bg-white px-3 py-2 outline-none focus:border-[#b78e8c]"
           />
-          <FieldError messages={fieldErrors.deliveryAddress} />
+          <FieldError
+            field="deliveryAddress"
+            messages={fieldErrors.deliveryAddress}
+          />
         </div>
       ) : (
         <input type="hidden" name="deliveryAddress" value="" />
@@ -397,9 +422,10 @@ export function OrderForm({ products }: { products: Product[] }) {
           name="comment"
           rows={4}
           maxLength={500}
+          {...getOrderFieldAccessibility(fieldErrors, "comment")}
           className="resize-none rounded-[14px] border border-[#d8c5bd] bg-white px-3 py-2 outline-none focus:border-[#b78e8c]"
         />
-        <FieldError messages={fieldErrors.comment} />
+        <FieldError field="comment" messages={fieldErrors.comment} />
       </div>
 
       <button
