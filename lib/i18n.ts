@@ -105,6 +105,7 @@ interface AppTranslations {
     error: string;
     emptyCart: string;
     chooseProducts: string;
+    unavailableProductsRemoved: string;
   };
   products: Record<string, ProductCopy>;
 
@@ -249,6 +250,8 @@ export const translations: Record<Language, AppTranslations> = {
         "Запитването не беше изпратено. Проверете сървъра и опитайте отново.",
       emptyCart: "Все още няма избрани продукти.",
       chooseProducts: "Изберете продукти от каталога",
+      unavailableProductsRemoved:
+        "Недостъпните продукти бяха премахнати от кошницата.",
     },
     products: {
       "cake-1": {
@@ -459,6 +462,8 @@ export const translations: Record<Language, AppTranslations> = {
       error: "Could not send the request. Check the server and try again.",
       emptyCart: "No products selected yet.",
       chooseProducts: "Choose products from the catalog",
+      unavailableProductsRemoved:
+        "Unavailable products were removed from your cart.",
     },
     products: {
       "cake-1": {
@@ -671,6 +676,8 @@ export const translations: Record<Language, AppTranslations> = {
         "Не получилось отправить заявку. Проверьте сервер и попробуйте еще раз.",
       emptyCart: "Товары пока не выбраны.",
       chooseProducts: "Выбрать товары в каталоге",
+      unavailableProductsRemoved:
+        "Недоступные товары были удалены из корзины.",
     },
     products: {
       "cake-1": {

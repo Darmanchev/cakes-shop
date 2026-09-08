@@ -5,6 +5,7 @@ import {
   decrementCartItem,
   getCartItemsCount,
   removeCartItem,
+  retainAvailableCartItems,
   setCartItemQuantity,
   updateCartItemComment,
 } from "./cart.service";
@@ -60,4 +61,31 @@ test("rejects invalid persisted cart data", () => {
   assert.deepEqual(parsed.items, [
     { productId: "cake-1", quantity: 2, comment: "" },
   ]);
+});
+
+test("normalizes persisted product IDs before duplicate detection", () => {
+  const parsed = parseStoredCart({
+    items: [
+      { productId: " cake-1 ", quantity: 2, comment: "" },
+      { productId: "cake-1", quantity: 3, comment: "duplicate" },
+    ],
+  });
+
+  assert.deepEqual(parsed.items, [
+    { productId: "cake-1", quantity: 2, comment: "" },
+  ]);
+});
+
+test("retains only products that are still available", () => {
+  const cart = {
+    items: [
+      { productId: "cake-1", quantity: 2, comment: "" },
+      { productId: "retired", quantity: 1, comment: "" },
+    ],
+  };
+
+  assert.deepEqual(
+    retainAvailableCartItems(cart, new Set(["cake-1"])),
+    { items: [cart.items[0]] },
+  );
 });

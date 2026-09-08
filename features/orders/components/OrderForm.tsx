@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarDays, Send } from "lucide-react";
 import { useLanguage } from "@/components/language/LanguageProvider";
 import { useCart } from "@/features/cart/CartProvider";
@@ -71,15 +71,35 @@ export function OrderForm({ products }: { products: Product[] }) {
     "DELIVERY",
   );
   const [date, setDate] = useState("");
-  const { items, setQuantity, decrementItem, removeItem, updateComment, clearCart } =
-    useCart();
+  const {
+    items,
+    setQuantity,
+    decrementItem,
+    removeItem,
+    updateComment,
+    retainAvailableItems,
+    unavailableItemsRemoved,
+    clearCart,
+  } = useCart();
   const { language, t } = useLanguage();
   const productsById = useMemo(
     () => new Map(products.map((product) => [product.id, product])),
     [products],
   );
+  const availableProductIds = useMemo(
+    () => products.map((product) => product.id),
+    [products],
+  );
   const minOrderDate = getTodayInSofia();
   const maxOrderDate = getMaxOrderDate(minOrderDate);
+
+  useEffect(() => {
+    if (!items.some((item) => !productsById.has(item.productId))) {
+      return;
+    }
+
+    retainAvailableItems(availableProductIds);
+  }, [availableProductIds, items, productsById, retainAvailableItems]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -194,6 +214,14 @@ export function OrderForm({ products }: { products: Product[] }) {
         <legend className="mb-2 text-sm font-medium text-stone-800">
           {t.form.orderItems}
         </legend>
+        {unavailableItemsRemoved ? (
+          <p
+            className="rounded-[14px] border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+            role="status"
+          >
+            {t.form.unavailableProductsRemoved}
+          </p>
+        ) : null}
         {items.length === 0 ? (
           <div className="rounded-[16px] border border-dashed border-[#cfb7b1] bg-[#f8f0e7] p-4 text-sm text-[#6f5b54]">
             <p>{t.form.emptyCart}</p>
