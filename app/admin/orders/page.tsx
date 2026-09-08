@@ -14,7 +14,7 @@ import { OrdersTable } from "@/features/orders/components/OrdersTable";
 import { getOrders } from "@/features/orders/order.service";
 
 interface AdminOrdersPageProps {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; error?: string }>;
 }
 
 export default async function AdminOrdersPage({
@@ -32,6 +32,7 @@ export default async function AdminOrdersPage({
   const page = Number.isFinite(requestedPage)
     ? Math.min(1_000_000, Math.max(1, requestedPage))
     : 1;
+  const orderNotFound = params.error === "order-not-found";
   const [orders, security] = await Promise.all([
     getOrders(page),
     getAdminSecuritySummary(),
@@ -76,6 +77,15 @@ export default async function AdminOrdersPage({
             </form>
           </div>
         </div>
+
+        {orderNotFound ? (
+          <p
+            className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900"
+            role="alert"
+          >
+            Заказ больше не существует. Обновите список и попробуйте снова.
+          </p>
+        ) : null}
 
         <OrdersTable orders={orders.items} />
 

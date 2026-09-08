@@ -176,8 +176,10 @@ export async function getOrders(page = 1, pageSize = DEFAULT_PAGE_SIZE) {
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {
-  return prisma.order.update({
+  const result = await prisma.order.updateMany({
     where: { id: orderId },
     data: { status },
   });
+
+  return result.count === 1;
 }

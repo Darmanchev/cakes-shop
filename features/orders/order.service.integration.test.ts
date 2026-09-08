@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { prisma } from "@/lib/prisma";
 import { getProducts } from "@/features/products/product.service";
-import { createOrder, getOrders, ProductNotFoundError } from "./order.service";
+import {
+  createOrder,
+  getOrders,
+  ProductNotFoundError,
+  updateOrderStatus,
+} from "./order.service";
 import type { CreateOrderInput } from "./order.schema";
 
 const run = process.env.RUN_DB_TESTS === "1";
@@ -102,5 +107,12 @@ describe("order persistence", { skip: !run }, () => {
     const defaultPage = await getOrders(NaN, Infinity);
     assert.equal(defaultPage.page, 1);
     assert.ok(defaultPage.items.length > 0);
+  });
+
+  it("reports a stale status update without throwing a Prisma not-found error", async () => {
+    assert.equal(
+      await updateOrderStatus(`${prefix}-missing`, "CONFIRMED"),
+      false,
+    );
   });
 });

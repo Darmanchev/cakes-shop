@@ -33,7 +33,11 @@ export async function updateOrderStatusAction(formData: FormData) {
     throw new Error("Invalid order status payload");
   }
 
-  await updateOrderStatus(orderId, status as OrderStatus);
+  const updated = await updateOrderStatus(orderId, status as OrderStatus);
+
+  if (!updated) {
+    redirect("/admin/orders?error=order-not-found");
+  }
 
   revalidatePath("/admin/orders");
 }
