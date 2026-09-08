@@ -15,6 +15,7 @@
     "lint": "eslint",
     "test": "node --import tsx --test \"lib/**/*.test.ts\" \"features/**/*.test.ts\" \"components/**/*.test.ts\" && npm run test:server",
     "test:server": "node --experimental-test-module-mocks --import tsx --test \"tests/server/**/*.test.ts\"",
+    "test:database": "node --import tsx --test \"tests/database/**/*.test.ts\"",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",

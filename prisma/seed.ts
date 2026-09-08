@@ -23,7 +23,6 @@ async function main() {
   await prisma.product.deleteMany({
     where: {
       id: { in: retiredProductIds },
-      orders: { none: {} },
       orderItems: { none: {} },
     },
   });
