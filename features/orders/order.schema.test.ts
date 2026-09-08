@@ -34,6 +34,27 @@ function validOrder() {
 }
 
 describe("create order validation", () => {
+  it("rejects repeated product IDs, including whitespace variants", () => {
+    const result = parseCreateOrderInput({
+      ...validOrder(),
+      items: [
+        { productId: "cake-1", quantity: 20 },
+        { productId: " cake-1 ", quantity: 20 },
+      ],
+    });
+    assert.equal(result.success, false);
+    if (!result.success) assert.ok(result.fieldErrors.items?.length);
+  });
+
+  it("rejects booleans and arrays as quantities", () => {
+    for (const quantity of [true, false, [2], null, {}, "", " "]) {
+      const result = parseCreateOrderInput({
+        ...validOrder(),
+        items: [{ productId: "cake-1", quantity }],
+      });
+      assert.equal(result.success, false, `quantity: ${JSON.stringify(quantity)}`);
+    }
+  });
   it("normalizes a valid Bulgarian phone, quantity, and manually entered date", () => {
     const result = parseCreateOrderInput(validOrder());
     assert.equal(result.success, true);

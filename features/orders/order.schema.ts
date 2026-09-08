@@ -1,6 +1,7 @@
 import { parsePhoneNumberFromString } from "libphonenumber-js/core";
 import phoneMetadata from "libphonenumber-js/metadata.max.json";
 import { z } from "zod";
+import { MAX_CART_ITEMS, MAX_CART_ITEM_QUANTITY } from "@/features/cart/cart.schema";
 
 const ISO_DATE_FORMAT = /^\d{4}-\d{2}-\d{2}$/;
 export const MAX_ORDER_ADVANCE_DAYS = 365;
@@ -53,11 +54,12 @@ const orderItemSchema = z
   .object({
     productId: z.string().trim().min(1, "Изберете продукт"),
 
-    quantity: z.coerce
-      .number()
+    quantity: z.union([z.number(), z.string().trim().min(1)])
+      .transform(Number)
+      .pipe(z.number()
       .int("Бройката трябва да бъде цяло число")
       .min(1)
-      .max(20),
+      .max(MAX_CART_ITEM_QUANTITY)),
 
     comment: z
       .string()
@@ -94,7 +96,11 @@ export const createOrderSchema = z
     items: z
       .array(orderItemSchema)
       .min(1, "Добавете поне един продукт")
-      .max(10, "Можете да добавите най-много 10 продукта"),
+      .max(MAX_CART_ITEMS, "Можете да добавите най-много 10 продукта")
+      .refine(
+        (items) => new Set(items.map((item) => item.productId)).size === items.length,
+        "Всеки продукт може да присъства само веднъж",
+      ),
 
     date: z
       .string()

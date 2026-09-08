@@ -9,7 +9,7 @@ export function BackToCatalogLink() {
 
   return (
     <Link
-      href="/"
+      href="/products"
       className="inline-flex items-center gap-2 rounded-full border border-[#cfb7b1] bg-white/55 px-4 py-2 text-sm font-semibold transition hover:bg-white"
     >
       <ArrowLeft size={16} aria-hidden="true" />

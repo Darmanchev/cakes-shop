@@ -1,15 +1,15 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
 import test from "node:test";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { LanguageProvider } from "../language/LanguageProvider";
+import { StorefrontFooter } from "./StorefrontFooter";
 
-test("uses icons exported by Lucide for social links", async () => {
-  const source = await readFile(
-    resolve(process.cwd(), "components/layout/StorefrontFooter.tsx"),
-    "utf8",
-  );
-
-  assert.match(source, /import \{ AtSign, MapPin, Phone \} from "lucide-react"/);
-  assert.match(source, /<AtSign size=\{20\} \/>/);
-  assert.doesNotMatch(source, /import \{[^}]*\bInstagram\b[^}]*\} from "lucide-react"/);
+test("footer links lead to implemented pages or homepage sections", () => {
+  const html = renderToStaticMarkup(createElement(LanguageProvider, null, createElement(StorefrontFooter)));
+  const links = [...html.matchAll(/href="([^"]+)"/g)].map((match) => match[1]);
+  const destinations = new Set(["/", "/products", "/#collections", "/#about", "/order"]);
+  assert.ok(links.length > 0);
+  for (const href of links) assert.ok(destinations.has(href), `Invalid footer destination: ${href}`);
+  assert.doesNotMatch(html, /555.*123-4567|123 Dessert Lane/);
 });

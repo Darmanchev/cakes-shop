@@ -1,6 +1,7 @@
 import { ProductCategory } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { Category, Product } from "./product.types";
+import { availableProductWhere } from "./product.availability";
 
 const categoryMap: Record<Category, ProductCategory> = {
   cakes: ProductCategory.CAKES,
@@ -13,12 +14,6 @@ const categoryFromDb = {
   [ProductCategory.CINNABONS]: "cinnabons",
   [ProductCategory.MUFFINS]: "muffins",
 } as const;
-
-const activeProductCategories: ProductCategory[] = [
-  ProductCategory.CAKES,
-  ProductCategory.CINNABONS,
-  ProductCategory.MUFFINS,
-];
 
 function mapProductFromDb(product: {
   id: string;
@@ -54,7 +49,7 @@ function mapProductFromDb(product: {
 
 export async function getProducts() {
   const products = await prisma.product.findMany({
-    where: { category: { in: activeProductCategories } },
+    where: availableProductWhere,
     orderBy: { createdAt: "asc" },
   });
 
@@ -63,7 +58,7 @@ export async function getProducts() {
 
 export async function getProductsByCategory(category: Category) {
   const products = await prisma.product.findMany({
-    where: { category: categoryMap[category] },
+    where: { ...availableProductWhere, category: categoryMap[category] },
     orderBy: { createdAt: "asc" },
   });
 

@@ -21,6 +21,7 @@ import type { Category, Product } from "../product.types";
 
 interface CatalogContentProps {
   productsByCategory: Record<Category, Product[]>;
+  initialCategory?: Category;
 }
 
 const categoryIcons = {
@@ -29,13 +30,14 @@ const categoryIcons = {
   muffins: Dessert,
 } satisfies Record<Category, typeof CakeSlice>;
 
-export function CatalogContent({ productsByCategory }: CatalogContentProps) {
+export function CatalogContent({ productsByCategory, initialCategory = "cakes" }: CatalogContentProps) {
   const { language, t } = useLanguage();
   const { items, canAddProduct, addItem, setQuantity, decrementItem, removeItem } = useCart();
-  const [activeCategory, setActiveCategory] = useState<Category>("cakes");
+  const [activeCategory, setActiveCategory] = useState<Category>(initialCategory);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const railRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const lastFocusedTriggerRef = useRef<HTMLButtonElement>(null);
   const categoryTabRefs = useRef<Partial<Record<Category, HTMLButtonElement | null>>>({});
   const categories = Object.keys(productsByCategory) as Category[];
@@ -82,6 +84,7 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
   }
 
   function closeProductDialog() {
+    dialogRef.current?.close();
     setSelectedProduct(null);
     lastFocusedTriggerRef.current?.focus();
   }
@@ -94,20 +97,19 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
   useEffect(() => {
     if (!selectedProduct) return;
 
+    const dialog = dialogRef.current;
+    dialog?.showModal();
     closeButtonRef.current?.focus();
-
-    function handleDialogKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        closeProductDialog();
-      }
-    }
-
-    window.addEventListener("keydown", handleDialogKeyDown);
-    return () => window.removeEventListener("keydown", handleDialogKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      dialog?.close();
+      document.body.style.overflow = previousOverflow;
+    };
   }, [selectedProduct]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2.5 pb-2.5 sm:gap-3 sm:pb-3 lg:pb-4">
+    <div className="flex min-w-0 flex-1 flex-col gap-2.5 pb-20 sm:gap-3 sm:pb-24">
       <section className="relative z-10 mb-[clamp(1.25rem,3vh,2.25rem)] h-[clamp(190px,30vh,340px)] shrink-0">
         <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[clamp(0.25rem,1vh,0.75rem)] overflow-hidden" aria-hidden="true">
           <Image
@@ -146,7 +148,7 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
         </div>
       </section>
 
-      <section id="catalog" className="flex min-h-0 flex-1 flex-col px-3 sm:px-5 lg:px-6">
+      <section id="catalog" className="flex min-w-0 flex-1 flex-col px-3 sm:px-5 lg:px-6">
         <div className="mb-2.5 flex shrink-0 justify-center sm:mb-3">
           <div className="flex items-center gap-1.5" role="tablist" aria-label={t.catalog.title}>
             {categories.map((category) => {
@@ -160,6 +162,7 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
                   role="tab"
                   id={`catalog-tab-${category}`}
                   aria-selected={active}
+                  aria-label={t.catalog.sections[category]}
                   aria-controls={`catalog-panel-${category}`}
                   tabIndex={active ? 0 : -1}
                   ref={(element) => {
@@ -183,14 +186,14 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
           </div>
         </div>
 
-        <div className="group/rail relative min-h-0 flex-1">
+        <div className="group/rail relative min-w-0 flex-1">
           <div
             ref={railRef}
             id={`catalog-panel-${activeCategory}`}
             role="tabpanel"
             aria-labelledby={`catalog-tab-${activeCategory}`}
             tabIndex={0}
-            className="no-scrollbar grid h-full snap-x snap-mandatory auto-cols-[84%] grid-flow-col gap-3 overflow-x-auto overscroll-x-contain pb-0.5 sm:auto-cols-[44%] lg:auto-cols-[31.5%]"
+            className="no-scrollbar grid snap-x snap-mandatory auto-cols-[84%] grid-flow-col gap-3 overflow-x-auto overscroll-x-contain pb-0.5 sm:auto-cols-[44%] lg:auto-cols-[31.5%]"
             aria-live="polite"
           >
             {visibleProducts.map((product) => (
@@ -226,9 +229,14 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
       </section>
 
       {selectedProduct ? (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-[#443530]/45 p-4 backdrop-blur-sm"
-          role="presentation"
+        <dialog
+          ref={dialogRef}
+          aria-labelledby="product-dialog-title"
+          className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none open:grid place-items-center border-0 bg-[#443530]/45 p-4 backdrop-blur-sm"
+          onCancel={(event) => {
+            event.preventDefault();
+            closeProductDialog();
+          }}
           onMouseDown={(event) => {
             if (event.currentTarget === event.target) {
               closeProductDialog();
@@ -236,9 +244,6 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
           }}
         >
           <article
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="product-dialog-title"
             className="relative grid max-h-[88dvh] w-full max-w-[760px] overflow-auto rounded-[28px] border border-white/60 bg-[#fffaf5] p-3 shadow-2xl sm:grid-cols-[0.9fr_1.1fr] sm:p-4"
           >
             <button
@@ -311,7 +316,7 @@ export function CatalogContent({ productsByCategory }: CatalogContentProps) {
               </div>
             </div>
           </article>
-        </div>
+        </dialog>
       ) : null}
     </div>
   );

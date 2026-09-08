@@ -11,7 +11,8 @@ const catalogPath = resolve(
 test("product dialog supports Escape and restores focus to its trigger", async () => {
   const source = await readFile(catalogPath, "utf8");
 
-  assert.match(source, /event\.key === "Escape"/);
+  assert.match(source, /onCancel=/);
+  assert.match(source, /dialog\?\.showModal\(\)/);
   assert.match(source, /closeButtonRef\.current\?\.focus\(\)/);
   assert.match(source, /lastFocusedTriggerRef\.current\?\.focus\(\)/);
 });

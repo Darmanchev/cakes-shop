@@ -13,7 +13,8 @@
     "start": "next start",
     "env:check": "node --import tsx scripts/validate-production-env.ts",
     "lint": "eslint",
-    "test": "node --import tsx --test lib/**/*.test.ts features/**/*.test.ts",
+    "test": "node --import tsx --test \"lib/**/*.test.ts\" \"features/**/*.test.ts\" \"components/**/*.test.ts\" && npm run test:server",
+    "test:server": "node --experimental-test-module-mocks --import tsx --test \"tests/server/**/*.test.ts\"",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
@@ -49,6 +50,10 @@
     "typescript": "^6.0.3"
   },
   "overrides": {
+    "deepmerge-ts": "8.0.2",
+    "fast-uri": "3.1.7",
+    "mysql2": "3.24.4",
+    "nanoid": "3.3.18",
     "postcss": "^8.5.22",
     "sharp": "^0.35.3"
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import { CalendarDays, Send } from "lucide-react";
 import { useLanguage } from "@/components/language/LanguageProvider";
 import { useCart } from "@/features/cart/CartProvider";
@@ -64,6 +64,7 @@ function FieldError({ messages }: { messages?: string[] }) {
 }
 
 export function OrderForm({ products }: { products: Product[] }) {
+  const submitting = useRef(false);
   const [status, setStatus] = useState<OrderFormStatus>("idle");
   const [fieldErrors, setFieldErrors] = useState<OrderFieldErrors>({});
   const [deliveryType, setDeliveryType] = useState<"DELIVERY" | "PICKUP">(
@@ -82,6 +83,8 @@ export function OrderForm({ products }: { products: Product[] }) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting.current || items.length === 0) return;
+    submitting.current = true;
     setStatus("sending");
     setFieldErrors({});
 
@@ -122,6 +125,8 @@ export function OrderForm({ products }: { products: Product[] }) {
     } catch (error) {
       console.error("Failed to submit order", error);
       setStatus("error");
+    } finally {
+      submitting.current = false;
     }
   }
 
@@ -134,6 +139,10 @@ export function OrderForm({ products }: { products: Product[] }) {
       onSubmit={handleSubmit}
       className="grid min-w-0 gap-4 rounded-[24px] border border-[#dfcec7] bg-[#fffaf5] p-5 shadow-[0_16px_45px_rgba(68,53,48,0.08)] sm:p-6"
     >
+      <fieldset
+        disabled={status === "sending"}
+        className="m-0 grid min-w-0 gap-4 border-0 p-0"
+      >
       <div className="grid gap-2">
         <label htmlFor="name" className="text-sm font-medium text-stone-800">
           {t.form.name}
@@ -189,7 +198,7 @@ export function OrderForm({ products }: { products: Product[] }) {
           <div className="rounded-[16px] border border-dashed border-[#cfb7b1] bg-[#f8f0e7] p-4 text-sm text-[#6f5b54]">
             <p>{t.form.emptyCart}</p>
             <Link
-              href="/"
+              href="/products"
               className="mt-2 inline-flex font-semibold text-[#956a6b] hover:text-[#755052]"
             >
               {t.form.chooseProducts}
@@ -373,6 +382,7 @@ export function OrderForm({ products }: { products: Product[] }) {
         <Send size={17} aria-hidden="true" />
         {status === "sending" ? t.form.sending : t.form.submit}
       </button>
+      </fieldset>
 
       {status === "success" ? (
         <p className="text-sm text-emerald-700">{t.form.success}</p>

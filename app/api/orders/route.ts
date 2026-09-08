@@ -20,76 +20,76 @@ const ORDER_REQUEST_RATE_LIMIT = 30;
 const ORDER_RATE_WINDOW_MS = 10 * 60 * 1000;
 
 export async function POST(request: Request) {
-  const clientIdentifier = getClientIdentifier(request.headers);
-
-  if (!clientIdentifier) {
-    console.error("Trusted proxy did not provide a valid client IP");
-    return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
-  }
-
-  const requestRateLimit = await consumeRateLimit({
-    scope: "create-order-request",
-    identifier: clientIdentifier,
-    limit: ORDER_REQUEST_RATE_LIMIT,
-    windowMs: ORDER_RATE_WINDOW_MS,
-  });
-
-  if (!requestRateLimit.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Try again later." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(requestRateLimit.retryAfterSeconds) },
-      },
-    );
-  }
-
-  let payload: unknown;
-
   try {
-    payload = await readJsonBody(request, MAX_BODY_BYTES);
-  } catch (error) {
-    const bodyError =
-      error instanceof RequestBodyError
-        ? error
-        : new RequestBodyError("Invalid JSON body", 400);
+    const clientIdentifier = getClientIdentifier(request.headers);
 
-    return NextResponse.json(
-      { error: bodyError.message },
-      { status: bodyError.status },
-    );
-  }
+    if (!clientIdentifier) {
+      console.error("Trusted proxy did not provide a valid client IP");
+      return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
+    }
 
-  const validation = parseCreateOrderInput(payload);
+    const requestRateLimit = await consumeRateLimit({
+      scope: "create-order-request",
+      identifier: clientIdentifier,
+      limit: ORDER_REQUEST_RATE_LIMIT,
+      windowMs: ORDER_RATE_WINDOW_MS,
+    });
 
-  if (!validation.success) {
-    return NextResponse.json(
-      {
-        error: "Validation failed",
-        fieldErrors: validation.fieldErrors,
-      },
-      { status: 422 },
-    );
-  }
+    if (!requestRateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(requestRateLimit.retryAfterSeconds) },
+        },
+      );
+    }
 
-  const rateLimit = await consumeRateLimit({
-    scope: "create-order",
-    identifier: clientIdentifier,
-    limit: ORDER_RATE_LIMIT,
-    windowMs: ORDER_RATE_WINDOW_MS,
-  });
+    let payload: unknown;
 
-  if (!rateLimit.allowed) {
-    return NextResponse.json(
-      { error: "Too many order requests. Try again later." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      },
-    );
-  }
+    try {
+      payload = await readJsonBody(request, MAX_BODY_BYTES);
+    } catch (error) {
+      const bodyError =
+        error instanceof RequestBodyError
+          ? error
+          : new RequestBodyError("Invalid JSON body", 400);
 
-  try {
+      return NextResponse.json(
+        { error: bodyError.message },
+        { status: bodyError.status },
+      );
+    }
+
+    const validation = parseCreateOrderInput(payload);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          error: "Validation failed",
+          fieldErrors: validation.fieldErrors,
+        },
+        { status: 422 },
+      );
+    }
+
+    const rateLimit = await consumeRateLimit({
+      scope: "create-order",
+      identifier: clientIdentifier,
+      limit: ORDER_RATE_LIMIT,
+      windowMs: ORDER_RATE_WINDOW_MS,
+    });
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many order requests. Try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+        },
+      );
+    }
+
     const order = await createOrder(validation.data);
 
     after(async () => {

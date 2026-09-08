@@ -94,7 +94,7 @@ export default async function AdminOrdersPage({
                 {security.loginEvents.map((event) => (
                   <tr key={event.id}>
                     <td className="py-2">
-                      {event.createdAt.toLocaleString("ru-RU")}
+                      {event.createdAt.toLocaleString("ru-RU", { timeZone: "Europe/Sofia" })}
                     </td>
                     <td>{event.outcome}</td>
                     <td className="break-all font-mono">

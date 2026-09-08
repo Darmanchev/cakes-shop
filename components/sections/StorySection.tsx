@@ -1,14 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useLanguage } from "@/components/language/LanguageProvider";
 
 export function StorySection() {
   const { t } = useLanguage();
 
   return (
-    <section className="relative w-full bg-[#f7e9de] py-24 flex justify-center items-center overflow-hidden">
+    <section id="about" className="relative w-full bg-[#f7e9de] py-24 flex justify-center items-center overflow-hidden">
       <div className="w-full max-w-6xl mx-auto px-8 grid grid-cols-1 md:grid-cols-2 items-center gap-20 lg:gap-24 relative z-10">
         <div className="relative aspect-square w-full max-w-[500px] mx-auto drop-shadow-xl">
           <Image

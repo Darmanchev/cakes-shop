@@ -1,6 +1,7 @@
 import { PrismaClient, ProductCategory } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { products } from "@/features/products/product.data";
+import { retiredProductIds } from "@/features/products/product.availability";
 
 const adapter = new PrismaPg({
   connectionString:
@@ -17,8 +18,6 @@ const categoryMap = {
   cinnabons: ProductCategory.CINNABONS,
   muffins: ProductCategory.MUFFINS,
 } as const;
-
-const retiredProductIds = ["cin-3", "combo-1", "combo-2", "combo-3"];
 
 async function main() {
   await prisma.product.deleteMany({

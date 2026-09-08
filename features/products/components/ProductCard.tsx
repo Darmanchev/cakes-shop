@@ -43,7 +43,7 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
       <button
         type="button"
         onClick={(event) => onViewDetails(event.currentTarget)}
-        className="relative min-h-0 flex-1 overflow-hidden text-left"
+        className="relative min-h-64 aspect-square w-full shrink-0 overflow-hidden text-left"
         style={{ backgroundColor: productBackgrounds[product.id] ?? "#edc7cd" }}
         aria-label={productCopy.name}
       >

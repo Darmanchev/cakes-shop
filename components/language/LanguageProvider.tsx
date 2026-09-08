@@ -2,7 +2,6 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -10,13 +9,11 @@ import {
 } from "react";
 import {
   defaultLanguage,
-  LANGUAGES,
   type Language,
   translations,
 } from "@/lib/i18n";
 
-const languageStorageKey = "stas-cakes-language";
-const languageChangeEvent = "stas-cakes-language-change";
+import { getStoredLanguage, setStoredLanguage, subscribeToLanguageChanges } from "./language-store";
 
 interface LanguageContextValue {
   language: Language;
@@ -26,41 +23,12 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-function isLanguage(value: string | null): value is Language {
-  return LANGUAGES.includes(value as Language);
-}
-
-function getStoredLanguage(): Language {
-  if (typeof window === "undefined") {
-    return defaultLanguage;
-  }
-
-  const storedLanguage = window.localStorage.getItem(languageStorageKey);
-
-  return isLanguage(storedLanguage) ? storedLanguage : defaultLanguage;
-}
-
-function subscribeToLanguageChanges(callback: () => void) {
-  window.addEventListener("storage", callback);
-  window.addEventListener(languageChangeEvent, callback);
-
-  return () => {
-    window.removeEventListener("storage", callback);
-    window.removeEventListener(languageChangeEvent, callback);
-  };
-}
-
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const language = useSyncExternalStore(
     subscribeToLanguageChanges,
     getStoredLanguage,
     () => defaultLanguage,
   );
-
-  const setLanguage = useCallback((nextLanguage: Language) => {
-    window.localStorage.setItem(languageStorageKey, nextLanguage);
-    window.dispatchEvent(new Event(languageChangeEvent));
-  }, []);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -69,10 +37,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       language,
-      setLanguage,
+      setLanguage: setStoredLanguage,
       t: translations[language],
     }),
-    [language, setLanguage],
+    [language],
   );
 
   return (

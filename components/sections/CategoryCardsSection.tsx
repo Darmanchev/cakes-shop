@@ -15,7 +15,7 @@ export function CategoryCardsSection() {
       subtitle: t.categoryCards.cakesSubtitle,
       image: "/images/products/cakes/medovik-cutout.png",
       bgColor: "bg-[#f4dcd9]", // Soft Pink
-      href: "/products",
+      href: "/products?category=cakes",
     },
     {
       id: "cinnabons",
@@ -23,7 +23,7 @@ export function CategoryCardsSection() {
       subtitle: t.categoryCards.cinnabonsSubtitle,
       image: "/images/products/cinnabons/classic-cinnabon-cutout.png",
       bgColor: "bg-[#ebdccc]", // Warm Beige
-      href: "/products",
+      href: "/products?category=cinnabons",
     },
     {
       id: "muffins",
@@ -31,7 +31,7 @@ export function CategoryCardsSection() {
       subtitle: t.categoryCards.muffinsSubtitle,
       image: "/images/products/muffins/blueberry-muffins-cutout.png",
       bgColor: "bg-[#d8ccd6]", // Lavender
-      href: "/products",
+      href: "/products?category=muffins",
     },
   ];
 

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { CreateOrderInput } from "./order.schema";
+import { availableProductWhere } from "@/features/products/product.availability";
 import {
   Currency,
   type Order,
@@ -39,7 +40,8 @@ export async function createOrder(order: CreateOrderInput) {
     const productIds = [...new Set(order.items.map((item) => item.productId))];
     const products = await tx.product.findMany({
       where: {
-        id: { in: productIds },
+        ...availableProductWhere,
+        id: { ...availableProductWhere.id, in: productIds },
       },
       select: {
         id: true,
@@ -85,8 +87,6 @@ export async function createOrder(order: CreateOrderInput) {
       throw new Error("Order total is outside the supported range");
     }
 
-    const firstItem = items[0];
-
     const encrypted = encryptOrderPii({
       name: order.name,
       phone: order.phone,
@@ -100,12 +100,8 @@ export async function createOrder(order: CreateOrderInput) {
         name: encrypted.name,
         phone: encrypted.phone,
         email: encrypted.email,
-        quantity: firstItem.quantity,
         deliveryType: order.deliveryType,
         deliveryAddress: encrypted.deliveryAddress,
-        productId: firstItem.productId,
-        productName: firstItem.productName,
-        unitPriceMinor: firstItem.unitPriceMinor,
         currency: Currency.EUR,
         totalMinor,
         date: new Date(order.date),
@@ -146,35 +142,37 @@ async function deleteExpiredOrders() {
   cutoff.setUTCDate(cutoff.getUTCDate() - getRetentionDays());
 
   await prisma.order.deleteMany({
-    where: { createdAt: { lt: cutoff } },
+    where: { createdAt: { lt: cutoff }, date: { lt: cutoff } },
   });
 }
 
 export async function getOrders(page = 1, pageSize = DEFAULT_PAGE_SIZE) {
-  const safePage = Math.max(1, Math.trunc(page));
-  const safePageSize = Math.min(
+  const requestedPage = Number.isFinite(page) ? Math.max(1, Math.trunc(page)) : 1;
+  const safePageSize = Number.isFinite(pageSize) ? Math.min(
     MAX_PAGE_SIZE,
     Math.max(1, Math.trunc(pageSize)),
-  );
+  ) : DEFAULT_PAGE_SIZE;
 
   await deleteExpiredOrders();
 
-  const [items, total] = await prisma.$transaction([
-    prisma.order.findMany({
-      orderBy: { createdAt: "desc" },
+  return prisma.$transaction(async (tx) => {
+    const total = await tx.order.count();
+    const pageCount = Math.max(1, Math.ceil(total / safePageSize));
+    const safePage = Math.min(requestedPage, pageCount);
+    const items = await tx.order.findMany({
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       skip: (safePage - 1) * safePageSize,
       take: safePageSize,
       include: { items: true },
-    }),
-    prisma.order.count(),
-  ]);
+    });
 
   return {
     items: items.map(decryptOrderWithItems),
     total,
     page: safePage,
-    pageCount: Math.max(1, Math.ceil(total / safePageSize)),
+    pageCount,
   };
+  }, { isolationLevel: "RepeatableRead" });
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {

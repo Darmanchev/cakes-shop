@@ -12,27 +12,24 @@ export function Header() {
   const { totalItems } = useCart();
 
   return (
-    <header className="relative z-50 flex w-full h-24 items-center justify-between px-8 bg-[#f7e9de] text-[#4a3a35]">
+    <header className="relative z-40 flex w-full min-h-24 flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-8 bg-[#f7e9de] text-[#4a3a35]">
       <Link
         href="/"
-        className="font-display text-3xl font-semibold tracking-wide"
+        className="font-display shrink-0 text-2xl sm:text-3xl font-semibold tracking-wide"
       >
         {SITE_NAME}
       </Link>
 
-      <nav className="hidden md:flex items-center gap-10 font-semibold tracking-wide text-sm">
+      <nav className="order-last flex w-full justify-center flex-wrap items-center gap-4 xl:order-none xl:w-auto xl:gap-10 font-semibold tracking-wide text-sm">
         <Link href="/" className="hover:opacity-70 transition-opacity">{t.footerNew.home}</Link>
         <Link href="/products" className="hover:opacity-70 transition-opacity">{t.footerNew.cakes}</Link>
         <Link href="/#collections" className="hover:opacity-70 transition-opacity">{t.footerNew.collections}</Link>
         <Link href="/#about" className="hover:opacity-70 transition-opacity">{t.footerNew.about}</Link>
       </nav>
 
-      <div className="flex items-center gap-6">
-        <button aria-label="Search" className="hover:opacity-70 transition-opacity">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        </button>
+      <div className="flex items-center gap-3 sm:gap-6">
         
-        <Link href="/cart" className="relative hover:opacity-70 transition-opacity" aria-label="Cart">
+        <Link href="/order" className="relative hover:opacity-70 transition-opacity" aria-label={t.form.orderItems}>
           <ShoppingBag size={22} />
           {totalItems > 0 && (
             <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#9c7371] text-[10px] font-bold text-white">
