@@ -53,6 +53,7 @@ export function CategoryCardsSection() {
                 src={category.image}
                 alt={category.title.replace('\n', ' ')}
                 fill
+                sizes="(max-width: 768px) calc(100vw - 4rem), 33vw"
                 className="object-contain group-hover:scale-105 transition-transform duration-500"
               />
             </div>

@@ -137,6 +137,7 @@ interface AppTranslations {
     title: string;
     desc: string;
     cta: string;
+    imageAlt: string;
   };
   footerNew: {
     desc: string;
@@ -358,6 +359,7 @@ export const translations: Record<Language, AppTranslations> = {
       title: "Ръчно изработени\nс любов",
       desc: "Всеки десерт се приготвя от нулата с най-добрите съставки и се декорира със страст.",
       cta: "Нашата история",
+      imageAlt: "Сладкар декорира торта",
     },
     footerNew: {
       desc: "Подсладете специалните си моменти с нашите ръчно изработени торти и десерти.",
@@ -575,6 +577,7 @@ export const translations: Record<Language, AppTranslations> = {
       title: "Handcrafted\nwith Love",
       desc: "Every dessert is baked from scratch with the finest ingredients and decorated with passion.",
       cta: "Our Story",
+      imageAlt: "Baker decorating a cake",
     },
     footerNew: {
       desc: "Sweeten your special moments with our handcrafted cakes and delightful treats.",
@@ -794,6 +797,7 @@ export const translations: Record<Language, AppTranslations> = {
       title: "Ручная работа\nс любовью",
       desc: "Каждый десерт готовится с нуля из лучших ингредиентов и украшается с душой.",
       cta: "Наша история",
+      imageAlt: "Кондитер украшает торт",
     },
     footerNew: {
       desc: "Сделайте ваши особенные моменты слаще с нашими тортами и десертами ручной работы.",

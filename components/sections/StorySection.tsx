@@ -12,8 +12,9 @@ export function StorySection() {
         <div className="relative aspect-square w-full max-w-[500px] mx-auto drop-shadow-xl">
           <Image
             src="/images/sections/baker-decorating-cake.png"
-            alt="Baker decorating a cake"
+            alt={t.story.imageAlt}
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover rounded-[3rem]"
           />
         </div>

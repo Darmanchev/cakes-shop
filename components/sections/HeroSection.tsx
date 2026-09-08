@@ -59,8 +59,9 @@ export function HeroSection() {
         <div className="relative h-[350px] md:h-[500px] w-full">
           <Image
             src="/images/hero/berry-cake-cutout.png"
-            alt="Delicious berry cake"
+            alt={t.hero.imageAlt}
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-contain drop-shadow-2xl"
             priority
           />

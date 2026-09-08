@@ -6,12 +6,12 @@ import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/constants";
 import "./globals.css";
 
 const playfair = Playfair_Display({
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
   variable: "--font-playfair",
 });
 
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
   variable: "--font-inter",
 });
 
@@ -20,7 +20,7 @@ const inter = Inter({
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: `${SITE_NAME} | Торти и синнабони`,
+  title: `${SITE_NAME} | Торти, синнабони и мъфини`,
   description: SITE_DESCRIPTION,
 };
 
@@ -30,8 +30,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="bg" data-scroll-behavior="smooth" className={`${playfair.variable} ${inter.variable}`}>
-      <body className="font-sans antialiased text-[#4a3a35] bg-[#f7e9de]">
+    <html
+      lang="bg"
+      data-scroll-behavior="smooth"
+      className={`${playfair.variable} ${inter.variable}`}
+    >
+      <body className="bg-[#f7e9de] font-sans text-[#4a3a35] antialiased">
         <LanguageProvider>
           <CartProvider>{children}</CartProvider>
         </LanguageProvider>
