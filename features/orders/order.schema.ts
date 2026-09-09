@@ -241,7 +241,8 @@ function createOrderSchemaFor(language: Language) {
       deliveryAddress: z
         .string({ error: messages.addressRequired })
         .trim()
-        .max(300, messages.addressTooLong),
+        .max(300, messages.addressTooLong)
+        .default(""),
       comment: z
         .string()
         .trim()

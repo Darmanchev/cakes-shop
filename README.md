@@ -87,6 +87,9 @@ TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
 ```
 
+Configure both Telegram variables together; leaving only one set is treated as
+an invalid production configuration.
+
 Prepare the database and start development:
 
 ```bash

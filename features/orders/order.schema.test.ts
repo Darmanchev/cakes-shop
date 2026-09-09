@@ -112,6 +112,18 @@ describe("create order validation", () => {
     assert.equal(result.success, false);
   });
 
+  it("accepts pickup orders without a delivery address field", () => {
+    const pickupOrder: Record<string, unknown> = { ...validOrder() };
+    delete pickupOrder.deliveryAddress;
+    const result = parseCreateOrderInput({
+      ...pickupOrder,
+      deliveryType: "PICKUP",
+    });
+
+    assert.equal(result.success, true);
+    if (result.success) assert.equal(result.data.deliveryAddress, "");
+  });
+
   it("returns validation messages in the requested supported language", () => {
     const input = { ...validOrder(), name: "" };
     const english = parseCreateOrderInput(input, "en");

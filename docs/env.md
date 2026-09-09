@@ -29,3 +29,7 @@ than `ORDER_RETENTION_DAYS`.
 Production startup applies no catalog seed. Run `npm run db:migrate:deploy` as
 a release step, then run `npm run db:seed` separately only for a new database or
 an intentional catalog synchronization.
+
+`TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are optional, but they must either
+both be configured or both be empty so notification failures are not hidden by
+an incomplete setup.
