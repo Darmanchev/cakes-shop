@@ -60,7 +60,7 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
         </h3>
       </button>
 
-      <div className="grid min-h-[70px] shrink-0 grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 p-3 sm:min-h-[76px] sm:p-3.5">
+      <div className="grid min-h-[70px] shrink-0 grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2 p-3.5 sm:min-h-[76px] sm:p-4">
         <p className="font-display text-lg font-semibold text-[#8d6264] sm:text-xl">
           {formatPrice(product.priceMinor, language)}
         </p>
@@ -71,7 +71,7 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
         </p>
 
         {cartItem ? (
-          <div className="inline-flex items-center gap-1 rounded-full bg-[#f2e1e2] p-0.5 pl-2.5">
+          <div className="col-span-2 inline-flex items-center gap-1 justify-self-end rounded-full bg-[#f2e1e2] p-0.5 pl-2.5">
             <span className="min-w-4 text-center text-xs font-bold text-[#443530]">
               {cartItem.quantity}
             </span>
@@ -90,7 +90,7 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
             type="button"
             onClick={() => addItem(product.id)}
             disabled={!canAddProduct}
-            className="relative inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-[#bfa6a0] bg-[#fffaf5] px-3 text-[11px] font-bold text-[#443530] transition hover:bg-[#443530] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:h-9 sm:text-xs"
+            className="relative col-span-2 inline-flex h-8 items-center justify-center justify-self-center gap-1.5 rounded-full border border-[#bfa6a0] bg-[#fffaf5] px-4 text-[11px] font-bold text-[#443530] transition hover:bg-[#443530] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs"
             title={!canAddProduct ? t.productCard.limitReached : t.productCard.add}
           >
             <ShoppingBag size={14} aria-hidden="true" />

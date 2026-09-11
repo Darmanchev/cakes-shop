@@ -89,6 +89,17 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+.quantity-input {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.quantity-input::-webkit-inner-spin-button,
+.quantity-input::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
 .no-scrollbar {
   scrollbar-width: none;
 }

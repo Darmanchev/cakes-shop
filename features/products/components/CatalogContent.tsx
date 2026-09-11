@@ -193,7 +193,7 @@ export function CatalogContent({ productsByCategory, initialCategory = "cakes" }
             role="tabpanel"
             aria-labelledby={`catalog-tab-${activeCategory}`}
             tabIndex={0}
-            className="no-scrollbar grid snap-x snap-mandatory auto-cols-[84%] grid-flow-col gap-3 overflow-x-auto overscroll-x-contain pb-0.5 sm:auto-cols-[44%] lg:auto-cols-[31.5%]"
+            className="no-scrollbar grid snap-x snap-mandatory auto-cols-[78%] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain pb-0.5 sm:auto-cols-[40%] sm:gap-5 lg:auto-cols-[28%]"
             aria-live="polite"
           >
             {visibleProducts.map((product) => (
@@ -261,7 +261,7 @@ export function CatalogContent({ productsByCategory, initialCategory = "cakes" }
                 alt={t.products[selectedProduct.id]?.name ?? selectedProduct.name}
                 fill
                 sizes="(max-width: 640px) 100vw, 380px"
-                className="object-cover"
+                className="object-contain p-2"
               />
             </div>
             <div className="flex flex-col p-4 sm:p-7">
@@ -294,13 +294,14 @@ export function CatalogContent({ productsByCategory, initialCategory = "cakes" }
                     onChange={(quantity) => setQuantity(selectedProduct.id, quantity)}
                     onDecrement={() => decrementItem(selectedProduct.id)}
                     onRemove={() => removeItem(selectedProduct.id)}
+                    className="w-full"
                   />
                 ) : (
                   <button
                     type="button"
                     onClick={() => addItem(selectedProduct.id)}
                     disabled={!canAddProduct}
-                    className="inline-flex h-11 items-center justify-center rounded-full bg-[#443530] px-5 text-sm font-semibold text-white transition hover:bg-[#60483f] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mx-auto flex h-10 w-fit items-center justify-center rounded-full bg-[#443530] px-5 text-sm font-semibold text-white transition hover:bg-[#60483f] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {t.productCard.add}
                   </button>

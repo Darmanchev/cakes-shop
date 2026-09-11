@@ -22,7 +22,6 @@ export function Header() {
 
       <nav className="order-last flex w-full justify-center flex-wrap items-center gap-4 xl:order-none xl:w-auto xl:gap-10 font-semibold tracking-wide text-sm">
         <Link href="/" className="hover:opacity-70 transition-opacity">{t.footerNew.home}</Link>
-        <Link href="/products" className="hover:opacity-70 transition-opacity">{t.footerNew.cakes}</Link>
         <Link href="/#collections" className="hover:opacity-70 transition-opacity">{t.footerNew.collections}</Link>
         <Link href="/#about" className="hover:opacity-70 transition-opacity">{t.footerNew.about}</Link>
       </nav>

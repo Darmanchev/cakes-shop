@@ -2,6 +2,11 @@ import { ProductCategory } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { Category, Product } from "./product.types";
 import { availableProductWhere } from "./product.availability";
+import { products as canonicalProducts } from "./product.data";
+
+const canonicalImageByProductId = new Map(
+  canonicalProducts.map((product) => [product.id, product.image]),
+);
 
 const categoryMap: Record<Category, ProductCategory> = {
   cakes: ProductCategory.CAKES,
@@ -40,7 +45,7 @@ function mapProductFromDb(product: {
     category,
     priceMinor: product.priceMinor,
     description: product.description,
-    image: product.image,
+    image: canonicalImageByProductId.get(product.id) ?? product.image,
     weight: product.weight ?? undefined,
     filling: product.filling ?? undefined,
     prepTime: product.prepTime,

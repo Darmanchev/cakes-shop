@@ -56,7 +56,7 @@ export function QuantitySelector({
           }
         }}
         inputMode="numeric"
-        className="h-9 w-12 appearance-none rounded-md border border-stone-200 bg-white px-1 text-center font-semibold outline-none focus:border-rose-700 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        className="quantity-input h-9 w-12 rounded-md border border-stone-200 bg-white px-1 text-center font-semibold outline-none focus:border-rose-700"
         aria-label={`${t.productCard.quantity}: ${productName}`}
       />
       <span className="shrink-0 text-sm font-semibold text-stone-800">
