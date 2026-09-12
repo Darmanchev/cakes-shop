@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   addCartItem,
+  decrementCartItem,
   getCartItemsCount,
   removeCartItem,
+  retainAvailableCartItems,
   setCartItemQuantity,
   updateCartItemComment,
 } from "./cart.service";
@@ -32,6 +34,20 @@ test("limits quantity and supports comments and removal", () => {
   assert.deepEqual(removed, { items: [] });
 });
 
+test("decrements quantity and removes the item when it reaches zero", () => {
+  const cart = setCartItemQuantity(
+    addCartItem({ items: [] }, "cake-1"),
+    "cake-1",
+    2,
+  );
+
+  const decremented = decrementCartItem(cart, "cake-1");
+  const removed = decrementCartItem(decremented, "cake-1");
+
+  assert.equal(decremented.items[0]?.quantity, 1);
+  assert.deepEqual(removed, { items: [] });
+});
+
 test("rejects invalid persisted cart data", () => {
   const parsed = parseStoredCart({
     items: [
@@ -45,4 +61,31 @@ test("rejects invalid persisted cart data", () => {
   assert.deepEqual(parsed.items, [
     { productId: "cake-1", quantity: 2, comment: "" },
   ]);
+});
+
+test("normalizes persisted product IDs before duplicate detection", () => {
+  const parsed = parseStoredCart({
+    items: [
+      { productId: " cake-1 ", quantity: 2, comment: "" },
+      { productId: "cake-1", quantity: 3, comment: "duplicate" },
+    ],
+  });
+
+  assert.deepEqual(parsed.items, [
+    { productId: "cake-1", quantity: 2, comment: "" },
+  ]);
+});
+
+test("retains only products that are still available", () => {
+  const cart = {
+    items: [
+      { productId: "cake-1", quantity: 2, comment: "" },
+      { productId: "retired", quantity: 1, comment: "" },
+    ],
+  };
+
+  assert.deepEqual(
+    retainAvailableCartItems(cart, new Set(["cake-1"])),
+    { items: [cart.items[0]] },
+  );
 });

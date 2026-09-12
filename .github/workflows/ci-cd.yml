@@ -20,6 +20,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    services:
+      postgres:
+        image: postgres:16-bookworm
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: stas_cakes_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -36,8 +51,22 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Prepare test database
+        run: npm run db:migrate:deploy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/stas_cakes_test
+
       - name: Test
         run: npm test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/stas_cakes_test
+          RUN_DB_TESTS: "1"
+
+      - name: Test database scripts
+        run: npm run test:database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/stas_cakes_test
+          RUN_DB_TESTS: "1"
 
       - name: Build production Docker image
         run: docker build --target runner --tag stas-cakes-shop:ci .

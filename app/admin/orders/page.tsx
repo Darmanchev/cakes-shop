@@ -14,7 +14,7 @@ import { OrdersTable } from "@/features/orders/components/OrdersTable";
 import { getOrders } from "@/features/orders/order.service";
 
 interface AdminOrdersPageProps {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; error?: string }>;
 }
 
 export default async function AdminOrdersPage({
@@ -32,6 +32,7 @@ export default async function AdminOrdersPage({
   const page = Number.isFinite(requestedPage)
     ? Math.min(1_000_000, Math.max(1, requestedPage))
     : 1;
+  const orderNotFound = params.error === "order-not-found";
   const [orders, security] = await Promise.all([
     getOrders(page),
     getAdminSecuritySummary(),
@@ -77,6 +78,15 @@ export default async function AdminOrdersPage({
           </div>
         </div>
 
+        {orderNotFound ? (
+          <p
+            className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900"
+            role="alert"
+          >
+            Заказ больше не существует. Обновите список и попробуйте снова.
+          </p>
+        ) : null}
+
         <OrdersTable orders={orders.items} />
 
         <section className="mt-6 rounded-lg border border-stone-200 bg-white p-5">
@@ -94,7 +104,7 @@ export default async function AdminOrdersPage({
                 {security.loginEvents.map((event) => (
                   <tr key={event.id}>
                     <td className="py-2">
-                      {event.createdAt.toLocaleString("ru-RU")}
+                      {event.createdAt.toLocaleString("ru-RU", { timeZone: "Europe/Sofia" })}
                     </td>
                     <td>{event.outcome}</td>
                     <td className="break-all font-mono">

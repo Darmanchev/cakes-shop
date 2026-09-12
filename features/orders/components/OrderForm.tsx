@@ -1,15 +1,18 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarDays, Send } from "lucide-react";
 import { useLanguage } from "@/components/language/LanguageProvider";
 import { useCart } from "@/features/cart/CartProvider";
 import { QuantitySelector } from "@/features/cart/components/QuantitySelector";
 import type { Product } from "@/features/products/product.types";
 import { formatPrice } from "@/lib/utils/format-price";
+import { getOrderFieldAccessibility } from "../order-form-accessibility";
 import type {
   OrderApiErrorResponse,
   OrderFieldErrors,
+  OrderFormField,
   OrderFormStatus,
 } from "../order.types";
 
@@ -48,7 +51,13 @@ function getIsoDate(value: string) {
   return match ? `${match[3]}-${match[2]}-${match[1]}` : "";
 }
 
-function FieldError({ messages }: { messages?: string[] }) {
+function FieldError({
+  field,
+  messages,
+}: {
+  field: OrderFormField;
+  messages?: string[];
+}) {
   const message = messages?.[0];
 
   if (!message) {
@@ -56,31 +65,54 @@ function FieldError({ messages }: { messages?: string[] }) {
   }
 
   return (
-    <p className="text-sm text-red-700" role="alert">
+    <p id={`${field}-error`} className="text-sm text-red-700" role="alert">
       {message}
     </p>
   );
 }
 
 export function OrderForm({ products }: { products: Product[] }) {
+  const submitting = useRef(false);
   const [status, setStatus] = useState<OrderFormStatus>("idle");
   const [fieldErrors, setFieldErrors] = useState<OrderFieldErrors>({});
   const [deliveryType, setDeliveryType] = useState<"DELIVERY" | "PICKUP">(
     "DELIVERY",
   );
   const [date, setDate] = useState("");
-  const { items, setQuantity, removeItem, updateComment, clearCart } =
-    useCart();
+  const {
+    items,
+    setQuantity,
+    decrementItem,
+    removeItem,
+    updateComment,
+    retainAvailableItems,
+    unavailableItemsRemoved,
+    clearCart,
+  } = useCart();
   const { language, t } = useLanguage();
   const productsById = useMemo(
     () => new Map(products.map((product) => [product.id, product])),
     [products],
   );
+  const availableProductIds = useMemo(
+    () => products.map((product) => product.id),
+    [products],
+  );
   const minOrderDate = getTodayInSofia();
   const maxOrderDate = getMaxOrderDate(minOrderDate);
 
+  useEffect(() => {
+    if (!items.some((item) => !productsById.has(item.productId))) {
+      return;
+    }
+
+    retainAvailableItems(availableProductIds);
+  }, [availableProductIds, items, productsById, retainAvailableItems]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting.current || items.length === 0) return;
+    submitting.current = true;
     setStatus("sending");
     setFieldErrors({});
 
@@ -98,7 +130,10 @@ export function OrderForm({ products }: { products: Product[] }) {
     try {
       const response = await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept-Language": language,
+        },
         body: JSON.stringify(payload),
       });
 
@@ -121,6 +156,8 @@ export function OrderForm({ products }: { products: Product[] }) {
     } catch (error) {
       console.error("Failed to submit order", error);
       setStatus("error");
+    } finally {
+      submitting.current = false;
     }
   }
 
@@ -131,8 +168,12 @@ export function OrderForm({ products }: { products: Product[] }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid min-w-0 gap-4 rounded-xl border border-[#e1d2c8] bg-[#fffdfa] p-5 shadow-sm sm:p-6"
+      className="grid min-w-0 gap-4 rounded-[24px] border border-[#dfcec7] bg-[#fffaf5] p-5 shadow-[0_16px_45px_rgba(68,53,48,0.08)] sm:p-6"
     >
+      <fieldset
+        disabled={status === "sending"}
+        className="m-0 grid min-w-0 gap-4 border-0 p-0"
+      >
       <div className="grid gap-2">
         <label htmlFor="name" className="text-sm font-medium text-stone-800">
           {t.form.name}
@@ -142,9 +183,10 @@ export function OrderForm({ products }: { products: Product[] }) {
           name="name"
           maxLength={100}
           required
-          className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+          {...getOrderFieldAccessibility(fieldErrors, "name")}
+          className="h-11 rounded-[14px] border border-[#d8c5bd] bg-white px-3 outline-none focus:border-[#b78e8c]"
         />
-        <FieldError messages={fieldErrors.name} />
+        <FieldError field="name" messages={fieldErrors.name} />
       </div>
 
       <div className="grid gap-2">
@@ -158,9 +200,10 @@ export function OrderForm({ products }: { products: Product[] }) {
           maxLength={32}
           required
           placeholder="+359..."
-          className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+          {...getOrderFieldAccessibility(fieldErrors, "phone")}
+          className="h-11 rounded-[14px] border border-[#d8c5bd] bg-white px-3 outline-none focus:border-[#b78e8c]"
         />
-        <FieldError messages={fieldErrors.phone} />
+        <FieldError field="phone" messages={fieldErrors.phone} />
       </div>
 
       <div className="grid gap-2">
@@ -175,24 +218,36 @@ export function OrderForm({ products }: { products: Product[] }) {
           autoComplete="email"
           maxLength={254}
           required
-          className="h-11 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+          {...getOrderFieldAccessibility(fieldErrors, "email")}
+          className="h-11 rounded-[14px] border border-[#d8c5bd] bg-white px-3 outline-none focus:border-[#b78e8c]"
         />
-        <FieldError messages={fieldErrors.email} />
+        <FieldError field="email" messages={fieldErrors.email} />
       </div>
 
-      <fieldset className="mb-2 grid gap-3">
+      <fieldset
+        {...getOrderFieldAccessibility(fieldErrors, "items")}
+        className="mb-2 grid gap-3"
+      >
         <legend className="mb-2 text-sm font-medium text-stone-800">
           {t.form.orderItems}
         </legend>
+        {unavailableItemsRemoved ? (
+          <p
+            className="rounded-[14px] border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+            role="status"
+          >
+            {t.form.unavailableProductsRemoved}
+          </p>
+        ) : null}
         {items.length === 0 ? (
-          <div className="rounded-md border border-dashed border-stone-300 bg-stone-50 p-4 text-sm text-stone-700">
+          <div className="rounded-[16px] border border-dashed border-[#cfb7b1] bg-[#f8f0e7] p-4 text-sm text-[#6f5b54]">
             <p>{t.form.emptyCart}</p>
-            <a
-              href="#catalog"
-              className="mt-2 inline-flex font-medium text-rose-700 hover:text-rose-800"
+            <Link
+              href="/products"
+              className="mt-2 inline-flex font-semibold text-[#956a6b] hover:text-[#755052]"
             >
               {t.form.chooseProducts}
-            </a>
+            </Link>
           </div>
         ) : (
           items.map((item) => {
@@ -205,7 +260,7 @@ export function OrderForm({ products }: { products: Product[] }) {
             return (
               <div
                 key={item.productId}
-                className="grid gap-3 rounded-md border border-stone-200 bg-stone-50 p-3"
+                className="grid gap-3 rounded-[16px] border border-[#e3d5cf] bg-[#f8f0e7] p-3"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
@@ -228,6 +283,7 @@ export function OrderForm({ products }: { products: Product[] }) {
                     onChange={(quantity) =>
                       setQuantity(item.productId, quantity)
                     }
+                    onDecrement={() => decrementItem(item.productId)}
                     onRemove={() => removeItem(item.productId)}
                     className="w-full sm:w-auto"
                   />
@@ -248,14 +304,14 @@ export function OrderForm({ products }: { products: Product[] }) {
                     onChange={(event) =>
                       updateComment(item.productId, event.target.value)
                     }
-                    className="min-w-0 resize-none rounded-md border border-stone-300 bg-white px-3 py-2 outline-none focus:border-rose-700"
+                    className="min-w-0 resize-none rounded-[14px] border border-[#d8c5bd] bg-white px-3 py-2 outline-none focus:border-[#b78e8c]"
                   />
                 </div>
               </div>
             );
           })
         )}
-        <FieldError messages={fieldErrors.items} />
+        <FieldError field="items" messages={fieldErrors.items} />
       </fieldset>
 
       <div className="grid gap-2">
@@ -272,9 +328,10 @@ export function OrderForm({ products }: { products: Product[] }) {
             value={date}
             onChange={(event) => setDate(event.target.value)}
             required
-            className="h-11 min-w-0 flex-1 rounded-md border border-stone-300 px-3 outline-none focus:border-rose-700"
+            {...getOrderFieldAccessibility(fieldErrors, "date")}
+            className="h-11 min-w-0 flex-1 rounded-[14px] border border-[#d8c5bd] bg-white px-3 outline-none focus:border-[#b78e8c]"
           />
-          <div className="relative h-11 w-12 shrink-0 rounded-md border border-stone-300 bg-white focus-within:border-rose-700">
+          <div className="relative h-11 w-12 shrink-0 rounded-[14px] border border-[#d8c5bd] bg-white focus-within:border-[#b78e8c]">
             <CalendarDays
               size={20}
               className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-stone-700"
@@ -294,10 +351,13 @@ export function OrderForm({ products }: { products: Product[] }) {
             />
           </div>
         </div>
-        <FieldError messages={fieldErrors.date} />
+        <FieldError field="date" messages={fieldErrors.date} />
       </div>
 
-      <fieldset className="grid gap-2">
+      <fieldset
+        {...getOrderFieldAccessibility(fieldErrors, "deliveryType")}
+        className="grid gap-2"
+      >
         <legend className="text-sm font-medium text-stone-800">
           {t.form.deliveryType}
         </legend>
@@ -323,7 +383,7 @@ export function OrderForm({ products }: { products: Product[] }) {
             {t.form.pickup}
           </label>
         </div>
-        <FieldError messages={fieldErrors.deliveryType} />
+        <FieldError field="deliveryType" messages={fieldErrors.deliveryType} />
       </fieldset>
 
       {deliveryType === "DELIVERY" ? (
@@ -341,9 +401,13 @@ export function OrderForm({ products }: { products: Product[] }) {
             required
             maxLength={300}
             autoComplete="street-address"
-            className="resize-none rounded-md border border-stone-300 px-3 py-2 outline-none focus:border-rose-700"
+            {...getOrderFieldAccessibility(fieldErrors, "deliveryAddress")}
+            className="resize-none rounded-[14px] border border-[#d8c5bd] bg-white px-3 py-2 outline-none focus:border-[#b78e8c]"
           />
-          <FieldError messages={fieldErrors.deliveryAddress} />
+          <FieldError
+            field="deliveryAddress"
+            messages={fieldErrors.deliveryAddress}
+          />
         </div>
       ) : (
         <input type="hidden" name="deliveryAddress" value="" />
@@ -358,19 +422,21 @@ export function OrderForm({ products }: { products: Product[] }) {
           name="comment"
           rows={4}
           maxLength={500}
-          className="resize-none rounded-md border border-stone-300 px-3 py-2 outline-none focus:border-rose-700"
+          {...getOrderFieldAccessibility(fieldErrors, "comment")}
+          className="resize-none rounded-[14px] border border-[#d8c5bd] bg-white px-3 py-2 outline-none focus:border-[#b78e8c]"
         />
-        <FieldError messages={fieldErrors.comment} />
+        <FieldError field="comment" messages={fieldErrors.comment} />
       </div>
 
       <button
         type="submit"
         disabled={status === "sending" || items.length === 0}
-        className="inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-[#7c1028] px-5 text-sm font-medium text-white transition hover:bg-[#5d0a1d] disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#443530] px-5 text-sm font-semibold text-white transition hover:bg-[#60483f] disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Send size={17} aria-hidden="true" />
         {status === "sending" ? t.form.sending : t.form.submit}
       </button>
+      </fieldset>
 
       {status === "success" ? (
         <p className="text-sm text-emerald-700">{t.form.success}</p>

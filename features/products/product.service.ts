@@ -1,18 +1,24 @@
 import { ProductCategory } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { Category, Product } from "./product.types";
+import { availableProductWhere } from "./product.availability";
+import { products as canonicalProducts } from "./product.data";
+
+const canonicalImageByProductId = new Map(
+  canonicalProducts.map((product) => [product.id, product.image]),
+);
 
 const categoryMap: Record<Category, ProductCategory> = {
   cakes: ProductCategory.CAKES,
   cinnabons: ProductCategory.CINNABONS,
-  combos: ProductCategory.COMBOS,
+  muffins: ProductCategory.MUFFINS,
 };
 
-const categoryFromDb: Record<ProductCategory, Category> = {
+const categoryFromDb = {
   [ProductCategory.CAKES]: "cakes",
   [ProductCategory.CINNABONS]: "cinnabons",
-  [ProductCategory.COMBOS]: "combos",
-};
+  [ProductCategory.MUFFINS]: "muffins",
+} as const;
 
 function mapProductFromDb(product: {
   id: string;
@@ -25,13 +31,21 @@ function mapProductFromDb(product: {
   filling: string | null;
   prepTime: string;
 }): Product {
+  const category = categoryFromDb[
+    product.category as keyof typeof categoryFromDb
+  ];
+
+  if (!category) {
+    throw new Error(`Unsupported product category: ${product.category}`);
+  }
+
   return {
     id: product.id,
     name: product.name,
-    category: categoryFromDb[product.category],
+    category,
     priceMinor: product.priceMinor,
     description: product.description,
-    image: product.image,
+    image: canonicalImageByProductId.get(product.id) ?? product.image,
     weight: product.weight ?? undefined,
     filling: product.filling ?? undefined,
     prepTime: product.prepTime,
@@ -40,6 +54,7 @@ function mapProductFromDb(product: {
 
 export async function getProducts() {
   const products = await prisma.product.findMany({
+    where: availableProductWhere,
     orderBy: { createdAt: "asc" },
   });
 
@@ -48,7 +63,7 @@ export async function getProducts() {
 
 export async function getProductsByCategory(category: Category) {
   const products = await prisma.product.findMany({
-    where: { category: categoryMap[category] },
+    where: { ...availableProductWhere, category: categoryMap[category] },
     orderBy: { createdAt: "asc" },
   });
 

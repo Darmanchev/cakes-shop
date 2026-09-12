@@ -34,6 +34,27 @@ function validOrder() {
 }
 
 describe("create order validation", () => {
+  it("rejects repeated product IDs, including whitespace variants", () => {
+    const result = parseCreateOrderInput({
+      ...validOrder(),
+      items: [
+        { productId: "cake-1", quantity: 20 },
+        { productId: " cake-1 ", quantity: 20 },
+      ],
+    });
+    assert.equal(result.success, false);
+    if (!result.success) assert.ok(result.fieldErrors.items?.length);
+  });
+
+  it("rejects booleans and arrays as quantities", () => {
+    for (const quantity of [true, false, [2], null, {}, "", " "]) {
+      const result = parseCreateOrderInput({
+        ...validOrder(),
+        items: [{ productId: "cake-1", quantity }],
+      });
+      assert.equal(result.success, false, `quantity: ${JSON.stringify(quantity)}`);
+    }
+  });
   it("normalizes a valid Bulgarian phone, quantity, and manually entered date", () => {
     const result = parseCreateOrderInput(validOrder());
     assert.equal(result.success, true);
@@ -89,5 +110,32 @@ describe("create order validation", () => {
       injected: "<script>",
     });
     assert.equal(result.success, false);
+  });
+
+  it("accepts pickup orders without a delivery address field", () => {
+    const pickupOrder: Record<string, unknown> = { ...validOrder() };
+    delete pickupOrder.deliveryAddress;
+    const result = parseCreateOrderInput({
+      ...pickupOrder,
+      deliveryType: "PICKUP",
+    });
+
+    assert.equal(result.success, true);
+    if (result.success) assert.equal(result.data.deliveryAddress, "");
+  });
+
+  it("returns validation messages in the requested supported language", () => {
+    const input = { ...validOrder(), name: "" };
+    const english = parseCreateOrderInput(input, "en");
+    const russian = parseCreateOrderInput(input, "ru");
+
+    assert.equal(english.success, false);
+    assert.equal(russian.success, false);
+    if (!english.success) {
+      assert.equal(english.fieldErrors.name?.[0], "Enter your name");
+    }
+    if (!russian.success) {
+      assert.equal(russian.fieldErrors.name?.[0], "Введите имя");
+    }
   });
 });

@@ -5,6 +5,17 @@ export function getCartItemsCount(cart: Cart) {
   return cart.items.reduce((total, item) => total + item.quantity, 0);
 }
 
+export function retainAvailableCartItems(
+  cart: Cart,
+  availableProductIds: ReadonlySet<string>,
+): Cart {
+  const items = cart.items.filter((item) =>
+    availableProductIds.has(item.productId),
+  );
+
+  return items.length === cart.items.length ? cart : { items };
+}
+
 export function addCartItem(cart: Cart, productId: string): Cart {
   const existingItem = cart.items.find((item) => item.productId === productId);
 
@@ -37,6 +48,20 @@ export function setCartItemQuantity(
       item.productId === productId ? { ...item, quantity: nextQuantity } : item,
     ),
   };
+}
+
+export function decrementCartItem(cart: Cart, productId: string): Cart {
+  const existingItem = cart.items.find((item) => item.productId === productId);
+
+  if (!existingItem) {
+    return cart;
+  }
+
+  if (existingItem.quantity === 1) {
+    return removeCartItem(cart, productId);
+  }
+
+  return setCartItemQuantity(cart, productId, existingItem.quantity - 1);
 }
 
 export function removeCartItem(cart: Cart, productId: string): Cart {

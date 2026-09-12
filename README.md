@@ -37,19 +37,20 @@ docker compose down --volumes
 
 ## Implemented
 
-- catalog for cakes, cinnabons and combo sets;
+- database-backed catalog for cakes, cinnabons and muffins;
 - Bulgarian, English and Russian interface;
-- order form with Zod validation and phone-number checks;
+- persistent multi-item cart that reconciles retired products;
+- localized order form with Zod validation and phone-number checks;
 - PostgreSQL models and Prisma migrations;
 - database seed with initial products;
 - optional Telegram notification for a new order;
-- admin order list.
+- protected admin order list with status management.
 
 ## Why this stack
 
-I chose **Next.js** because one codebase can contain the storefront, server-rendered catalog, API route and admin page. **Prisma + PostgreSQL** provide typed relations between products and orders and make schema changes explicit. **Zod** keeps validation close to the business input instead of relying only on HTML fields.
+I chose **Next.js** because one codebase can contain the storefront, server-rendered catalog, API route and admin page. **Prisma + PostgreSQL** provide typed relations between products, orders and their line items and make schema changes explicit. **Zod** keeps validation close to the business input instead of relying only on HTML fields.
 
-The main difficulty was moving from a static catalog to database-backed pages. An order must reference a real product, so migrations and seed data have to be ready before the form can work. Internationalization also affected more than buttons: product names and notification text need a stable fallback when the database and translation dictionary are not identical.
+The main difficulty was moving from a static catalog to database-backed pages. An order can contain multiple products and must reference active catalog rows, so migrations and initial seed data have to be ready before the form can work. Internationalization also affects validation, accessible labels, product names and notification text.
 
 ## Stack
 
@@ -85,6 +86,9 @@ ORDER_RETENTION_DAYS="365"
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
 ```
+
+Configure both Telegram variables together; leaving only one set is treated as
+an invalid production configuration.
 
 Prepare the database and start development:
 
@@ -196,9 +200,10 @@ Deploy this repository as a **Docker Compose** resource:
 - Connect to Predefined Network: enabled
 - Application domain: `https://your-domain.example:3000`
 
-The `migrate` service applies committed Prisma migrations and runs the
-idempotent product seed before `app` starts. Coolify excludes this one-time
-service from overall health checks.
+The `migrate` service applies committed Prisma migrations before `app` starts.
+Catalog seeding is deliberately separate: run `npm run db:seed` once for a new
+database or when you intentionally want to synchronize the built-in catalog.
+Coolify excludes the migration service from overall health checks.
 
 Set the required variables from `.env.example` in Coolify. They are runtime
 variables and do not need to be exposed during the image build. Use

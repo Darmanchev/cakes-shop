@@ -9,6 +9,7 @@ datasource db {
 enum ProductCategory {
   CAKES
   CINNABONS
+  MUFFINS
   COMBOS
 }
 
@@ -38,7 +39,6 @@ model Product {
   weight      String?
   filling     String?
   prepTime    String
-  orders      Order[]
   orderItems  OrderItem[]
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
@@ -49,13 +49,8 @@ model Order {
   name            String
   phone           String
   email           String      @default("")
-  quantity        Int         @default(1)
   deliveryType    DeliveryType
   deliveryAddress String      @default("")
-  productId       String
-  product         Product     @relation(fields: [productId], references: [id])
-  productName     String
-  unitPriceMinor  Int
   currency        Currency
   totalMinor      Int
   date            DateTime
@@ -68,7 +63,6 @@ model Order {
   @@index([createdAt])
   @@index([status, createdAt])
   @@index([date])
-  @@index([productId])
 }
 
 model OrderItem {

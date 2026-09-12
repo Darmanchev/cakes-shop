@@ -6,6 +6,12 @@ export type Language = (typeof LANGUAGES)[number];
 
 export const defaultLanguage: Language = "bg";
 
+export function resolveSupportedLanguage(value: string | null): Language {
+  return LANGUAGES.includes(value as Language)
+    ? (value as Language)
+    : defaultLanguage;
+}
+
 export const languageOptions: Array<{
   code: Language;
   label: string;
@@ -37,14 +43,22 @@ interface AppTranslations {
   hero: {
     badge: string;
     title: string;
+    heroTitle: string;
+    heroDesc: string;
+    exploreCakes: string;
+    orderNow: string;
     description: string;
     catalogCta: string;
     orderCta: string;
     imageAlt: string;
+    highlights: [string, string];
   };
   catalog: {
     title: string;
     sections: Record<Category, string>;
+    previousProducts: string;
+    nextProducts: string;
+    close: string;
   };
   productCard: {
     categories: Record<Category, string>;
@@ -53,12 +67,19 @@ interface AppTranslations {
     add: string;
     pieces: string;
     quantity: string;
+    decrease: string;
     increase: string;
     remove: string;
     limitReached: string;
   };
   cart: {
     label: string;
+  };
+  footer: {
+    phone: string;
+    instagram: string;
+    location: string;
+    copyright: string;
   };
   orderSteps: {
     title: string;
@@ -93,53 +114,107 @@ interface AppTranslations {
     error: string;
     emptyCart: string;
     chooseProducts: string;
+    unavailableProductsRemoved: string;
+    unavailableProduct: string;
   };
   products: Record<string, ProductCopy>;
+
+  features: {
+    freshTitle: string;
+    freshDesc: string;
+    premiumTitle: string;
+    premiumDesc: string;
+  };
+  categoryCards: {
+    cakesTitle: string;
+    cakesSubtitle: string;
+    cinnabonsTitle: string;
+    cinnabonsSubtitle: string;
+    muffinsTitle: string;
+    muffinsSubtitle: string;
+  };
+  story: {
+    title: string;
+    desc: string;
+    cta: string;
+    imageAlt: string;
+  };
+  footerNew: {
+    desc: string;
+    quickLinks: string;
+    customerCare: string;
+    visitUs: string;
+    home: string;
+    cakes: string;
+    collections: string;
+    about: string;
+    contact: string;
+    faqs: string;
+    shipping: string;
+    returns: string;
+    terms: string;
+    privacy: string;
+  };
 }
 
 export const translations: Record<Language, AppTranslations> = {
   bg: {
-    siteDescription: "Торти, синнабони и сладки сетове по поръчка.",
-    metadataTitle: "Торти и синнабони",
+    siteDescription: "Торти, синнабони и мъфини по поръчка.",
+    metadataTitle: "Торти, синнабони и мъфини",
     navigation: [
       { href: "#catalog", label: "Каталог" },
       { href: "#how", label: "Как се поръчва" },
       { href: "#order", label: "Запитване" },
     ],
     hero: {
-      badge: "Торти и синнабони по поръчка",
-      title: "Домашни сладкиши за празници, срещи и уютни вечери",
+      badge: "Торти, синнабони и мъфини по поръчка",
+      title: "Животът е по-сладък с нещо домашно",
+      heroTitle: "Животът е по-сладък с нещо домашно.",
+      heroDesc: "Вкусни ръчно изработени торти и десерти, приготвени с най-добрите съставки и много любов.",
+      exploreCakes: "Разгледай тортите",
+      orderNow: "Поръчай",
       description:
-        "Изберете торта, синнабон или сет, оставете запитване, а ние ще уточним детайлите и ще потвърдим поръчката.",
+        "Изберете торта, синнабон или мъфин, оставете запитване, а ние ще уточним детайлите и ще потвърдим поръчката.",
       catalogCta: "Виж каталога",
       orderCta: "Остави запитване",
       imageAlt: "Шоколадова торта с крем",
+      highlights: ["Прясно приготвено", "Качествени съставки"],
     },
     catalog: {
       title: "Каталог",
       sections: {
         cakes: "Торти",
         cinnabons: "Синнабони",
-        combos: "Сетове",
+        muffins: "Мъфини",
       },
+      previousProducts: "Предишни продукти",
+      nextProducts: "Следващи продукти",
+      close: "Затвори",
     },
     productCard: {
       categories: {
         cakes: "Торта",
         cinnabons: "Синнабон",
-        combos: "Сет",
+        muffins: "Мъфин",
       },
       from: "от",
       order: "Поръчай",
       add: "Добави",
       pieces: "бр.",
       quantity: "Количество",
+      decrease: "Намали количеството за",
       increase: "Увеличи количеството за",
       remove: "Премахни",
       limitReached: "Можете да добавите най-много 10 различни продукта",
     },
     cart: {
       label: "Кошница",
+    },
+    footer: {
+      phone: "Телефон",
+      instagram: "Instagram",
+      location: "Местоположение",
+      copyright: "© 2026 Stas Cakes",
     },
     orderSteps: {
       title: "",
@@ -189,6 +264,9 @@ export const translations: Record<Language, AppTranslations> = {
         "Запитването не беше изпратено. Проверете сървъра и опитайте отново.",
       emptyCart: "Все още няма избрани продукти.",
       chooseProducts: "Изберете продукти от каталога",
+      unavailableProductsRemoved:
+        "Недостъпните продукти бяха премахнати от кошницата.",
+      unavailableProduct: "Един от избраните продукти вече не е наличен",
     },
     products: {
       "cake-1": {
@@ -245,78 +323,119 @@ export const translations: Record<Language, AppTranslations> = {
         filling: "Мак, канела, сметанова глазура",
         prepTime: "В наличност или 1 ден",
       },
-      "cin-3": {
-        name: "Плодов синнабон",
-        description: "Пухкава ролка с домашно малиново сладко и крем чийз.",
-        weight: "260 г",
-        filling: "Малина, крема сирене",
-        prepTime: "В наличност или 1 ден",
-      },
-      "combo-1": {
-        name: 'Сет "Уютна вечер"',
+      "muffin-1": {
+        name: "Мъфин Baba Neagra",
         description:
-          "Кутия с 6 пресни синнабона: 3 класически и 3 шоколадови. Добър избор за компания.",
-        weight: "1.5 кг",
+          "Сочен тъмен мъфин Baba Neagra с нежен ванилов крем и вишнев топинг.",
+        weight: "1 бр.",
+        filling: "Baba Neagra, ванилов крем, вишни",
         prepTime: "1 ден",
       },
-      "combo-2": {
-        name: "Празничен сет",
+      "muffin-2": {
+        name: "Мъфин с боровинки",
         description:
-          "Асорти от 9 мини синнабона с различни вкусове. Подходящо за голяма маса.",
-        weight: "1.8 кг",
+          "Пухкав ванилов мъфин с цели боровинки и хрупкави филирани бадеми.",
+        weight: "1 бр.",
+        filling: "Боровинки, ванилия, филирани бадеми",
         prepTime: "1 ден",
-      },
-      "combo-3": {
-        name: "Сет за двама",
-        description:
-          "2 синнабона по избор и 2 порции филтър кафе или авторски чай.",
-        weight: "800 г",
-        prepTime: "В наличност",
       },
     },
+
+    features: {
+      freshTitle: "Прясно изпечени",
+      freshDesc: "Печем ги всеки ден с любов.",
+      premiumTitle: "Качествени съставки",
+      premiumDesc: "Използваме само най-добрите съставки.",
+    },
+    categoryCards: {
+      cakesTitle: "Авторски\nТорти",
+      cakesSubtitle: "Неповторим вкус\nСпециално за теб",
+      cinnabonsTitle: "Сладки\nСиннабони",
+      cinnabonsSubtitle: "Богати, неустоими\nизкушения",
+      muffinsTitle: "Пресни\nМъфини",
+      muffinsSubtitle: "Изпечени днес,\nсамо за теб",
+    },
+    story: {
+      title: "Ръчно изработени\nс любов",
+      desc: "Всеки десерт се приготвя от нулата с най-добрите съставки и се декорира със страст.",
+      cta: "Нашата история",
+      imageAlt: "Сладкар декорира торта",
+    },
+    footerNew: {
+      desc: "Подсладете специалните си моменти с нашите ръчно изработени торти и десерти.",
+      quickLinks: "Бързи връзки",
+      customerCare: "Обслужване",
+      visitUs: "Посетете ни",
+      home: "Начало",
+      cakes: "Торти",
+      collections: "Колекции",
+      about: "За нас",
+      contact: "Контакти",
+      faqs: "Често задавани въпроси",
+      shipping: "Политика за доставка",
+      returns: "Връщане и замени",
+      terms: "Общи условия",
+      privacy: "Поверителност",
+    },
+
   },
   en: {
-    siteDescription: "Custom cakes, cinnabons, and sweet sets.",
-    metadataTitle: "Cakes and Cinnabons",
+    siteDescription: "Custom cakes, cinnabons, and muffins.",
+    metadataTitle: "Cakes, Cinnabons, and Muffins",
     navigation: [
       { href: "#catalog", label: "Catalog" },
       { href: "#how", label: "How to order" },
       { href: "#order", label: "Request" },
     ],
     hero: {
-      badge: "Custom cakes and cinnabons",
-      title: "Homemade bakes for celebrations, meetups, and quiet evenings",
+      badge: "Custom cakes, cinnabons, and muffins",
+      title: "Life is sweeter with something homemade",
+      heroTitle: "Life is Better with Something Sweet.",
+      heroDesc: "Deliciously handcrafted cakes and treats made with the finest ingredients and a whole lot of love.",
+      exploreCakes: "Explore Our Cakes",
+      orderNow: "Order Now",
       description:
-        "Choose a cake, cinnabon, or set, send a request, and we will confirm the details and your order.",
+        "Choose a cake, cinnabon, or muffin, send a request, and we will confirm the details and your order.",
       catalogCta: "View catalog",
       orderCta: "Send request",
       imageAlt: "Chocolate cake with cream",
+      highlights: ["Freshly baked", "Quality ingredients"],
     },
     catalog: {
       title: "Catalog",
       sections: {
         cakes: "Cakes",
         cinnabons: "Cinnabons",
-        combos: "Sets",
+        muffins: "Muffins",
       },
+      previousProducts: "Previous products",
+      nextProducts: "Next products",
+      close: "Close",
     },
     productCard: {
       categories: {
         cakes: "Cake",
         cinnabons: "Cinnabon",
-        combos: "Set",
+        muffins: "Muffin",
       },
       from: "from",
       order: "Order",
       add: "Add",
       pieces: "pcs.",
       quantity: "Quantity",
+      decrease: "Decrease quantity for",
       increase: "Increase quantity for",
       remove: "Remove",
       limitReached: "You can add up to 10 different products",
     },
     cart: {
       label: "Cart",
+    },
+    footer: {
+      phone: "Phone",
+      instagram: "Instagram",
+      location: "Location",
+      copyright: "© 2026 Stas Cakes",
     },
     orderSteps: {
       title: "How ordering works",
@@ -358,10 +477,13 @@ export const translations: Record<Language, AppTranslations> = {
       comment: "Comment",
       sending: "Sending...",
       submit: "Send request",
-      success: "Request sent. Next step: connect Telegram.",
+      success: "Request sent.",
       error: "Could not send the request. Check the server and try again.",
       emptyCart: "No products selected yet.",
       chooseProducts: "Choose products from the catalog",
+      unavailableProductsRemoved:
+        "Unavailable products were removed from your cart.",
+      unavailableProduct: "One of the selected products is no longer available",
     },
     products: {
       "cake-1": {
@@ -419,79 +541,119 @@ export const translations: Record<Language, AppTranslations> = {
         filling: "Poppy seeds, cinnamon, cream glaze",
         prepTime: "Available or 1 day",
       },
-      "cin-3": {
-        name: "Berry Cinnabon",
+      "muffin-1": {
+        name: "Baba Neagra Muffin",
         description:
-          "Soft roll with homemade raspberry confit and cream cheese topping.",
-        weight: "260 g",
-        filling: "Raspberry, cream cheese",
-        prepTime: "Available or 1 day",
-      },
-      "combo-1": {
-        name: "Cozy Evening Set",
-        description:
-          "A box of 6 fresh cinnabons: 3 classic and 3 chocolate. Great for sharing.",
-        weight: "1.5 kg",
+          "A moist dark Baba Neagra muffin with delicate vanilla cream and sour cherry topping.",
+        weight: "1 piece",
+        filling: "Baba Neagra, vanilla cream, sour cherries",
         prepTime: "1 day",
       },
-      "combo-2": {
-        name: "Celebration Set",
+      "muffin-2": {
+        name: "Blueberry Muffin",
         description:
-          "Assortment of 9 mini cinnabons in different flavors. A good option for a big table.",
-        weight: "1.8 kg",
+          "A soft vanilla muffin with whole blueberries and crisp sliced almonds.",
+        weight: "1 piece",
+        filling: "Blueberries, vanilla, sliced almonds",
         prepTime: "1 day",
-      },
-      "combo-3": {
-        name: "Set for Two",
-        description:
-          "2 cinnabons of your choice and 2 portions of filter coffee or signature tea.",
-        weight: "800 g",
-        prepTime: "Available",
       },
     },
+
+    features: {
+      freshTitle: "Freshly Baked",
+      freshDesc: "Baked fresh daily with love.",
+      premiumTitle: "Premium Ingredients",
+      premiumDesc: "We use only the finest quality ingredients.",
+    },
+    categoryCards: {
+      cakesTitle: "Signature\nCakes",
+      cakesSubtitle: "Timeless Flavors\nMade for You",
+      cinnabonsTitle: "Sweet\nCinnabons",
+      cinnabonsSubtitle: "Rich, Indulgent &\nIrresistible",
+      muffinsTitle: "Fresh\nMuffins",
+      muffinsSubtitle: "Baked Fresh,\nJust for You",
+    },
+    story: {
+      title: "Handcrafted\nwith Love",
+      desc: "Every dessert is baked from scratch with the finest ingredients and decorated with passion.",
+      cta: "Our Story",
+      imageAlt: "Baker decorating a cake",
+    },
+    footerNew: {
+      desc: "Sweeten your special moments with our handcrafted cakes and delightful treats.",
+      quickLinks: "Quick Links",
+      customerCare: "Customer Care",
+      visitUs: "Visit Us",
+      home: "Home",
+      cakes: "Cakes",
+      collections: "Collections",
+      about: "About Us",
+      contact: "Contact",
+      faqs: "FAQs",
+      shipping: "Shipping Policy",
+      returns: "Returns & Refunds",
+      terms: "Terms & Conditions",
+      privacy: "Privacy Policy",
+    },
+
   },
   ru: {
-    siteDescription: "Торты, синнабоны и наборы на заказ.",
-    metadataTitle: "Торты и синнабоны",
+    siteDescription: "Торты, синнабоны и маффины на заказ.",
+    metadataTitle: "Торты, синнабоны и маффины",
     navigation: [
       { href: "#catalog", label: "Каталог" },
       { href: "#how", label: "Как заказать" },
       { href: "#order", label: "Заявка" },
     ],
     hero: {
-      badge: "Торты и синнабоны на заказ",
-      title: "Домашняя выпечка для праздников, встреч и уютных вечеров",
+      badge: "Торты, синнабоны и маффины на заказ",
+      title: "Жизнь с домашней выпечкой слаще",
+      heroTitle: "Жизнь лучше с чем-то сладким.",
+      heroDesc: "Невероятно вкусные торты и десерты ручной работы, приготовленные из лучших ингредиентов с большой любовью.",
+      exploreCakes: "Выбрать торт",
+      orderNow: "Заказать",
       description:
-        "Выберите торт, синнабон или набор, оставьте заявку, а мы уточним детали и подтвердим заказ.",
+        "Выберите торт, синнабон или маффин, оставьте заявку, а мы уточним детали и подтвердим заказ.",
       catalogCta: "Смотреть каталог",
       orderCta: "Оставить заявку",
       imageAlt: "Шоколадный торт с кремом",
+      highlights: ["Свежая выпечка", "Качественные ингредиенты"],
     },
     catalog: {
       title: "Каталог",
       sections: {
         cakes: "Торты",
         cinnabons: "Синнабоны",
-        combos: "Наборы",
+        muffins: "Маффины",
       },
+      previousProducts: "Предыдущие товары",
+      nextProducts: "Следующие товары",
+      close: "Закрыть",
     },
     productCard: {
       categories: {
         cakes: "Торт",
         cinnabons: "Синнабон",
-        combos: "Набор",
+        muffins: "Маффин",
       },
       from: "от",
       order: "Заказать",
       add: "Добавить",
       pieces: "шт.",
       quantity: "Количество",
+      decrease: "Уменьшить количество для",
       increase: "Увеличить количество для",
       remove: "Удалить",
       limitReached: "Можно добавить не более 10 разных товаров",
     },
     cart: {
       label: "Корзина",
+    },
+    footer: {
+      phone: "Телефон",
+      instagram: "Instagram",
+      location: "Местоположение",
+      copyright: "© 2026 Stas Cakes",
     },
     orderSteps: {
       title: "Как работает заказ",
@@ -533,11 +695,14 @@ export const translations: Record<Language, AppTranslations> = {
       comment: "Комментарий",
       sending: "Отправляем...",
       submit: "Отправить заявку",
-      success: "Заявка отправлена. Следующий шаг: подключить Telegram.",
+      success: "Заявка отправлена.",
       error:
         "Не получилось отправить заявку. Проверьте сервер и попробуйте еще раз.",
       emptyCart: "Товары пока не выбраны.",
       chooseProducts: "Выбрать товары в каталоге",
+      unavailableProductsRemoved:
+        "Недоступные товары были удалены из корзины.",
+      unavailableProduct: "Один из выбранных товаров больше недоступен",
     },
     products: {
       "cake-1": {
@@ -596,35 +761,60 @@ export const translations: Record<Language, AppTranslations> = {
         filling: "Мак, корица, сливочная глазурь",
         prepTime: "В наличии (или 1 день)",
       },
-      "cin-3": {
-        name: "Синнабон Ягодный",
+      "muffin-1": {
+        name: "Маффин Baba Neagra",
         description:
-          "Сдобная булочка с домашним малиновым конфитюром и шапкой из крем-чиза.",
-        weight: "260 г",
-        filling: "Малина, сливочный сыр",
-        prepTime: "В наличии (или 1 день)",
-      },
-      "combo-1": {
-        name: 'Сет "Уютный вечер"',
-        description:
-          "Коробочка из 6 свежих синнабонов (3 классических, 3 шоколадных). Идеально для компании.",
-        weight: "1.5 кг",
+          "Сочный тёмный маффин Baba Neagra с нежным ванильным кремом и вишнёвым топпингом.",
+        weight: "1 шт.",
+        filling: "Baba Neagra, ванильный крем, вишня",
         prepTime: "1 день",
       },
-      "combo-2": {
-        name: 'Сет "Праздничный"',
+      "muffin-2": {
+        name: "Маффин с черникой",
         description:
-          "Ассорти из 9 мини-синнабонов разных вкусов. Отличный вариант для большого стола.",
-        weight: "1.8 кг",
+          "Мягкий ванильный маффин с цельной черникой и хрустящими миндальными лепестками.",
+        weight: "1 шт.",
+        filling: "Черника, ваниль, миндальные лепестки",
         prepTime: "1 день",
-      },
-      "combo-3": {
-        name: 'Сет "Для двоих"',
-        description:
-          "2 синнабона на выбор и 2 порции фильтр-кофе или авторского чая.",
-        weight: "800 г",
-        prepTime: "В наличии",
       },
     },
+
+    features: {
+      freshTitle: "Свежая выпечка",
+      freshDesc: "Печем каждый день с любовью.",
+      premiumTitle: "Качественные ингредиенты",
+      premiumDesc: "Используем только самые лучшие ингредиенты.",
+    },
+    categoryCards: {
+      cakesTitle: "Авторские\nТорты",
+      cakesSubtitle: "Неповторимый вкус\nСпециально для вас",
+      cinnabonsTitle: "Сладкие\nСиннабоны",
+      cinnabonsSubtitle: "Богатое и\nнеотразимое удовольствие",
+      muffinsTitle: "Свежие\nМаффины",
+      muffinsSubtitle: "Свежая выпечка,\nтолько для вас",
+    },
+    story: {
+      title: "Ручная работа\nс любовью",
+      desc: "Каждый десерт готовится с нуля из лучших ингредиентов и украшается с душой.",
+      cta: "Наша история",
+      imageAlt: "Кондитер украшает торт",
+    },
+    footerNew: {
+      desc: "Сделайте ваши особенные моменты слаще с нашими тортами и десертами ручной работы.",
+      quickLinks: "Быстрые ссылки",
+      customerCare: "Поддержка",
+      visitUs: "Посетите нас",
+      home: "Главная",
+      cakes: "Торты",
+      collections: "Коллекции",
+      about: "О нас",
+      contact: "Контакты",
+      faqs: "Частые вопросы",
+      shipping: "Доставка",
+      returns: "Возврат и обмен",
+      terms: "Условия использования",
+      privacy: "Политика конфиденциальности",
+    },
+
   },
 };

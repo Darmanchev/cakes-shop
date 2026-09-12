@@ -26,19 +26,27 @@ export function parseStoredCart(value: unknown): Cart {
   }
 
   const productIds = new Set<string>();
-  const items = value.items
-    .filter((item): item is CartItem => {
-      if (
-        !isValidCartItem(item as CartItem) ||
-        productIds.has((item as CartItem).productId)
-      ) {
-        return false;
-      }
+  const items: CartItem[] = [];
 
-      productIds.add((item as CartItem).productId);
-      return true;
-    })
-    .slice(0, MAX_CART_ITEMS);
+  for (const valueItem of value.items) {
+    if (!isValidCartItem(valueItem as CartItem)) {
+      continue;
+    }
+
+    const item = valueItem as CartItem;
+    const productId = item.productId.trim();
+
+    if (productIds.has(productId)) {
+      continue;
+    }
+
+    productIds.add(productId);
+    items.push({ ...item, productId });
+
+    if (items.length === MAX_CART_ITEMS) {
+      break;
+    }
+  }
 
   return { items };
 }

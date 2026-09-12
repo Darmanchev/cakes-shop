@@ -9,6 +9,9 @@ const ENVIRONMENT_NAMES = [
   "RATE_LIMIT_SECRET",
   "PII_ENCRYPTION_KEY",
   "TRUSTED_PROXY_IP_HEADER",
+  "ORDER_RETENTION_DAYS",
+  "TELEGRAM_BOT_TOKEN",
+  "TELEGRAM_CHAT_ID",
 ] as const;
 
 const originalEnvironment = Object.fromEntries(
@@ -70,5 +73,33 @@ describe("production environment validation", () => {
       "postgresql://deploy:secret@db.example.com:5432/cakes?sslmode=require";
 
     assert.throws(validateProductionEnvironment, /sslmode=verify-full/);
+  });
+
+  it("rejects an invalid order retention period before startup", () => {
+    setValidProductionEnvironment();
+    process.env.ORDER_RETENTION_DAYS = "0";
+
+    assert.throws(
+      validateProductionEnvironment,
+      /ORDER_RETENTION_DAYS must be an integer between 30 and 3650/,
+    );
+  });
+
+  it("rejects incomplete Telegram notification configuration", () => {
+    setValidProductionEnvironment();
+    process.env.TELEGRAM_BOT_TOKEN = "test-token";
+
+    assert.throws(
+      validateProductionEnvironment,
+      /TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must be configured together/,
+    );
+
+    delete process.env.TELEGRAM_BOT_TOKEN;
+    process.env.TELEGRAM_CHAT_ID = "12345";
+
+    assert.throws(
+      validateProductionEnvironment,
+      /TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must be configured together/,
+    );
   });
 });

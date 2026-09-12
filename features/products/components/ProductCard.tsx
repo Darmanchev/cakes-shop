@@ -4,77 +4,99 @@ import Image from "next/image";
 import { Clock, ShoppingBag } from "lucide-react";
 import { useLanguage } from "@/components/language/LanguageProvider";
 import { useCart } from "@/features/cart/CartProvider";
-import { QuantitySelector } from "@/features/cart/components/QuantitySelector";
+import { MAX_CART_ITEM_QUANTITY } from "@/features/cart/cart.schema";
+import { QuantityStepper } from "@/features/cart/components/QuantityStepper";
 import { formatPrice } from "@/lib/utils/format-price";
 import type { Product } from "../product.types";
 
-export function ProductCard({ product }: { product: Product }) {
+interface ProductCardProps {
+  product: Product;
+  onViewDetails: (trigger: HTMLButtonElement) => void;
+}
+
+const productBackgrounds: Record<string, string> = {
+  "cake-1": "#edc7cd",
+  "cake-2": "#efdcd0",
+  "cake-3": "#d8c8d8",
+  "cake-4": "#efdcd0",
+  "cake-5": "#edc7cd",
+  "cin-1": "#d8c8d8",
+  "cin-2": "#efdcd0",
+  "muffin-1": "#edc7cd",
+  "muffin-2": "#d8c8d8",
+};
+
+export function ProductCard({ product, onViewDetails }: ProductCardProps) {
   const { language, t } = useLanguage();
-  const { items, canAddProduct, addItem, setQuantity, removeItem } = useCart();
+  const { items, canAddProduct, addItem, decrementItem } = useCart();
   const productCopy = t.products[product.id] ?? product;
   const cartItem = items.find((item) => item.productId === product.id);
 
   return (
     <article
-      className={`flex h-full flex-col overflow-hidden rounded-sm border bg-[#fffdfa] transition ${cartItem ? "border-[#a63650] ring-2 ring-[#f4dce1]" : "border-[#eee4dc]"}`}
+      className={`group flex h-full min-h-0 snap-start flex-col overflow-hidden rounded-[22px] border bg-white/75 shadow-[0_10px_26px_rgba(91,69,62,0.08)] transition duration-300 sm:rounded-[26px] ${
+        cartItem
+          ? "border-[#b78e8c] ring-2 ring-[#ead0d4]"
+          : "border-white/80 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(91,69,62,0.13)]"
+      }`}
     >
-      <div className="relative aspect-[1.16/1] overflow-hidden bg-stone-100">
+      <button
+        type="button"
+        onClick={(event) => onViewDetails(event.currentTarget)}
+        className="relative min-h-64 aspect-square w-full shrink-0 overflow-hidden text-left"
+        style={{ backgroundColor: productBackgrounds[product.id] ?? "#edc7cd" }}
+        aria-label={productCopy.name}
+      >
         <Image
           src={product.image}
           alt={productCopy.name}
           fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition duration-500 hover:scale-[1.03]"
+          loading="eager"
+          sizes="(max-width: 640px) 84vw, (max-width: 1024px) 44vw, 390px"
+          className="object-contain p-5 drop-shadow-[0_12px_12px_rgba(73,49,43,0.2)] transition duration-500 ease-out group-hover:scale-[1.06] sm:p-6"
         />
-      </div>
+        <h3 className="font-display absolute left-4 top-4 max-w-[72%] text-[clamp(1.05rem,1.6vw,1.45rem)] font-semibold leading-[0.95] tracking-[-0.035em] text-[#443530] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:left-5 sm:top-5">
+          {productCopy.name}
+        </h3>
+      </button>
 
-      <div className="flex flex-grow flex-col space-y-4 p-5 sm:p-6">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8a695a]">
-            {t.productCard.categories[product.category]}
-          </p>
-          <h3 className="font-display mt-2 text-2xl font-medium leading-tight tracking-[-0.025em] text-stone-950">
-            {productCopy.name}
-          </h3>
-          <p className="mt-3 text-sm leading-6 text-stone-600">
-            {productCopy.description}
-          </p>
-        </div>
+      <div className="grid min-h-[70px] shrink-0 grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2 p-3.5 sm:min-h-[76px] sm:p-4">
+        <p className="font-display text-lg font-semibold text-[#8d6264] sm:text-xl">
+          {formatPrice(product.priceMinor, language)}
+        </p>
 
-        <div className="grid gap-2 text-[13px] leading-5 text-stone-700">
-          {productCopy.weight ? <p>{productCopy.weight}</p> : null}
-          {productCopy.filling ? <p>{productCopy.filling}</p> : null}
-          <p className="flex items-center gap-2">
-            <Clock size={16} aria-hidden="true" />
-            {productCopy.prepTime}
-          </p>
-        </div>
+        <p className="flex min-w-0 items-center gap-1.5 truncate text-[10px] font-medium text-[#765b58] sm:text-[11px]">
+          <Clock size={12} aria-hidden="true" />
+          {productCopy.prepTime}
+        </p>
 
-        <div className="mt-auto flex flex-col items-stretch gap-3 border-t border-[#eee4dc] pt-4 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
-          <p className="font-display text-lg font-semibold text-[#7c1028]">
-            {t.productCard.from} {formatPrice(product.priceMinor, language)}
-          </p>
-          {cartItem ? (
-            <QuantitySelector
+        {cartItem ? (
+          <div className="col-span-2 inline-flex items-center gap-1 justify-self-end rounded-full bg-[#f2e1e2] p-0.5 pl-2.5">
+            <span className="min-w-4 text-center text-xs font-bold text-[#443530]">
+              {cartItem.quantity}
+            </span>
+            <QuantityStepper
               productName={productCopy.name}
-              quantity={cartItem.quantity}
-              onChange={(quantity) => setQuantity(product.id, quantity)}
-              onRemove={() => removeItem(product.id)}
-              className="w-full min-[380px]:w-auto"
+              decreaseLabel={t.productCard.decrease}
+              increaseLabel={t.productCard.increase}
+              onDecrement={() => decrementItem(product.id)}
+              onIncrement={() => addItem(product.id)}
+              disableIncrement={cartItem.quantity >= MAX_CART_ITEM_QUANTITY}
+              className="border-0"
             />
-          ) : (
-            <button
-              type="button"
-              onClick={() => addItem(product.id)}
-              disabled={!canAddProduct}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-[#9c7165] bg-transparent px-4 text-sm font-semibold text-stone-950 transition hover:border-[#7c1028] hover:bg-[#7c1028] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-              title={!canAddProduct ? t.productCard.limitReached : undefined}
-            >
-              <ShoppingBag size={17} aria-hidden="true" />
-              {t.productCard.add}
-            </button>
-          )}
-        </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => addItem(product.id)}
+            disabled={!canAddProduct}
+            className="relative col-span-2 inline-flex h-8 items-center justify-center justify-self-center gap-1.5 rounded-full border border-[#bfa6a0] bg-[#fffaf5] px-4 text-[11px] font-bold text-[#443530] transition hover:bg-[#443530] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs"
+            title={!canAddProduct ? t.productCard.limitReached : t.productCard.add}
+          >
+            <ShoppingBag size={14} aria-hidden="true" />
+            {t.productCard.add}
+          </button>
+        )}
       </div>
     </article>
   );

@@ -11,10 +11,11 @@ const statusLabels = {
   CANCELED: "Canceled",
 } as const;
 
-function formatDate(date: Date) {
+function formatDate(date: Date, includeTime = false) {
   return new Intl.DateTimeFormat("ru-RU", {
     dateStyle: "medium",
-    timeStyle: "short",
+    timeStyle: includeTime ? "short" : undefined,
+    timeZone: includeTime ? "Europe/Sofia" : "UTC",
   }).format(date);
 }
 
@@ -31,19 +32,7 @@ export function OrdersTable({ orders }: { orders: Orders }) {
     <div className="rounded-lg border border-stone-200 bg-white">
       <div className="grid divide-y divide-stone-200 md:hidden">
         {orders.map((order) => {
-          const items =
-            order.items.length > 0
-              ? order.items
-              : [
-                  {
-                    id: order.id,
-                    productName: order.productName,
-                    unitPriceMinor: order.unitPriceMinor,
-                    quantity: order.quantity,
-                    totalMinor: order.totalMinor,
-                    comment: null,
-                  },
-                ];
+          const items = order.items;
 
           return (
             <article key={order.id} className="grid gap-4 p-4">
@@ -172,19 +161,7 @@ export function OrdersTable({ orders }: { orders: Orders }) {
           </thead>
           <tbody className="divide-y divide-stone-200">
             {orders.map((order) => {
-              const items =
-                order.items.length > 0
-                  ? order.items
-                  : [
-                      {
-                        id: order.id,
-                        productName: order.productName,
-                        unitPriceMinor: order.unitPriceMinor,
-                        quantity: order.quantity,
-                        totalMinor: order.totalMinor,
-                        comment: null,
-                      },
-                    ];
+              const items = order.items;
 
               return (
                 <tr key={order.id}>
@@ -268,7 +245,7 @@ export function OrdersTable({ orders }: { orders: Orders }) {
                     </form>
                   </td>
                   <td className="px-4 py-3 text-stone-700">
-                    {formatDate(order.createdAt)}
+                    {formatDate(order.createdAt, true)}
                   </td>
                   <td className="px-4 py-3 text-stone-700">
                     {order.comment || "—"}

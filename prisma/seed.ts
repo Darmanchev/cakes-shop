@@ -1,6 +1,7 @@
 import { PrismaClient, ProductCategory } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { products } from "@/features/products/product.data";
+import { retiredProductIds } from "@/features/products/product.availability";
 
 const adapter = new PrismaPg({
   connectionString:
@@ -15,10 +16,17 @@ const prisma = new PrismaClient({
 const categoryMap = {
   cakes: ProductCategory.CAKES,
   cinnabons: ProductCategory.CINNABONS,
-  combos: ProductCategory.COMBOS,
+  muffins: ProductCategory.MUFFINS,
 } as const;
 
 async function main() {
+  await prisma.product.deleteMany({
+    where: {
+      id: { in: retiredProductIds },
+      orderItems: { none: {} },
+    },
+  });
+
   for (const product of products) {
     await prisma.product.upsert({
       where: { id: product.id },

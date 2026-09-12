@@ -1,10 +1,19 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   addCartItem,
+  decrementCartItem,
   getCartItemsCount,
   removeCartItem,
+  retainAvailableCartItems,
   setCartItemQuantity,
   updateCartItemComment,
 } from "./cart.service";
@@ -18,9 +27,12 @@ interface CartContextValue {
   totalItems: number;
   canAddProduct: boolean;
   addItem: (productId: string) => void;
+  decrementItem: (productId: string) => void;
   setQuantity: (productId: string, quantity: number) => void;
   removeItem: (productId: string) => void;
   updateComment: (productId: string, comment: string) => void;
+  retainAvailableItems: (productIds: readonly string[]) => void;
+  unavailableItemsRemoved: boolean;
   clearCart: () => void;
 }
 
@@ -29,6 +41,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<Cart>({ items: [] });
   const [storageLoaded, setStorageLoaded] = useState(false);
+  const [unavailableItemsRemoved, setUnavailableItemsRemoved] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -67,6 +80,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [cart, storageLoaded]);
 
+  const retainAvailableItems = useCallback((productIds: readonly string[]) => {
+    const availableProductIds = new Set(productIds);
+    setCart((current) =>
+      retainAvailableCartItems(current, availableProductIds),
+    );
+    setUnavailableItemsRemoved(true);
+  }, []);
+
   const value = useMemo<CartContextValue>(
     () => ({
       items: cart.items,
@@ -74,6 +95,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       canAddProduct: cart.items.length < MAX_CART_ITEMS,
       addItem: (productId) =>
         setCart((current) => addCartItem(current, productId)),
+      decrementItem: (productId) =>
+        setCart((current) => decrementCartItem(current, productId)),
       setQuantity: (productId, quantity) =>
         setCart((current) => setCartItemQuantity(current, productId, quantity)),
       removeItem: (productId) =>
@@ -82,9 +105,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCart((current) =>
           updateCartItemComment(current, productId, comment),
         ),
+      retainAvailableItems,
+      unavailableItemsRemoved,
       clearCart: () => setCart({ items: [] }),
     }),
-    [cart],
+    [cart, retainAvailableItems, unavailableItemsRemoved],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

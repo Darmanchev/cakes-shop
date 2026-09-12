@@ -1,22 +1,19 @@
 import { Header } from "@/components/layout/Header";
-import { CartProvider } from "@/features/cart/CartProvider";
-import { OrderSection } from "@/features/orders/components/OrderSection";
-import { OrderStepsSection } from "@/features/orders/components/OrderStepsSection";
-import { CatalogSection } from "@/features/products/components/CatalogSection";
-import { CareSection } from "@/features/products/components/CareSection";
-import { ProductHero } from "@/features/products/components/ProductHero";
+import { StorefrontFooter } from "@/components/layout/StorefrontFooter";
+import { HeroSection } from "@/components/sections/HeroSection";
+import { CategoryCardsSection } from "@/components/sections/CategoryCardsSection";
+import { StorySection } from "@/components/sections/StorySection";
+import { FeaturesSection } from "@/components/sections/FeaturesSection";
 
 export default function Home() {
   return (
-    <CartProvider>
-      <main className="min-h-screen bg-[#f9f3eb] text-stone-950">
-        <Header />
-        <ProductHero />
-        <CatalogSection />
-        <CareSection />
-        <OrderStepsSection />
-        <OrderSection />
-      </main>
-    </CartProvider>
+    <main className="flex w-full min-h-dvh flex-col bg-[#f7e9de] text-[#4a3a35]">
+      <Header />
+      <HeroSection />
+      <FeaturesSection />
+      <CategoryCardsSection />
+      <StorySection />
+      <StorefrontFooter />
+    </main>
   );
 }

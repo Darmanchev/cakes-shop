@@ -4,6 +4,7 @@ import type { OrderWithItems } from "./order.service";
 function formatOrderDate(date: Date) {
   return new Intl.DateTimeFormat("bg-BG", {
     dateStyle: "medium",
+    timeZone: "UTC",
   }).format(date);
 }
 
@@ -16,16 +17,7 @@ function escapeHtml(value: string) {
 
 export function formatOrderTelegramMessage(order: OrderWithItems) {
   const total = formatPrice(order.totalMinor, "bg");
-  const products =
-    order.items.length > 0
-      ? order.items
-      : [
-          {
-            productName: order.productName,
-            quantity: order.quantity,
-            unitPriceMinor: order.unitPriceMinor,
-          },
-        ];
+  const products = order.items;
 
   return [
     "<b>Нова поръчка</b>",
